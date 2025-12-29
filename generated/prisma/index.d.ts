@@ -38,6 +38,11 @@ export type Service = $Result.DefaultSelection<Prisma.$ServicePayload>
  * 
  */
 export type Payment = $Result.DefaultSelection<Prisma.$PaymentPayload>
+/**
+ * Model Estimate
+ * 
+ */
+export type Estimate = $Result.DefaultSelection<Prisma.$EstimatePayload>
 
 /**
  * Enums
@@ -72,6 +77,15 @@ export const PaymentMethod: {
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
 
+
+export const EstimateStatus: {
+  SENT: 'SENT',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
+export type EstimateStatus = (typeof EstimateStatus)[keyof typeof EstimateStatus]
+
 }
 
 export type Role = $Enums.Role
@@ -85,6 +99,10 @@ export const ServiceStatus: typeof $Enums.ServiceStatus
 export type PaymentMethod = $Enums.PaymentMethod
 
 export const PaymentMethod: typeof $Enums.PaymentMethod
+
+export type EstimateStatus = $Enums.EstimateStatus
+
+export const EstimateStatus: typeof $Enums.EstimateStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -252,6 +270,16 @@ export class PrismaClient<
     * ```
     */
   get payment(): Prisma.PaymentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.estimate`: Exposes CRUD operations for the **Estimate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Estimates
+    * const estimates = await prisma.estimate.findMany()
+    * ```
+    */
+  get estimate(): Prisma.EstimateDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -690,7 +718,8 @@ export namespace Prisma {
     Client: 'Client',
     ServiceCategory: 'ServiceCategory',
     Service: 'Service',
-    Payment: 'Payment'
+    Payment: 'Payment',
+    Estimate: 'Estimate'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -706,7 +735,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "client" | "serviceCategory" | "service" | "payment"
+      modelProps: "user" | "client" | "serviceCategory" | "service" | "payment" | "estimate"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1080,6 +1109,80 @@ export namespace Prisma {
           }
         }
       }
+      Estimate: {
+        payload: Prisma.$EstimatePayload<ExtArgs>
+        fields: Prisma.EstimateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EstimateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EstimateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload>
+          }
+          findFirst: {
+            args: Prisma.EstimateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EstimateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload>
+          }
+          findMany: {
+            args: Prisma.EstimateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload>[]
+          }
+          create: {
+            args: Prisma.EstimateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload>
+          }
+          createMany: {
+            args: Prisma.EstimateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EstimateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload>[]
+          }
+          delete: {
+            args: Prisma.EstimateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload>
+          }
+          update: {
+            args: Prisma.EstimateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload>
+          }
+          deleteMany: {
+            args: Prisma.EstimateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EstimateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EstimateUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload>[]
+          }
+          upsert: {
+            args: Prisma.EstimateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EstimatePayload>
+          }
+          aggregate: {
+            args: Prisma.EstimateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEstimate>
+          }
+          groupBy: {
+            args: Prisma.EstimateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EstimateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EstimateCountArgs<ExtArgs>
+            result: $Utils.Optional<EstimateCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1193,6 +1296,7 @@ export namespace Prisma {
     serviceCategory?: ServiceCategoryOmit
     service?: ServiceOmit
     payment?: PaymentOmit
+    estimate?: EstimateOmit
   }
 
   /* Types for Logging */
@@ -1277,6 +1381,7 @@ export namespace Prisma {
     servicesCreated: number
     servicesClosed: number
     payments: number
+    estimates: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1284,6 +1389,7 @@ export namespace Prisma {
     servicesCreated?: boolean | UserCountOutputTypeCountServicesCreatedArgs
     servicesClosed?: boolean | UserCountOutputTypeCountServicesClosedArgs
     payments?: boolean | UserCountOutputTypeCountPaymentsArgs
+    estimates?: boolean | UserCountOutputTypeCountEstimatesArgs
   }
 
   // Custom InputTypes
@@ -1325,6 +1431,13 @@ export namespace Prisma {
     where?: PaymentWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountEstimatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EstimateWhereInput
+  }
+
 
   /**
    * Count Type ClientCountOutputType
@@ -1332,10 +1445,12 @@ export namespace Prisma {
 
   export type ClientCountOutputType = {
     services: number
+    estimates: number
   }
 
   export type ClientCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     services?: boolean | ClientCountOutputTypeCountServicesArgs
+    estimates?: boolean | ClientCountOutputTypeCountEstimatesArgs
   }
 
   // Custom InputTypes
@@ -1354,6 +1469,13 @@ export namespace Prisma {
    */
   export type ClientCountOutputTypeCountServicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ServiceWhereInput
+  }
+
+  /**
+   * ClientCountOutputType without action
+   */
+  export type ClientCountOutputTypeCountEstimatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EstimateWhereInput
   }
 
 
@@ -1600,6 +1722,7 @@ export namespace Prisma {
     servicesCreated?: boolean | User$servicesCreatedArgs<ExtArgs>
     servicesClosed?: boolean | User$servicesClosedArgs<ExtArgs>
     payments?: boolean | User$paymentsArgs<ExtArgs>
+    estimates?: boolean | User$estimatesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1648,6 +1771,7 @@ export namespace Prisma {
     servicesCreated?: boolean | User$servicesCreatedArgs<ExtArgs>
     servicesClosed?: boolean | User$servicesClosedArgs<ExtArgs>
     payments?: boolean | User$paymentsArgs<ExtArgs>
+    estimates?: boolean | User$estimatesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1660,6 +1784,7 @@ export namespace Prisma {
       servicesCreated: Prisma.$ServicePayload<ExtArgs>[]
       servicesClosed: Prisma.$ServicePayload<ExtArgs>[]
       payments: Prisma.$PaymentPayload<ExtArgs>[]
+      estimates: Prisma.$EstimatePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2070,6 +2195,7 @@ export namespace Prisma {
     servicesCreated<T extends User$servicesCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$servicesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     servicesClosed<T extends User$servicesClosedArgs<ExtArgs> = {}>(args?: Subset<T, User$servicesClosedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     payments<T extends User$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, User$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    estimates<T extends User$estimatesArgs<ExtArgs> = {}>(args?: Subset<T, User$estimatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2593,6 +2719,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.estimates
+   */
+  export type User$estimatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    where?: EstimateWhereInput
+    orderBy?: EstimateOrderByWithRelationInput | EstimateOrderByWithRelationInput[]
+    cursor?: EstimateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EstimateScalarFieldEnum | EstimateScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2808,6 +2958,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     services?: boolean | Client$servicesArgs<ExtArgs>
+    estimates?: boolean | Client$estimatesArgs<ExtArgs>
     _count?: boolean | ClientCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["client"]>
 
@@ -2850,6 +3001,7 @@ export namespace Prisma {
   export type ClientOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "phone" | "address" | "city" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["client"]>
   export type ClientInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     services?: boolean | Client$servicesArgs<ExtArgs>
+    estimates?: boolean | Client$estimatesArgs<ExtArgs>
     _count?: boolean | ClientCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ClientIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2859,6 +3011,7 @@ export namespace Prisma {
     name: "Client"
     objects: {
       services: Prisma.$ServicePayload<ExtArgs>[]
+      estimates: Prisma.$EstimatePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3265,6 +3418,7 @@ export namespace Prisma {
   export interface Prisma__ClientClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     services<T extends Client$servicesArgs<ExtArgs> = {}>(args?: Subset<T, Client$servicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    estimates<T extends Client$estimatesArgs<ExtArgs> = {}>(args?: Subset<T, Client$estimatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3712,6 +3866,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ServiceScalarFieldEnum | ServiceScalarFieldEnum[]
+  }
+
+  /**
+   * Client.estimates
+   */
+  export type Client$estimatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    where?: EstimateWhereInput
+    orderBy?: EstimateOrderByWithRelationInput | EstimateOrderByWithRelationInput[]
+    cursor?: EstimateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EstimateScalarFieldEnum | EstimateScalarFieldEnum[]
   }
 
   /**
@@ -5158,6 +5336,7 @@ export namespace Prisma {
     closedBy?: boolean | Service$closedByArgs<ExtArgs>
     category?: boolean | Service$categoryArgs<ExtArgs>
     payment?: boolean | Service$paymentArgs<ExtArgs>
+    estimate?: boolean | Service$estimateArgs<ExtArgs>
   }, ExtArgs["result"]["service"]>
 
   export type ServiceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5244,6 +5423,7 @@ export namespace Prisma {
     closedBy?: boolean | Service$closedByArgs<ExtArgs>
     category?: boolean | Service$categoryArgs<ExtArgs>
     payment?: boolean | Service$paymentArgs<ExtArgs>
+    estimate?: boolean | Service$estimateArgs<ExtArgs>
   }
   export type ServiceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     technician?: boolean | Service$technicianArgs<ExtArgs>
@@ -5269,6 +5449,7 @@ export namespace Prisma {
       closedBy: Prisma.$UserPayload<ExtArgs> | null
       category: Prisma.$ServiceCategoryPayload<ExtArgs> | null
       payment: Prisma.$PaymentPayload<ExtArgs> | null
+      estimate: Prisma.$EstimatePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5690,6 +5871,7 @@ export namespace Prisma {
     closedBy<T extends Service$closedByArgs<ExtArgs> = {}>(args?: Subset<T, Service$closedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     category<T extends Service$categoryArgs<ExtArgs> = {}>(args?: Subset<T, Service$categoryArgs<ExtArgs>>): Prisma__ServiceCategoryClient<$Result.GetResult<Prisma.$ServiceCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     payment<T extends Service$paymentArgs<ExtArgs> = {}>(args?: Subset<T, Service$paymentArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    estimate<T extends Service$estimateArgs<ExtArgs> = {}>(args?: Subset<T, Service$estimateArgs<ExtArgs>>): Prisma__EstimateClient<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6226,6 +6408,25 @@ export namespace Prisma {
      */
     include?: PaymentInclude<ExtArgs> | null
     where?: PaymentWhereInput
+  }
+
+  /**
+   * Service.estimate
+   */
+  export type Service$estimateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    where?: EstimateWhereInput
   }
 
   /**
@@ -7434,6 +7635,1166 @@ export namespace Prisma {
 
 
   /**
+   * Model Estimate
+   */
+
+  export type AggregateEstimate = {
+    _count: EstimateCountAggregateOutputType | null
+    _avg: EstimateAvgAggregateOutputType | null
+    _sum: EstimateSumAggregateOutputType | null
+    _min: EstimateMinAggregateOutputType | null
+    _max: EstimateMaxAggregateOutputType | null
+  }
+
+  export type EstimateAvgAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type EstimateSumAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type EstimateMinAggregateOutputType = {
+    id: string | null
+    serviceId: string | null
+    technicianId: string | null
+    clientId: string | null
+    amount: Decimal | null
+    description: string | null
+    status: $Enums.EstimateStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EstimateMaxAggregateOutputType = {
+    id: string | null
+    serviceId: string | null
+    technicianId: string | null
+    clientId: string | null
+    amount: Decimal | null
+    description: string | null
+    status: $Enums.EstimateStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EstimateCountAggregateOutputType = {
+    id: number
+    serviceId: number
+    technicianId: number
+    clientId: number
+    amount: number
+    description: number
+    status: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EstimateAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type EstimateSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type EstimateMinAggregateInputType = {
+    id?: true
+    serviceId?: true
+    technicianId?: true
+    clientId?: true
+    amount?: true
+    description?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EstimateMaxAggregateInputType = {
+    id?: true
+    serviceId?: true
+    technicianId?: true
+    clientId?: true
+    amount?: true
+    description?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EstimateCountAggregateInputType = {
+    id?: true
+    serviceId?: true
+    technicianId?: true
+    clientId?: true
+    amount?: true
+    description?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EstimateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Estimate to aggregate.
+     */
+    where?: EstimateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Estimates to fetch.
+     */
+    orderBy?: EstimateOrderByWithRelationInput | EstimateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EstimateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Estimates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Estimates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Estimates
+    **/
+    _count?: true | EstimateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EstimateAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EstimateSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EstimateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EstimateMaxAggregateInputType
+  }
+
+  export type GetEstimateAggregateType<T extends EstimateAggregateArgs> = {
+        [P in keyof T & keyof AggregateEstimate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEstimate[P]>
+      : GetScalarType<T[P], AggregateEstimate[P]>
+  }
+
+
+
+
+  export type EstimateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EstimateWhereInput
+    orderBy?: EstimateOrderByWithAggregationInput | EstimateOrderByWithAggregationInput[]
+    by: EstimateScalarFieldEnum[] | EstimateScalarFieldEnum
+    having?: EstimateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EstimateCountAggregateInputType | true
+    _avg?: EstimateAvgAggregateInputType
+    _sum?: EstimateSumAggregateInputType
+    _min?: EstimateMinAggregateInputType
+    _max?: EstimateMaxAggregateInputType
+  }
+
+  export type EstimateGroupByOutputType = {
+    id: string
+    serviceId: string
+    technicianId: string
+    clientId: string
+    amount: Decimal
+    description: string | null
+    status: $Enums.EstimateStatus
+    createdAt: Date
+    updatedAt: Date
+    _count: EstimateCountAggregateOutputType | null
+    _avg: EstimateAvgAggregateOutputType | null
+    _sum: EstimateSumAggregateOutputType | null
+    _min: EstimateMinAggregateOutputType | null
+    _max: EstimateMaxAggregateOutputType | null
+  }
+
+  type GetEstimateGroupByPayload<T extends EstimateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EstimateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EstimateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EstimateGroupByOutputType[P]>
+            : GetScalarType<T[P], EstimateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EstimateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    serviceId?: boolean
+    technicianId?: boolean
+    clientId?: boolean
+    amount?: boolean
+    description?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    service?: boolean | ServiceDefaultArgs<ExtArgs>
+    technician?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["estimate"]>
+
+  export type EstimateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    serviceId?: boolean
+    technicianId?: boolean
+    clientId?: boolean
+    amount?: boolean
+    description?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    service?: boolean | ServiceDefaultArgs<ExtArgs>
+    technician?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["estimate"]>
+
+  export type EstimateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    serviceId?: boolean
+    technicianId?: boolean
+    clientId?: boolean
+    amount?: boolean
+    description?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    service?: boolean | ServiceDefaultArgs<ExtArgs>
+    technician?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["estimate"]>
+
+  export type EstimateSelectScalar = {
+    id?: boolean
+    serviceId?: boolean
+    technicianId?: boolean
+    clientId?: boolean
+    amount?: boolean
+    description?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EstimateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "serviceId" | "technicianId" | "clientId" | "amount" | "description" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["estimate"]>
+  export type EstimateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    service?: boolean | ServiceDefaultArgs<ExtArgs>
+    technician?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+  }
+  export type EstimateIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    service?: boolean | ServiceDefaultArgs<ExtArgs>
+    technician?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+  }
+  export type EstimateIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    service?: boolean | ServiceDefaultArgs<ExtArgs>
+    technician?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | ClientDefaultArgs<ExtArgs>
+  }
+
+  export type $EstimatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Estimate"
+    objects: {
+      service: Prisma.$ServicePayload<ExtArgs>
+      technician: Prisma.$UserPayload<ExtArgs>
+      client: Prisma.$ClientPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      serviceId: string
+      technicianId: string
+      clientId: string
+      amount: Prisma.Decimal
+      description: string | null
+      status: $Enums.EstimateStatus
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["estimate"]>
+    composites: {}
+  }
+
+  type EstimateGetPayload<S extends boolean | null | undefined | EstimateDefaultArgs> = $Result.GetResult<Prisma.$EstimatePayload, S>
+
+  type EstimateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EstimateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EstimateCountAggregateInputType | true
+    }
+
+  export interface EstimateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Estimate'], meta: { name: 'Estimate' } }
+    /**
+     * Find zero or one Estimate that matches the filter.
+     * @param {EstimateFindUniqueArgs} args - Arguments to find a Estimate
+     * @example
+     * // Get one Estimate
+     * const estimate = await prisma.estimate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EstimateFindUniqueArgs>(args: SelectSubset<T, EstimateFindUniqueArgs<ExtArgs>>): Prisma__EstimateClient<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Estimate that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EstimateFindUniqueOrThrowArgs} args - Arguments to find a Estimate
+     * @example
+     * // Get one Estimate
+     * const estimate = await prisma.estimate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EstimateFindUniqueOrThrowArgs>(args: SelectSubset<T, EstimateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EstimateClient<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Estimate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EstimateFindFirstArgs} args - Arguments to find a Estimate
+     * @example
+     * // Get one Estimate
+     * const estimate = await prisma.estimate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EstimateFindFirstArgs>(args?: SelectSubset<T, EstimateFindFirstArgs<ExtArgs>>): Prisma__EstimateClient<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Estimate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EstimateFindFirstOrThrowArgs} args - Arguments to find a Estimate
+     * @example
+     * // Get one Estimate
+     * const estimate = await prisma.estimate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EstimateFindFirstOrThrowArgs>(args?: SelectSubset<T, EstimateFindFirstOrThrowArgs<ExtArgs>>): Prisma__EstimateClient<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Estimates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EstimateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Estimates
+     * const estimates = await prisma.estimate.findMany()
+     * 
+     * // Get first 10 Estimates
+     * const estimates = await prisma.estimate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const estimateWithIdOnly = await prisma.estimate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EstimateFindManyArgs>(args?: SelectSubset<T, EstimateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Estimate.
+     * @param {EstimateCreateArgs} args - Arguments to create a Estimate.
+     * @example
+     * // Create one Estimate
+     * const Estimate = await prisma.estimate.create({
+     *   data: {
+     *     // ... data to create a Estimate
+     *   }
+     * })
+     * 
+     */
+    create<T extends EstimateCreateArgs>(args: SelectSubset<T, EstimateCreateArgs<ExtArgs>>): Prisma__EstimateClient<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Estimates.
+     * @param {EstimateCreateManyArgs} args - Arguments to create many Estimates.
+     * @example
+     * // Create many Estimates
+     * const estimate = await prisma.estimate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EstimateCreateManyArgs>(args?: SelectSubset<T, EstimateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Estimates and returns the data saved in the database.
+     * @param {EstimateCreateManyAndReturnArgs} args - Arguments to create many Estimates.
+     * @example
+     * // Create many Estimates
+     * const estimate = await prisma.estimate.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Estimates and only return the `id`
+     * const estimateWithIdOnly = await prisma.estimate.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EstimateCreateManyAndReturnArgs>(args?: SelectSubset<T, EstimateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Estimate.
+     * @param {EstimateDeleteArgs} args - Arguments to delete one Estimate.
+     * @example
+     * // Delete one Estimate
+     * const Estimate = await prisma.estimate.delete({
+     *   where: {
+     *     // ... filter to delete one Estimate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EstimateDeleteArgs>(args: SelectSubset<T, EstimateDeleteArgs<ExtArgs>>): Prisma__EstimateClient<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Estimate.
+     * @param {EstimateUpdateArgs} args - Arguments to update one Estimate.
+     * @example
+     * // Update one Estimate
+     * const estimate = await prisma.estimate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EstimateUpdateArgs>(args: SelectSubset<T, EstimateUpdateArgs<ExtArgs>>): Prisma__EstimateClient<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Estimates.
+     * @param {EstimateDeleteManyArgs} args - Arguments to filter Estimates to delete.
+     * @example
+     * // Delete a few Estimates
+     * const { count } = await prisma.estimate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EstimateDeleteManyArgs>(args?: SelectSubset<T, EstimateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Estimates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EstimateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Estimates
+     * const estimate = await prisma.estimate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EstimateUpdateManyArgs>(args: SelectSubset<T, EstimateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Estimates and returns the data updated in the database.
+     * @param {EstimateUpdateManyAndReturnArgs} args - Arguments to update many Estimates.
+     * @example
+     * // Update many Estimates
+     * const estimate = await prisma.estimate.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Estimates and only return the `id`
+     * const estimateWithIdOnly = await prisma.estimate.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EstimateUpdateManyAndReturnArgs>(args: SelectSubset<T, EstimateUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Estimate.
+     * @param {EstimateUpsertArgs} args - Arguments to update or create a Estimate.
+     * @example
+     * // Update or create a Estimate
+     * const estimate = await prisma.estimate.upsert({
+     *   create: {
+     *     // ... data to create a Estimate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Estimate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EstimateUpsertArgs>(args: SelectSubset<T, EstimateUpsertArgs<ExtArgs>>): Prisma__EstimateClient<$Result.GetResult<Prisma.$EstimatePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Estimates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EstimateCountArgs} args - Arguments to filter Estimates to count.
+     * @example
+     * // Count the number of Estimates
+     * const count = await prisma.estimate.count({
+     *   where: {
+     *     // ... the filter for the Estimates we want to count
+     *   }
+     * })
+    **/
+    count<T extends EstimateCountArgs>(
+      args?: Subset<T, EstimateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EstimateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Estimate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EstimateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EstimateAggregateArgs>(args: Subset<T, EstimateAggregateArgs>): Prisma.PrismaPromise<GetEstimateAggregateType<T>>
+
+    /**
+     * Group by Estimate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EstimateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EstimateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EstimateGroupByArgs['orderBy'] }
+        : { orderBy?: EstimateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EstimateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEstimateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Estimate model
+   */
+  readonly fields: EstimateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Estimate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EstimateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    service<T extends ServiceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ServiceDefaultArgs<ExtArgs>>): Prisma__ServiceClient<$Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    technician<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Estimate model
+   */
+  interface EstimateFieldRefs {
+    readonly id: FieldRef<"Estimate", 'String'>
+    readonly serviceId: FieldRef<"Estimate", 'String'>
+    readonly technicianId: FieldRef<"Estimate", 'String'>
+    readonly clientId: FieldRef<"Estimate", 'String'>
+    readonly amount: FieldRef<"Estimate", 'Decimal'>
+    readonly description: FieldRef<"Estimate", 'String'>
+    readonly status: FieldRef<"Estimate", 'EstimateStatus'>
+    readonly createdAt: FieldRef<"Estimate", 'DateTime'>
+    readonly updatedAt: FieldRef<"Estimate", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Estimate findUnique
+   */
+  export type EstimateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    /**
+     * Filter, which Estimate to fetch.
+     */
+    where: EstimateWhereUniqueInput
+  }
+
+  /**
+   * Estimate findUniqueOrThrow
+   */
+  export type EstimateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    /**
+     * Filter, which Estimate to fetch.
+     */
+    where: EstimateWhereUniqueInput
+  }
+
+  /**
+   * Estimate findFirst
+   */
+  export type EstimateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    /**
+     * Filter, which Estimate to fetch.
+     */
+    where?: EstimateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Estimates to fetch.
+     */
+    orderBy?: EstimateOrderByWithRelationInput | EstimateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Estimates.
+     */
+    cursor?: EstimateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Estimates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Estimates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Estimates.
+     */
+    distinct?: EstimateScalarFieldEnum | EstimateScalarFieldEnum[]
+  }
+
+  /**
+   * Estimate findFirstOrThrow
+   */
+  export type EstimateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    /**
+     * Filter, which Estimate to fetch.
+     */
+    where?: EstimateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Estimates to fetch.
+     */
+    orderBy?: EstimateOrderByWithRelationInput | EstimateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Estimates.
+     */
+    cursor?: EstimateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Estimates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Estimates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Estimates.
+     */
+    distinct?: EstimateScalarFieldEnum | EstimateScalarFieldEnum[]
+  }
+
+  /**
+   * Estimate findMany
+   */
+  export type EstimateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    /**
+     * Filter, which Estimates to fetch.
+     */
+    where?: EstimateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Estimates to fetch.
+     */
+    orderBy?: EstimateOrderByWithRelationInput | EstimateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Estimates.
+     */
+    cursor?: EstimateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Estimates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Estimates.
+     */
+    skip?: number
+    distinct?: EstimateScalarFieldEnum | EstimateScalarFieldEnum[]
+  }
+
+  /**
+   * Estimate create
+   */
+  export type EstimateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Estimate.
+     */
+    data: XOR<EstimateCreateInput, EstimateUncheckedCreateInput>
+  }
+
+  /**
+   * Estimate createMany
+   */
+  export type EstimateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Estimates.
+     */
+    data: EstimateCreateManyInput | EstimateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Estimate createManyAndReturn
+   */
+  export type EstimateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * The data used to create many Estimates.
+     */
+    data: EstimateCreateManyInput | EstimateCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Estimate update
+   */
+  export type EstimateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Estimate.
+     */
+    data: XOR<EstimateUpdateInput, EstimateUncheckedUpdateInput>
+    /**
+     * Choose, which Estimate to update.
+     */
+    where: EstimateWhereUniqueInput
+  }
+
+  /**
+   * Estimate updateMany
+   */
+  export type EstimateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Estimates.
+     */
+    data: XOR<EstimateUpdateManyMutationInput, EstimateUncheckedUpdateManyInput>
+    /**
+     * Filter which Estimates to update
+     */
+    where?: EstimateWhereInput
+    /**
+     * Limit how many Estimates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Estimate updateManyAndReturn
+   */
+  export type EstimateUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * The data used to update Estimates.
+     */
+    data: XOR<EstimateUpdateManyMutationInput, EstimateUncheckedUpdateManyInput>
+    /**
+     * Filter which Estimates to update
+     */
+    where?: EstimateWhereInput
+    /**
+     * Limit how many Estimates to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Estimate upsert
+   */
+  export type EstimateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Estimate to update in case it exists.
+     */
+    where: EstimateWhereUniqueInput
+    /**
+     * In case the Estimate found by the `where` argument doesn't exist, create a new Estimate with this data.
+     */
+    create: XOR<EstimateCreateInput, EstimateUncheckedCreateInput>
+    /**
+     * In case the Estimate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EstimateUpdateInput, EstimateUncheckedUpdateInput>
+  }
+
+  /**
+   * Estimate delete
+   */
+  export type EstimateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+    /**
+     * Filter which Estimate to delete.
+     */
+    where: EstimateWhereUniqueInput
+  }
+
+  /**
+   * Estimate deleteMany
+   */
+  export type EstimateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Estimates to delete
+     */
+    where?: EstimateWhereInput
+    /**
+     * Limit how many Estimates to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Estimate without action
+   */
+  export type EstimateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Estimate
+     */
+    select?: EstimateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Estimate
+     */
+    omit?: EstimateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EstimateInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -7532,6 +8893,21 @@ export namespace Prisma {
   };
 
   export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+  export const EstimateScalarFieldEnum: {
+    id: 'id',
+    serviceId: 'serviceId',
+    technicianId: 'technicianId',
+    clientId: 'clientId',
+    amount: 'amount',
+    description: 'description',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EstimateScalarFieldEnum = (typeof EstimateScalarFieldEnum)[keyof typeof EstimateScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -7655,6 +9031,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'EstimateStatus'
+   */
+  export type EnumEstimateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstimateStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'EstimateStatus[]'
+   */
+  export type ListEnumEstimateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstimateStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -7689,6 +9079,7 @@ export namespace Prisma {
     servicesCreated?: ServiceListRelationFilter
     servicesClosed?: ServiceListRelationFilter
     payments?: PaymentListRelationFilter
+    estimates?: EstimateListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -7706,6 +9097,7 @@ export namespace Prisma {
     servicesCreated?: ServiceOrderByRelationAggregateInput
     servicesClosed?: ServiceOrderByRelationAggregateInput
     payments?: PaymentOrderByRelationAggregateInput
+    estimates?: EstimateOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -7726,6 +9118,7 @@ export namespace Prisma {
     servicesCreated?: ServiceListRelationFilter
     servicesClosed?: ServiceListRelationFilter
     payments?: PaymentListRelationFilter
+    estimates?: EstimateListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -7774,6 +9167,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Client"> | Date | string
     updatedAt?: DateTimeFilter<"Client"> | Date | string
     services?: ServiceListRelationFilter
+    estimates?: EstimateListRelationFilter
   }
 
   export type ClientOrderByWithRelationInput = {
@@ -7787,6 +9181,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     services?: ServiceOrderByRelationAggregateInput
+    estimates?: EstimateOrderByRelationAggregateInput
   }
 
   export type ClientWhereUniqueInput = Prisma.AtLeast<{
@@ -7803,6 +9198,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Client"> | Date | string
     updatedAt?: DateTimeFilter<"Client"> | Date | string
     services?: ServiceListRelationFilter
+    estimates?: EstimateListRelationFilter
   }, "id" | "email">
 
   export type ClientOrderByWithAggregationInput = {
@@ -7934,6 +9330,7 @@ export namespace Prisma {
     closedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     category?: XOR<ServiceCategoryNullableScalarRelationFilter, ServiceCategoryWhereInput> | null
     payment?: XOR<PaymentNullableScalarRelationFilter, PaymentWhereInput> | null
+    estimate?: XOR<EstimateNullableScalarRelationFilter, EstimateWhereInput> | null
   }
 
   export type ServiceOrderByWithRelationInput = {
@@ -7962,6 +9359,7 @@ export namespace Prisma {
     closedBy?: UserOrderByWithRelationInput
     category?: ServiceCategoryOrderByWithRelationInput
     payment?: PaymentOrderByWithRelationInput
+    estimate?: EstimateOrderByWithRelationInput
   }
 
   export type ServiceWhereUniqueInput = Prisma.AtLeast<{
@@ -7993,6 +9391,7 @@ export namespace Prisma {
     closedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     category?: XOR<ServiceCategoryNullableScalarRelationFilter, ServiceCategoryWhereInput> | null
     payment?: XOR<PaymentNullableScalarRelationFilter, PaymentWhereInput> | null
+    estimate?: XOR<EstimateNullableScalarRelationFilter, EstimateWhereInput> | null
   }, "id">
 
   export type ServiceOrderByWithAggregationInput = {
@@ -8137,6 +9536,89 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
   }
 
+  export type EstimateWhereInput = {
+    AND?: EstimateWhereInput | EstimateWhereInput[]
+    OR?: EstimateWhereInput[]
+    NOT?: EstimateWhereInput | EstimateWhereInput[]
+    id?: StringFilter<"Estimate"> | string
+    serviceId?: StringFilter<"Estimate"> | string
+    technicianId?: StringFilter<"Estimate"> | string
+    clientId?: StringFilter<"Estimate"> | string
+    amount?: DecimalFilter<"Estimate"> | Decimal | DecimalJsLike | number | string
+    description?: StringNullableFilter<"Estimate"> | string | null
+    status?: EnumEstimateStatusFilter<"Estimate"> | $Enums.EstimateStatus
+    createdAt?: DateTimeFilter<"Estimate"> | Date | string
+    updatedAt?: DateTimeFilter<"Estimate"> | Date | string
+    service?: XOR<ServiceScalarRelationFilter, ServiceWhereInput>
+    technician?: XOR<UserScalarRelationFilter, UserWhereInput>
+    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+  }
+
+  export type EstimateOrderByWithRelationInput = {
+    id?: SortOrder
+    serviceId?: SortOrder
+    technicianId?: SortOrder
+    clientId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    service?: ServiceOrderByWithRelationInput
+    technician?: UserOrderByWithRelationInput
+    client?: ClientOrderByWithRelationInput
+  }
+
+  export type EstimateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    serviceId?: string
+    AND?: EstimateWhereInput | EstimateWhereInput[]
+    OR?: EstimateWhereInput[]
+    NOT?: EstimateWhereInput | EstimateWhereInput[]
+    technicianId?: StringFilter<"Estimate"> | string
+    clientId?: StringFilter<"Estimate"> | string
+    amount?: DecimalFilter<"Estimate"> | Decimal | DecimalJsLike | number | string
+    description?: StringNullableFilter<"Estimate"> | string | null
+    status?: EnumEstimateStatusFilter<"Estimate"> | $Enums.EstimateStatus
+    createdAt?: DateTimeFilter<"Estimate"> | Date | string
+    updatedAt?: DateTimeFilter<"Estimate"> | Date | string
+    service?: XOR<ServiceScalarRelationFilter, ServiceWhereInput>
+    technician?: XOR<UserScalarRelationFilter, UserWhereInput>
+    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+  }, "id" | "serviceId">
+
+  export type EstimateOrderByWithAggregationInput = {
+    id?: SortOrder
+    serviceId?: SortOrder
+    technicianId?: SortOrder
+    clientId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EstimateCountOrderByAggregateInput
+    _avg?: EstimateAvgOrderByAggregateInput
+    _max?: EstimateMaxOrderByAggregateInput
+    _min?: EstimateMinOrderByAggregateInput
+    _sum?: EstimateSumOrderByAggregateInput
+  }
+
+  export type EstimateScalarWhereWithAggregatesInput = {
+    AND?: EstimateScalarWhereWithAggregatesInput | EstimateScalarWhereWithAggregatesInput[]
+    OR?: EstimateScalarWhereWithAggregatesInput[]
+    NOT?: EstimateScalarWhereWithAggregatesInput | EstimateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Estimate"> | string
+    serviceId?: StringWithAggregatesFilter<"Estimate"> | string
+    technicianId?: StringWithAggregatesFilter<"Estimate"> | string
+    clientId?: StringWithAggregatesFilter<"Estimate"> | string
+    amount?: DecimalWithAggregatesFilter<"Estimate"> | Decimal | DecimalJsLike | number | string
+    description?: StringNullableWithAggregatesFilter<"Estimate"> | string | null
+    status?: EnumEstimateStatusWithAggregatesFilter<"Estimate"> | $Enums.EstimateStatus
+    createdAt?: DateTimeWithAggregatesFilter<"Estimate"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Estimate"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -8152,6 +9634,7 @@ export namespace Prisma {
     servicesCreated?: ServiceCreateNestedManyWithoutCreatedByInput
     servicesClosed?: ServiceCreateNestedManyWithoutClosedByInput
     payments?: PaymentCreateNestedManyWithoutTechnicianInput
+    estimates?: EstimateCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -8169,6 +9652,7 @@ export namespace Prisma {
     servicesCreated?: ServiceUncheckedCreateNestedManyWithoutCreatedByInput
     servicesClosed?: ServiceUncheckedCreateNestedManyWithoutClosedByInput
     payments?: PaymentUncheckedCreateNestedManyWithoutTechnicianInput
+    estimates?: EstimateUncheckedCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserUpdateInput = {
@@ -8186,6 +9670,7 @@ export namespace Prisma {
     servicesCreated?: ServiceUpdateManyWithoutCreatedByNestedInput
     servicesClosed?: ServiceUpdateManyWithoutClosedByNestedInput
     payments?: PaymentUpdateManyWithoutTechnicianNestedInput
+    estimates?: EstimateUpdateManyWithoutTechnicianNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -8203,6 +9688,7 @@ export namespace Prisma {
     servicesCreated?: ServiceUncheckedUpdateManyWithoutCreatedByNestedInput
     servicesClosed?: ServiceUncheckedUpdateManyWithoutClosedByNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutTechnicianNestedInput
+    estimates?: EstimateUncheckedUpdateManyWithoutTechnicianNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -8255,6 +9741,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     services?: ServiceCreateNestedManyWithoutClientInput
+    estimates?: EstimateCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateInput = {
@@ -8268,6 +9755,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     services?: ServiceUncheckedCreateNestedManyWithoutClientInput
+    estimates?: EstimateUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientUpdateInput = {
@@ -8281,6 +9769,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     services?: ServiceUpdateManyWithoutClientNestedInput
+    estimates?: EstimateUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateInput = {
@@ -8294,6 +9783,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     services?: ServiceUncheckedUpdateManyWithoutClientNestedInput
+    estimates?: EstimateUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ClientCreateManyInput = {
@@ -8434,6 +9924,7 @@ export namespace Prisma {
     closedBy?: UserCreateNestedOneWithoutServicesClosedInput
     category?: ServiceCategoryCreateNestedOneWithoutServicesInput
     payment?: PaymentCreateNestedOneWithoutServiceInput
+    estimate?: EstimateCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceUncheckedCreateInput = {
@@ -8457,6 +9948,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
+    estimate?: EstimateUncheckedCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceUpdateInput = {
@@ -8480,6 +9972,7 @@ export namespace Prisma {
     closedBy?: UserUpdateOneWithoutServicesClosedNestedInput
     category?: ServiceCategoryUpdateOneWithoutServicesNestedInput
     payment?: PaymentUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateInput = {
@@ -8503,6 +9996,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUncheckedUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceCreateManyInput = {
@@ -8662,6 +10156,87 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EstimateCreateInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    service: ServiceCreateNestedOneWithoutEstimateInput
+    technician: UserCreateNestedOneWithoutEstimatesInput
+    client: ClientCreateNestedOneWithoutEstimatesInput
+  }
+
+  export type EstimateUncheckedCreateInput = {
+    id?: string
+    serviceId: string
+    technicianId: string
+    clientId: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EstimateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    service?: ServiceUpdateOneRequiredWithoutEstimateNestedInput
+    technician?: UserUpdateOneRequiredWithoutEstimatesNestedInput
+    client?: ClientUpdateOneRequiredWithoutEstimatesNestedInput
+  }
+
+  export type EstimateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceId?: StringFieldUpdateOperationsInput | string
+    technicianId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EstimateCreateManyInput = {
+    id?: string
+    serviceId: string
+    technicianId: string
+    clientId: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EstimateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EstimateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceId?: StringFieldUpdateOperationsInput | string
+    technicianId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -8727,6 +10302,12 @@ export namespace Prisma {
     none?: PaymentWhereInput
   }
 
+  export type EstimateListRelationFilter = {
+    every?: EstimateWhereInput
+    some?: EstimateWhereInput
+    none?: EstimateWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -8737,6 +10318,10 @@ export namespace Prisma {
   }
 
   export type PaymentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EstimateOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -8970,6 +10555,11 @@ export namespace Prisma {
     isNot?: PaymentWhereInput | null
   }
 
+  export type EstimateNullableScalarRelationFilter = {
+    is?: EstimateWhereInput | null
+    isNot?: EstimateWhereInput | null
+  }
+
   export type ServiceCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
@@ -9187,6 +10777,72 @@ export namespace Prisma {
     _max?: NestedDecimalFilter<$PrismaModel>
   }
 
+  export type EnumEstimateStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstimateStatus | EnumEstimateStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EstimateStatus[] | ListEnumEstimateStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EstimateStatus[] | ListEnumEstimateStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEstimateStatusFilter<$PrismaModel> | $Enums.EstimateStatus
+  }
+
+  export type ClientScalarRelationFilter = {
+    is?: ClientWhereInput
+    isNot?: ClientWhereInput
+  }
+
+  export type EstimateCountOrderByAggregateInput = {
+    id?: SortOrder
+    serviceId?: SortOrder
+    technicianId?: SortOrder
+    clientId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EstimateAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type EstimateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    serviceId?: SortOrder
+    technicianId?: SortOrder
+    clientId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EstimateMinOrderByAggregateInput = {
+    id?: SortOrder
+    serviceId?: SortOrder
+    technicianId?: SortOrder
+    clientId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EstimateSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type EnumEstimateStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstimateStatus | EnumEstimateStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EstimateStatus[] | ListEnumEstimateStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EstimateStatus[] | ListEnumEstimateStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEstimateStatusWithAggregatesFilter<$PrismaModel> | $Enums.EstimateStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEstimateStatusFilter<$PrismaModel>
+    _max?: NestedEnumEstimateStatusFilter<$PrismaModel>
+  }
+
   export type ServiceCreateNestedManyWithoutTechnicianInput = {
     create?: XOR<ServiceCreateWithoutTechnicianInput, ServiceUncheckedCreateWithoutTechnicianInput> | ServiceCreateWithoutTechnicianInput[] | ServiceUncheckedCreateWithoutTechnicianInput[]
     connectOrCreate?: ServiceCreateOrConnectWithoutTechnicianInput | ServiceCreateOrConnectWithoutTechnicianInput[]
@@ -9215,6 +10871,13 @@ export namespace Prisma {
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
   }
 
+  export type EstimateCreateNestedManyWithoutTechnicianInput = {
+    create?: XOR<EstimateCreateWithoutTechnicianInput, EstimateUncheckedCreateWithoutTechnicianInput> | EstimateCreateWithoutTechnicianInput[] | EstimateUncheckedCreateWithoutTechnicianInput[]
+    connectOrCreate?: EstimateCreateOrConnectWithoutTechnicianInput | EstimateCreateOrConnectWithoutTechnicianInput[]
+    createMany?: EstimateCreateManyTechnicianInputEnvelope
+    connect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+  }
+
   export type ServiceUncheckedCreateNestedManyWithoutTechnicianInput = {
     create?: XOR<ServiceCreateWithoutTechnicianInput, ServiceUncheckedCreateWithoutTechnicianInput> | ServiceCreateWithoutTechnicianInput[] | ServiceUncheckedCreateWithoutTechnicianInput[]
     connectOrCreate?: ServiceCreateOrConnectWithoutTechnicianInput | ServiceCreateOrConnectWithoutTechnicianInput[]
@@ -9241,6 +10904,13 @@ export namespace Prisma {
     connectOrCreate?: PaymentCreateOrConnectWithoutTechnicianInput | PaymentCreateOrConnectWithoutTechnicianInput[]
     createMany?: PaymentCreateManyTechnicianInputEnvelope
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
+  }
+
+  export type EstimateUncheckedCreateNestedManyWithoutTechnicianInput = {
+    create?: XOR<EstimateCreateWithoutTechnicianInput, EstimateUncheckedCreateWithoutTechnicianInput> | EstimateCreateWithoutTechnicianInput[] | EstimateUncheckedCreateWithoutTechnicianInput[]
+    connectOrCreate?: EstimateCreateOrConnectWithoutTechnicianInput | EstimateCreateOrConnectWithoutTechnicianInput[]
+    createMany?: EstimateCreateManyTechnicianInputEnvelope
+    connect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -9319,6 +10989,20 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
+  export type EstimateUpdateManyWithoutTechnicianNestedInput = {
+    create?: XOR<EstimateCreateWithoutTechnicianInput, EstimateUncheckedCreateWithoutTechnicianInput> | EstimateCreateWithoutTechnicianInput[] | EstimateUncheckedCreateWithoutTechnicianInput[]
+    connectOrCreate?: EstimateCreateOrConnectWithoutTechnicianInput | EstimateCreateOrConnectWithoutTechnicianInput[]
+    upsert?: EstimateUpsertWithWhereUniqueWithoutTechnicianInput | EstimateUpsertWithWhereUniqueWithoutTechnicianInput[]
+    createMany?: EstimateCreateManyTechnicianInputEnvelope
+    set?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    disconnect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    delete?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    connect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    update?: EstimateUpdateWithWhereUniqueWithoutTechnicianInput | EstimateUpdateWithWhereUniqueWithoutTechnicianInput[]
+    updateMany?: EstimateUpdateManyWithWhereWithoutTechnicianInput | EstimateUpdateManyWithWhereWithoutTechnicianInput[]
+    deleteMany?: EstimateScalarWhereInput | EstimateScalarWhereInput[]
+  }
+
   export type ServiceUncheckedUpdateManyWithoutTechnicianNestedInput = {
     create?: XOR<ServiceCreateWithoutTechnicianInput, ServiceUncheckedCreateWithoutTechnicianInput> | ServiceCreateWithoutTechnicianInput[] | ServiceUncheckedCreateWithoutTechnicianInput[]
     connectOrCreate?: ServiceCreateOrConnectWithoutTechnicianInput | ServiceCreateOrConnectWithoutTechnicianInput[]
@@ -9375,6 +11059,20 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
+  export type EstimateUncheckedUpdateManyWithoutTechnicianNestedInput = {
+    create?: XOR<EstimateCreateWithoutTechnicianInput, EstimateUncheckedCreateWithoutTechnicianInput> | EstimateCreateWithoutTechnicianInput[] | EstimateUncheckedCreateWithoutTechnicianInput[]
+    connectOrCreate?: EstimateCreateOrConnectWithoutTechnicianInput | EstimateCreateOrConnectWithoutTechnicianInput[]
+    upsert?: EstimateUpsertWithWhereUniqueWithoutTechnicianInput | EstimateUpsertWithWhereUniqueWithoutTechnicianInput[]
+    createMany?: EstimateCreateManyTechnicianInputEnvelope
+    set?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    disconnect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    delete?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    connect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    update?: EstimateUpdateWithWhereUniqueWithoutTechnicianInput | EstimateUpdateWithWhereUniqueWithoutTechnicianInput[]
+    updateMany?: EstimateUpdateManyWithWhereWithoutTechnicianInput | EstimateUpdateManyWithWhereWithoutTechnicianInput[]
+    deleteMany?: EstimateScalarWhereInput | EstimateScalarWhereInput[]
+  }
+
   export type ServiceCreateNestedManyWithoutClientInput = {
     create?: XOR<ServiceCreateWithoutClientInput, ServiceUncheckedCreateWithoutClientInput> | ServiceCreateWithoutClientInput[] | ServiceUncheckedCreateWithoutClientInput[]
     connectOrCreate?: ServiceCreateOrConnectWithoutClientInput | ServiceCreateOrConnectWithoutClientInput[]
@@ -9382,11 +11080,25 @@ export namespace Prisma {
     connect?: ServiceWhereUniqueInput | ServiceWhereUniqueInput[]
   }
 
+  export type EstimateCreateNestedManyWithoutClientInput = {
+    create?: XOR<EstimateCreateWithoutClientInput, EstimateUncheckedCreateWithoutClientInput> | EstimateCreateWithoutClientInput[] | EstimateUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: EstimateCreateOrConnectWithoutClientInput | EstimateCreateOrConnectWithoutClientInput[]
+    createMany?: EstimateCreateManyClientInputEnvelope
+    connect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+  }
+
   export type ServiceUncheckedCreateNestedManyWithoutClientInput = {
     create?: XOR<ServiceCreateWithoutClientInput, ServiceUncheckedCreateWithoutClientInput> | ServiceCreateWithoutClientInput[] | ServiceUncheckedCreateWithoutClientInput[]
     connectOrCreate?: ServiceCreateOrConnectWithoutClientInput | ServiceCreateOrConnectWithoutClientInput[]
     createMany?: ServiceCreateManyClientInputEnvelope
     connect?: ServiceWhereUniqueInput | ServiceWhereUniqueInput[]
+  }
+
+  export type EstimateUncheckedCreateNestedManyWithoutClientInput = {
+    create?: XOR<EstimateCreateWithoutClientInput, EstimateUncheckedCreateWithoutClientInput> | EstimateCreateWithoutClientInput[] | EstimateUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: EstimateCreateOrConnectWithoutClientInput | EstimateCreateOrConnectWithoutClientInput[]
+    createMany?: EstimateCreateManyClientInputEnvelope
+    connect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
   }
 
   export type ServiceUpdateManyWithoutClientNestedInput = {
@@ -9403,6 +11115,20 @@ export namespace Prisma {
     deleteMany?: ServiceScalarWhereInput | ServiceScalarWhereInput[]
   }
 
+  export type EstimateUpdateManyWithoutClientNestedInput = {
+    create?: XOR<EstimateCreateWithoutClientInput, EstimateUncheckedCreateWithoutClientInput> | EstimateCreateWithoutClientInput[] | EstimateUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: EstimateCreateOrConnectWithoutClientInput | EstimateCreateOrConnectWithoutClientInput[]
+    upsert?: EstimateUpsertWithWhereUniqueWithoutClientInput | EstimateUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: EstimateCreateManyClientInputEnvelope
+    set?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    disconnect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    delete?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    connect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    update?: EstimateUpdateWithWhereUniqueWithoutClientInput | EstimateUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: EstimateUpdateManyWithWhereWithoutClientInput | EstimateUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: EstimateScalarWhereInput | EstimateScalarWhereInput[]
+  }
+
   export type ServiceUncheckedUpdateManyWithoutClientNestedInput = {
     create?: XOR<ServiceCreateWithoutClientInput, ServiceUncheckedCreateWithoutClientInput> | ServiceCreateWithoutClientInput[] | ServiceUncheckedCreateWithoutClientInput[]
     connectOrCreate?: ServiceCreateOrConnectWithoutClientInput | ServiceCreateOrConnectWithoutClientInput[]
@@ -9415,6 +11141,20 @@ export namespace Prisma {
     update?: ServiceUpdateWithWhereUniqueWithoutClientInput | ServiceUpdateWithWhereUniqueWithoutClientInput[]
     updateMany?: ServiceUpdateManyWithWhereWithoutClientInput | ServiceUpdateManyWithWhereWithoutClientInput[]
     deleteMany?: ServiceScalarWhereInput | ServiceScalarWhereInput[]
+  }
+
+  export type EstimateUncheckedUpdateManyWithoutClientNestedInput = {
+    create?: XOR<EstimateCreateWithoutClientInput, EstimateUncheckedCreateWithoutClientInput> | EstimateCreateWithoutClientInput[] | EstimateUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: EstimateCreateOrConnectWithoutClientInput | EstimateCreateOrConnectWithoutClientInput[]
+    upsert?: EstimateUpsertWithWhereUniqueWithoutClientInput | EstimateUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: EstimateCreateManyClientInputEnvelope
+    set?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    disconnect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    delete?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    connect?: EstimateWhereUniqueInput | EstimateWhereUniqueInput[]
+    update?: EstimateUpdateWithWhereUniqueWithoutClientInput | EstimateUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: EstimateUpdateManyWithWhereWithoutClientInput | EstimateUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: EstimateScalarWhereInput | EstimateScalarWhereInput[]
   }
 
   export type ServiceCreateNestedManyWithoutCategoryInput = {
@@ -9495,10 +11235,22 @@ export namespace Prisma {
     connect?: PaymentWhereUniqueInput
   }
 
+  export type EstimateCreateNestedOneWithoutServiceInput = {
+    create?: XOR<EstimateCreateWithoutServiceInput, EstimateUncheckedCreateWithoutServiceInput>
+    connectOrCreate?: EstimateCreateOrConnectWithoutServiceInput
+    connect?: EstimateWhereUniqueInput
+  }
+
   export type PaymentUncheckedCreateNestedOneWithoutServiceInput = {
     create?: XOR<PaymentCreateWithoutServiceInput, PaymentUncheckedCreateWithoutServiceInput>
     connectOrCreate?: PaymentCreateOrConnectWithoutServiceInput
     connect?: PaymentWhereUniqueInput
+  }
+
+  export type EstimateUncheckedCreateNestedOneWithoutServiceInput = {
+    create?: XOR<EstimateCreateWithoutServiceInput, EstimateUncheckedCreateWithoutServiceInput>
+    connectOrCreate?: EstimateCreateOrConnectWithoutServiceInput
+    connect?: EstimateWhereUniqueInput
   }
 
   export type EnumServiceStatusFieldUpdateOperationsInput = {
@@ -9575,6 +11327,16 @@ export namespace Prisma {
     update?: XOR<XOR<PaymentUpdateToOneWithWhereWithoutServiceInput, PaymentUpdateWithoutServiceInput>, PaymentUncheckedUpdateWithoutServiceInput>
   }
 
+  export type EstimateUpdateOneWithoutServiceNestedInput = {
+    create?: XOR<EstimateCreateWithoutServiceInput, EstimateUncheckedCreateWithoutServiceInput>
+    connectOrCreate?: EstimateCreateOrConnectWithoutServiceInput
+    upsert?: EstimateUpsertWithoutServiceInput
+    disconnect?: EstimateWhereInput | boolean
+    delete?: EstimateWhereInput | boolean
+    connect?: EstimateWhereUniqueInput
+    update?: XOR<XOR<EstimateUpdateToOneWithWhereWithoutServiceInput, EstimateUpdateWithoutServiceInput>, EstimateUncheckedUpdateWithoutServiceInput>
+  }
+
   export type PaymentUncheckedUpdateOneWithoutServiceNestedInput = {
     create?: XOR<PaymentCreateWithoutServiceInput, PaymentUncheckedCreateWithoutServiceInput>
     connectOrCreate?: PaymentCreateOrConnectWithoutServiceInput
@@ -9583,6 +11345,16 @@ export namespace Prisma {
     delete?: PaymentWhereInput | boolean
     connect?: PaymentWhereUniqueInput
     update?: XOR<XOR<PaymentUpdateToOneWithWhereWithoutServiceInput, PaymentUpdateWithoutServiceInput>, PaymentUncheckedUpdateWithoutServiceInput>
+  }
+
+  export type EstimateUncheckedUpdateOneWithoutServiceNestedInput = {
+    create?: XOR<EstimateCreateWithoutServiceInput, EstimateUncheckedCreateWithoutServiceInput>
+    connectOrCreate?: EstimateCreateOrConnectWithoutServiceInput
+    upsert?: EstimateUpsertWithoutServiceInput
+    disconnect?: EstimateWhereInput | boolean
+    delete?: EstimateWhereInput | boolean
+    connect?: EstimateWhereUniqueInput
+    update?: XOR<XOR<EstimateUpdateToOneWithWhereWithoutServiceInput, EstimateUpdateWithoutServiceInput>, EstimateUncheckedUpdateWithoutServiceInput>
   }
 
   export type UserCreateNestedOneWithoutPaymentsInput = {
@@ -9623,6 +11395,52 @@ export namespace Prisma {
     upsert?: ServiceUpsertWithoutPaymentInput
     connect?: ServiceWhereUniqueInput
     update?: XOR<XOR<ServiceUpdateToOneWithWhereWithoutPaymentInput, ServiceUpdateWithoutPaymentInput>, ServiceUncheckedUpdateWithoutPaymentInput>
+  }
+
+  export type ServiceCreateNestedOneWithoutEstimateInput = {
+    create?: XOR<ServiceCreateWithoutEstimateInput, ServiceUncheckedCreateWithoutEstimateInput>
+    connectOrCreate?: ServiceCreateOrConnectWithoutEstimateInput
+    connect?: ServiceWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutEstimatesInput = {
+    create?: XOR<UserCreateWithoutEstimatesInput, UserUncheckedCreateWithoutEstimatesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutEstimatesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ClientCreateNestedOneWithoutEstimatesInput = {
+    create?: XOR<ClientCreateWithoutEstimatesInput, ClientUncheckedCreateWithoutEstimatesInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutEstimatesInput
+    connect?: ClientWhereUniqueInput
+  }
+
+  export type EnumEstimateStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EstimateStatus
+  }
+
+  export type ServiceUpdateOneRequiredWithoutEstimateNestedInput = {
+    create?: XOR<ServiceCreateWithoutEstimateInput, ServiceUncheckedCreateWithoutEstimateInput>
+    connectOrCreate?: ServiceCreateOrConnectWithoutEstimateInput
+    upsert?: ServiceUpsertWithoutEstimateInput
+    connect?: ServiceWhereUniqueInput
+    update?: XOR<XOR<ServiceUpdateToOneWithWhereWithoutEstimateInput, ServiceUpdateWithoutEstimateInput>, ServiceUncheckedUpdateWithoutEstimateInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutEstimatesNestedInput = {
+    create?: XOR<UserCreateWithoutEstimatesInput, UserUncheckedCreateWithoutEstimatesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutEstimatesInput
+    upsert?: UserUpsertWithoutEstimatesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutEstimatesInput, UserUpdateWithoutEstimatesInput>, UserUncheckedUpdateWithoutEstimatesInput>
+  }
+
+  export type ClientUpdateOneRequiredWithoutEstimatesNestedInput = {
+    create?: XOR<ClientCreateWithoutEstimatesInput, ClientUncheckedCreateWithoutEstimatesInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutEstimatesInput
+    upsert?: ClientUpsertWithoutEstimatesInput
+    connect?: ClientWhereUniqueInput
+    update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutEstimatesInput, ClientUpdateWithoutEstimatesInput>, ClientUncheckedUpdateWithoutEstimatesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -9877,6 +11695,23 @@ export namespace Prisma {
     _max?: NestedDecimalFilter<$PrismaModel>
   }
 
+  export type NestedEnumEstimateStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstimateStatus | EnumEstimateStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EstimateStatus[] | ListEnumEstimateStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EstimateStatus[] | ListEnumEstimateStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEstimateStatusFilter<$PrismaModel> | $Enums.EstimateStatus
+  }
+
+  export type NestedEnumEstimateStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstimateStatus | EnumEstimateStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EstimateStatus[] | ListEnumEstimateStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EstimateStatus[] | ListEnumEstimateStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEstimateStatusWithAggregatesFilter<$PrismaModel> | $Enums.EstimateStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEstimateStatusFilter<$PrismaModel>
+    _max?: NestedEnumEstimateStatusFilter<$PrismaModel>
+  }
+
   export type ServiceCreateWithoutTechnicianInput = {
     id?: string
     title: string
@@ -9897,6 +11732,7 @@ export namespace Prisma {
     closedBy?: UserCreateNestedOneWithoutServicesClosedInput
     category?: ServiceCategoryCreateNestedOneWithoutServicesInput
     payment?: PaymentCreateNestedOneWithoutServiceInput
+    estimate?: EstimateCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceUncheckedCreateWithoutTechnicianInput = {
@@ -9919,6 +11755,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
+    estimate?: EstimateUncheckedCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceCreateOrConnectWithoutTechnicianInput = {
@@ -9951,6 +11788,7 @@ export namespace Prisma {
     closedBy?: UserCreateNestedOneWithoutServicesClosedInput
     category?: ServiceCategoryCreateNestedOneWithoutServicesInput
     payment?: PaymentCreateNestedOneWithoutServiceInput
+    estimate?: EstimateCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceUncheckedCreateWithoutCreatedByInput = {
@@ -9973,6 +11811,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
+    estimate?: EstimateUncheckedCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceCreateOrConnectWithoutCreatedByInput = {
@@ -10005,6 +11844,7 @@ export namespace Prisma {
     createdBy: UserCreateNestedOneWithoutServicesCreatedInput
     category?: ServiceCategoryCreateNestedOneWithoutServicesInput
     payment?: PaymentCreateNestedOneWithoutServiceInput
+    estimate?: EstimateCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceUncheckedCreateWithoutClosedByInput = {
@@ -10027,6 +11867,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
+    estimate?: EstimateUncheckedCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceCreateOrConnectWithoutClosedByInput = {
@@ -10072,6 +11913,38 @@ export namespace Prisma {
 
   export type PaymentCreateManyTechnicianInputEnvelope = {
     data: PaymentCreateManyTechnicianInput | PaymentCreateManyTechnicianInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type EstimateCreateWithoutTechnicianInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    service: ServiceCreateNestedOneWithoutEstimateInput
+    client: ClientCreateNestedOneWithoutEstimatesInput
+  }
+
+  export type EstimateUncheckedCreateWithoutTechnicianInput = {
+    id?: string
+    serviceId: string
+    clientId: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EstimateCreateOrConnectWithoutTechnicianInput = {
+    where: EstimateWhereUniqueInput
+    create: XOR<EstimateCreateWithoutTechnicianInput, EstimateUncheckedCreateWithoutTechnicianInput>
+  }
+
+  export type EstimateCreateManyTechnicianInputEnvelope = {
+    data: EstimateCreateManyTechnicianInput | EstimateCreateManyTechnicianInput[]
     skipDuplicates?: boolean
   }
 
@@ -10181,6 +12054,37 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
   }
 
+  export type EstimateUpsertWithWhereUniqueWithoutTechnicianInput = {
+    where: EstimateWhereUniqueInput
+    update: XOR<EstimateUpdateWithoutTechnicianInput, EstimateUncheckedUpdateWithoutTechnicianInput>
+    create: XOR<EstimateCreateWithoutTechnicianInput, EstimateUncheckedCreateWithoutTechnicianInput>
+  }
+
+  export type EstimateUpdateWithWhereUniqueWithoutTechnicianInput = {
+    where: EstimateWhereUniqueInput
+    data: XOR<EstimateUpdateWithoutTechnicianInput, EstimateUncheckedUpdateWithoutTechnicianInput>
+  }
+
+  export type EstimateUpdateManyWithWhereWithoutTechnicianInput = {
+    where: EstimateScalarWhereInput
+    data: XOR<EstimateUpdateManyMutationInput, EstimateUncheckedUpdateManyWithoutTechnicianInput>
+  }
+
+  export type EstimateScalarWhereInput = {
+    AND?: EstimateScalarWhereInput | EstimateScalarWhereInput[]
+    OR?: EstimateScalarWhereInput[]
+    NOT?: EstimateScalarWhereInput | EstimateScalarWhereInput[]
+    id?: StringFilter<"Estimate"> | string
+    serviceId?: StringFilter<"Estimate"> | string
+    technicianId?: StringFilter<"Estimate"> | string
+    clientId?: StringFilter<"Estimate"> | string
+    amount?: DecimalFilter<"Estimate"> | Decimal | DecimalJsLike | number | string
+    description?: StringNullableFilter<"Estimate"> | string | null
+    status?: EnumEstimateStatusFilter<"Estimate"> | $Enums.EstimateStatus
+    createdAt?: DateTimeFilter<"Estimate"> | Date | string
+    updatedAt?: DateTimeFilter<"Estimate"> | Date | string
+  }
+
   export type ServiceCreateWithoutClientInput = {
     id?: string
     title: string
@@ -10201,6 +12105,7 @@ export namespace Prisma {
     closedBy?: UserCreateNestedOneWithoutServicesClosedInput
     category?: ServiceCategoryCreateNestedOneWithoutServicesInput
     payment?: PaymentCreateNestedOneWithoutServiceInput
+    estimate?: EstimateCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceUncheckedCreateWithoutClientInput = {
@@ -10223,6 +12128,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
+    estimate?: EstimateUncheckedCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceCreateOrConnectWithoutClientInput = {
@@ -10232,6 +12138,38 @@ export namespace Prisma {
 
   export type ServiceCreateManyClientInputEnvelope = {
     data: ServiceCreateManyClientInput | ServiceCreateManyClientInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type EstimateCreateWithoutClientInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    service: ServiceCreateNestedOneWithoutEstimateInput
+    technician: UserCreateNestedOneWithoutEstimatesInput
+  }
+
+  export type EstimateUncheckedCreateWithoutClientInput = {
+    id?: string
+    serviceId: string
+    technicianId: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EstimateCreateOrConnectWithoutClientInput = {
+    where: EstimateWhereUniqueInput
+    create: XOR<EstimateCreateWithoutClientInput, EstimateUncheckedCreateWithoutClientInput>
+  }
+
+  export type EstimateCreateManyClientInputEnvelope = {
+    data: EstimateCreateManyClientInput | EstimateCreateManyClientInput[]
     skipDuplicates?: boolean
   }
 
@@ -10249,6 +12187,22 @@ export namespace Prisma {
   export type ServiceUpdateManyWithWhereWithoutClientInput = {
     where: ServiceScalarWhereInput
     data: XOR<ServiceUpdateManyMutationInput, ServiceUncheckedUpdateManyWithoutClientInput>
+  }
+
+  export type EstimateUpsertWithWhereUniqueWithoutClientInput = {
+    where: EstimateWhereUniqueInput
+    update: XOR<EstimateUpdateWithoutClientInput, EstimateUncheckedUpdateWithoutClientInput>
+    create: XOR<EstimateCreateWithoutClientInput, EstimateUncheckedCreateWithoutClientInput>
+  }
+
+  export type EstimateUpdateWithWhereUniqueWithoutClientInput = {
+    where: EstimateWhereUniqueInput
+    data: XOR<EstimateUpdateWithoutClientInput, EstimateUncheckedUpdateWithoutClientInput>
+  }
+
+  export type EstimateUpdateManyWithWhereWithoutClientInput = {
+    where: EstimateScalarWhereInput
+    data: XOR<EstimateUpdateManyMutationInput, EstimateUncheckedUpdateManyWithoutClientInput>
   }
 
   export type ServiceCreateWithoutCategoryInput = {
@@ -10271,6 +12225,7 @@ export namespace Prisma {
     createdBy: UserCreateNestedOneWithoutServicesCreatedInput
     closedBy?: UserCreateNestedOneWithoutServicesClosedInput
     payment?: PaymentCreateNestedOneWithoutServiceInput
+    estimate?: EstimateCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceUncheckedCreateWithoutCategoryInput = {
@@ -10293,6 +12248,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
+    estimate?: EstimateUncheckedCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceCreateOrConnectWithoutCategoryInput = {
@@ -10335,6 +12291,7 @@ export namespace Prisma {
     servicesCreated?: ServiceCreateNestedManyWithoutCreatedByInput
     servicesClosed?: ServiceCreateNestedManyWithoutClosedByInput
     payments?: PaymentCreateNestedManyWithoutTechnicianInput
+    estimates?: EstimateCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserUncheckedCreateWithoutServicesAsTechnicianInput = {
@@ -10351,6 +12308,7 @@ export namespace Prisma {
     servicesCreated?: ServiceUncheckedCreateNestedManyWithoutCreatedByInput
     servicesClosed?: ServiceUncheckedCreateNestedManyWithoutClosedByInput
     payments?: PaymentUncheckedCreateNestedManyWithoutTechnicianInput
+    estimates?: EstimateUncheckedCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserCreateOrConnectWithoutServicesAsTechnicianInput = {
@@ -10368,6 +12326,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimates?: EstimateCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutServicesInput = {
@@ -10380,6 +12339,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimates?: EstimateUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutServicesInput = {
@@ -10401,6 +12361,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceCreateNestedManyWithoutTechnicianInput
     servicesClosed?: ServiceCreateNestedManyWithoutClosedByInput
     payments?: PaymentCreateNestedManyWithoutTechnicianInput
+    estimates?: EstimateCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserUncheckedCreateWithoutServicesCreatedInput = {
@@ -10417,6 +12378,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceUncheckedCreateNestedManyWithoutTechnicianInput
     servicesClosed?: ServiceUncheckedCreateNestedManyWithoutClosedByInput
     payments?: PaymentUncheckedCreateNestedManyWithoutTechnicianInput
+    estimates?: EstimateUncheckedCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserCreateOrConnectWithoutServicesCreatedInput = {
@@ -10438,6 +12400,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceCreateNestedManyWithoutTechnicianInput
     servicesCreated?: ServiceCreateNestedManyWithoutCreatedByInput
     payments?: PaymentCreateNestedManyWithoutTechnicianInput
+    estimates?: EstimateCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserUncheckedCreateWithoutServicesClosedInput = {
@@ -10454,6 +12417,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceUncheckedCreateNestedManyWithoutTechnicianInput
     servicesCreated?: ServiceUncheckedCreateNestedManyWithoutCreatedByInput
     payments?: PaymentUncheckedCreateNestedManyWithoutTechnicianInput
+    estimates?: EstimateUncheckedCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserCreateOrConnectWithoutServicesClosedInput = {
@@ -10519,6 +12483,33 @@ export namespace Prisma {
     create: XOR<PaymentCreateWithoutServiceInput, PaymentUncheckedCreateWithoutServiceInput>
   }
 
+  export type EstimateCreateWithoutServiceInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    technician: UserCreateNestedOneWithoutEstimatesInput
+    client: ClientCreateNestedOneWithoutEstimatesInput
+  }
+
+  export type EstimateUncheckedCreateWithoutServiceInput = {
+    id?: string
+    technicianId: string
+    clientId: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EstimateCreateOrConnectWithoutServiceInput = {
+    where: EstimateWhereUniqueInput
+    create: XOR<EstimateCreateWithoutServiceInput, EstimateUncheckedCreateWithoutServiceInput>
+  }
+
   export type UserUpsertWithoutServicesAsTechnicianInput = {
     update: XOR<UserUpdateWithoutServicesAsTechnicianInput, UserUncheckedUpdateWithoutServicesAsTechnicianInput>
     create: XOR<UserCreateWithoutServicesAsTechnicianInput, UserUncheckedCreateWithoutServicesAsTechnicianInput>
@@ -10544,6 +12535,7 @@ export namespace Prisma {
     servicesCreated?: ServiceUpdateManyWithoutCreatedByNestedInput
     servicesClosed?: ServiceUpdateManyWithoutClosedByNestedInput
     payments?: PaymentUpdateManyWithoutTechnicianNestedInput
+    estimates?: EstimateUpdateManyWithoutTechnicianNestedInput
   }
 
   export type UserUncheckedUpdateWithoutServicesAsTechnicianInput = {
@@ -10560,6 +12552,7 @@ export namespace Prisma {
     servicesCreated?: ServiceUncheckedUpdateManyWithoutCreatedByNestedInput
     servicesClosed?: ServiceUncheckedUpdateManyWithoutClosedByNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutTechnicianNestedInput
+    estimates?: EstimateUncheckedUpdateManyWithoutTechnicianNestedInput
   }
 
   export type ClientUpsertWithoutServicesInput = {
@@ -10583,6 +12576,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimates?: EstimateUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutServicesInput = {
@@ -10595,6 +12589,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimates?: EstimateUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type UserUpsertWithoutServicesCreatedInput = {
@@ -10622,6 +12617,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceUpdateManyWithoutTechnicianNestedInput
     servicesClosed?: ServiceUpdateManyWithoutClosedByNestedInput
     payments?: PaymentUpdateManyWithoutTechnicianNestedInput
+    estimates?: EstimateUpdateManyWithoutTechnicianNestedInput
   }
 
   export type UserUncheckedUpdateWithoutServicesCreatedInput = {
@@ -10638,6 +12634,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceUncheckedUpdateManyWithoutTechnicianNestedInput
     servicesClosed?: ServiceUncheckedUpdateManyWithoutClosedByNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutTechnicianNestedInput
+    estimates?: EstimateUncheckedUpdateManyWithoutTechnicianNestedInput
   }
 
   export type UserUpsertWithoutServicesClosedInput = {
@@ -10665,6 +12662,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceUpdateManyWithoutTechnicianNestedInput
     servicesCreated?: ServiceUpdateManyWithoutCreatedByNestedInput
     payments?: PaymentUpdateManyWithoutTechnicianNestedInput
+    estimates?: EstimateUpdateManyWithoutTechnicianNestedInput
   }
 
   export type UserUncheckedUpdateWithoutServicesClosedInput = {
@@ -10681,6 +12679,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceUncheckedUpdateManyWithoutTechnicianNestedInput
     servicesCreated?: ServiceUncheckedUpdateManyWithoutCreatedByNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutTechnicianNestedInput
+    estimates?: EstimateUncheckedUpdateManyWithoutTechnicianNestedInput
   }
 
   export type ServiceCategoryUpsertWithoutServicesInput = {
@@ -10753,6 +12752,39 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EstimateUpsertWithoutServiceInput = {
+    update: XOR<EstimateUpdateWithoutServiceInput, EstimateUncheckedUpdateWithoutServiceInput>
+    create: XOR<EstimateCreateWithoutServiceInput, EstimateUncheckedCreateWithoutServiceInput>
+    where?: EstimateWhereInput
+  }
+
+  export type EstimateUpdateToOneWithWhereWithoutServiceInput = {
+    where?: EstimateWhereInput
+    data: XOR<EstimateUpdateWithoutServiceInput, EstimateUncheckedUpdateWithoutServiceInput>
+  }
+
+  export type EstimateUpdateWithoutServiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    technician?: UserUpdateOneRequiredWithoutEstimatesNestedInput
+    client?: ClientUpdateOneRequiredWithoutEstimatesNestedInput
+  }
+
+  export type EstimateUncheckedUpdateWithoutServiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    technicianId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserCreateWithoutPaymentsInput = {
     id?: string
     email: string
@@ -10767,6 +12799,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceCreateNestedManyWithoutTechnicianInput
     servicesCreated?: ServiceCreateNestedManyWithoutCreatedByInput
     servicesClosed?: ServiceCreateNestedManyWithoutClosedByInput
+    estimates?: EstimateCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -10783,6 +12816,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceUncheckedCreateNestedManyWithoutTechnicianInput
     servicesCreated?: ServiceUncheckedCreateNestedManyWithoutCreatedByInput
     servicesClosed?: ServiceUncheckedCreateNestedManyWithoutClosedByInput
+    estimates?: EstimateUncheckedCreateNestedManyWithoutTechnicianInput
   }
 
   export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -10810,6 +12844,7 @@ export namespace Prisma {
     createdBy: UserCreateNestedOneWithoutServicesCreatedInput
     closedBy?: UserCreateNestedOneWithoutServicesClosedInput
     category?: ServiceCategoryCreateNestedOneWithoutServicesInput
+    estimate?: EstimateCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceUncheckedCreateWithoutPaymentInput = {
@@ -10832,6 +12867,7 @@ export namespace Prisma {
     categoryId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimate?: EstimateUncheckedCreateNestedOneWithoutServiceInput
   }
 
   export type ServiceCreateOrConnectWithoutPaymentInput = {
@@ -10864,6 +12900,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceUpdateManyWithoutTechnicianNestedInput
     servicesCreated?: ServiceUpdateManyWithoutCreatedByNestedInput
     servicesClosed?: ServiceUpdateManyWithoutClosedByNestedInput
+    estimates?: EstimateUpdateManyWithoutTechnicianNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -10880,6 +12917,7 @@ export namespace Prisma {
     servicesAsTechnician?: ServiceUncheckedUpdateManyWithoutTechnicianNestedInput
     servicesCreated?: ServiceUncheckedUpdateManyWithoutCreatedByNestedInput
     servicesClosed?: ServiceUncheckedUpdateManyWithoutClosedByNestedInput
+    estimates?: EstimateUncheckedUpdateManyWithoutTechnicianNestedInput
   }
 
   export type ServiceUpsertWithoutPaymentInput = {
@@ -10913,6 +12951,7 @@ export namespace Prisma {
     createdBy?: UserUpdateOneRequiredWithoutServicesCreatedNestedInput
     closedBy?: UserUpdateOneWithoutServicesClosedNestedInput
     category?: ServiceCategoryUpdateOneWithoutServicesNestedInput
+    estimate?: EstimateUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateWithoutPaymentInput = {
@@ -10935,6 +12974,267 @@ export namespace Prisma {
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimate?: EstimateUncheckedUpdateOneWithoutServiceNestedInput
+  }
+
+  export type ServiceCreateWithoutEstimateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    status?: $Enums.ServiceStatus
+    scheduledDate: Date | string
+    scheduledTime: string
+    address?: string | null
+    completedAt?: Date | string | null
+    notes?: string | null
+    expectedAmount?: Decimal | DecimalJsLike | number | string | null
+    closedAt?: Date | string | null
+    isLocked?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    technician?: UserCreateNestedOneWithoutServicesAsTechnicianInput
+    client?: ClientCreateNestedOneWithoutServicesInput
+    createdBy: UserCreateNestedOneWithoutServicesCreatedInput
+    closedBy?: UserCreateNestedOneWithoutServicesClosedInput
+    category?: ServiceCategoryCreateNestedOneWithoutServicesInput
+    payment?: PaymentCreateNestedOneWithoutServiceInput
+  }
+
+  export type ServiceUncheckedCreateWithoutEstimateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    status?: $Enums.ServiceStatus
+    scheduledDate: Date | string
+    scheduledTime: string
+    address?: string | null
+    completedAt?: Date | string | null
+    notes?: string | null
+    expectedAmount?: Decimal | DecimalJsLike | number | string | null
+    closedAt?: Date | string | null
+    isLocked?: boolean
+    technicianId?: string | null
+    clientId?: string | null
+    createdById: string
+    closedById?: string | null
+    categoryId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
+  }
+
+  export type ServiceCreateOrConnectWithoutEstimateInput = {
+    where: ServiceWhereUniqueInput
+    create: XOR<ServiceCreateWithoutEstimateInput, ServiceUncheckedCreateWithoutEstimateInput>
+  }
+
+  export type UserCreateWithoutEstimatesInput = {
+    id?: string
+    email: string
+    name: string
+    role: $Enums.Role
+    avatar?: string | null
+    passwordHash: string
+    phone?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    servicesAsTechnician?: ServiceCreateNestedManyWithoutTechnicianInput
+    servicesCreated?: ServiceCreateNestedManyWithoutCreatedByInput
+    servicesClosed?: ServiceCreateNestedManyWithoutClosedByInput
+    payments?: PaymentCreateNestedManyWithoutTechnicianInput
+  }
+
+  export type UserUncheckedCreateWithoutEstimatesInput = {
+    id?: string
+    email: string
+    name: string
+    role: $Enums.Role
+    avatar?: string | null
+    passwordHash: string
+    phone?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    servicesAsTechnician?: ServiceUncheckedCreateNestedManyWithoutTechnicianInput
+    servicesCreated?: ServiceUncheckedCreateNestedManyWithoutCreatedByInput
+    servicesClosed?: ServiceUncheckedCreateNestedManyWithoutClosedByInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutTechnicianInput
+  }
+
+  export type UserCreateOrConnectWithoutEstimatesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutEstimatesInput, UserUncheckedCreateWithoutEstimatesInput>
+  }
+
+  export type ClientCreateWithoutEstimatesInput = {
+    id?: string
+    name: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    city?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    services?: ServiceCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientUncheckedCreateWithoutEstimatesInput = {
+    id?: string
+    name: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    city?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    services?: ServiceUncheckedCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientCreateOrConnectWithoutEstimatesInput = {
+    where: ClientWhereUniqueInput
+    create: XOR<ClientCreateWithoutEstimatesInput, ClientUncheckedCreateWithoutEstimatesInput>
+  }
+
+  export type ServiceUpsertWithoutEstimateInput = {
+    update: XOR<ServiceUpdateWithoutEstimateInput, ServiceUncheckedUpdateWithoutEstimateInput>
+    create: XOR<ServiceCreateWithoutEstimateInput, ServiceUncheckedCreateWithoutEstimateInput>
+    where?: ServiceWhereInput
+  }
+
+  export type ServiceUpdateToOneWithWhereWithoutEstimateInput = {
+    where?: ServiceWhereInput
+    data: XOR<ServiceUpdateWithoutEstimateInput, ServiceUncheckedUpdateWithoutEstimateInput>
+  }
+
+  export type ServiceUpdateWithoutEstimateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumServiceStatusFieldUpdateOperationsInput | $Enums.ServiceStatus
+    scheduledDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    scheduledTime?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    technician?: UserUpdateOneWithoutServicesAsTechnicianNestedInput
+    client?: ClientUpdateOneWithoutServicesNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutServicesCreatedNestedInput
+    closedBy?: UserUpdateOneWithoutServicesClosedNestedInput
+    category?: ServiceCategoryUpdateOneWithoutServicesNestedInput
+    payment?: PaymentUpdateOneWithoutServiceNestedInput
+  }
+
+  export type ServiceUncheckedUpdateWithoutEstimateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumServiceStatusFieldUpdateOperationsInput | $Enums.ServiceStatus
+    scheduledDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    scheduledTime?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    technicianId?: NullableStringFieldUpdateOperationsInput | string | null
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: StringFieldUpdateOperationsInput | string
+    closedById?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
+  }
+
+  export type UserUpsertWithoutEstimatesInput = {
+    update: XOR<UserUpdateWithoutEstimatesInput, UserUncheckedUpdateWithoutEstimatesInput>
+    create: XOR<UserCreateWithoutEstimatesInput, UserUncheckedCreateWithoutEstimatesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutEstimatesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutEstimatesInput, UserUncheckedUpdateWithoutEstimatesInput>
+  }
+
+  export type UserUpdateWithoutEstimatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    servicesAsTechnician?: ServiceUpdateManyWithoutTechnicianNestedInput
+    servicesCreated?: ServiceUpdateManyWithoutCreatedByNestedInput
+    servicesClosed?: ServiceUpdateManyWithoutClosedByNestedInput
+    payments?: PaymentUpdateManyWithoutTechnicianNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutEstimatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    servicesAsTechnician?: ServiceUncheckedUpdateManyWithoutTechnicianNestedInput
+    servicesCreated?: ServiceUncheckedUpdateManyWithoutCreatedByNestedInput
+    servicesClosed?: ServiceUncheckedUpdateManyWithoutClosedByNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutTechnicianNestedInput
+  }
+
+  export type ClientUpsertWithoutEstimatesInput = {
+    update: XOR<ClientUpdateWithoutEstimatesInput, ClientUncheckedUpdateWithoutEstimatesInput>
+    create: XOR<ClientCreateWithoutEstimatesInput, ClientUncheckedCreateWithoutEstimatesInput>
+    where?: ClientWhereInput
+  }
+
+  export type ClientUpdateToOneWithWhereWithoutEstimatesInput = {
+    where?: ClientWhereInput
+    data: XOR<ClientUpdateWithoutEstimatesInput, ClientUncheckedUpdateWithoutEstimatesInput>
+  }
+
+  export type ClientUpdateWithoutEstimatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    services?: ServiceUpdateManyWithoutClientNestedInput
+  }
+
+  export type ClientUncheckedUpdateWithoutEstimatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    services?: ServiceUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ServiceCreateManyTechnicianInput = {
@@ -11013,6 +13313,17 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type EstimateCreateManyTechnicianInput = {
+    id?: string
+    serviceId: string
+    clientId: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type ServiceUpdateWithoutTechnicianInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
@@ -11033,6 +13344,7 @@ export namespace Prisma {
     closedBy?: UserUpdateOneWithoutServicesClosedNestedInput
     category?: ServiceCategoryUpdateOneWithoutServicesNestedInput
     payment?: PaymentUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateWithoutTechnicianInput = {
@@ -11055,6 +13367,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUncheckedUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateManyWithoutTechnicianInput = {
@@ -11098,6 +13411,7 @@ export namespace Prisma {
     closedBy?: UserUpdateOneWithoutServicesClosedNestedInput
     category?: ServiceCategoryUpdateOneWithoutServicesNestedInput
     payment?: PaymentUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateWithoutCreatedByInput = {
@@ -11120,6 +13434,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUncheckedUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateManyWithoutCreatedByInput = {
@@ -11163,6 +13478,7 @@ export namespace Prisma {
     createdBy?: UserUpdateOneRequiredWithoutServicesCreatedNestedInput
     category?: ServiceCategoryUpdateOneWithoutServicesNestedInput
     payment?: PaymentUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateWithoutClosedByInput = {
@@ -11185,6 +13501,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUncheckedUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateManyWithoutClosedByInput = {
@@ -11247,6 +13564,39 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EstimateUpdateWithoutTechnicianInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    service?: ServiceUpdateOneRequiredWithoutEstimateNestedInput
+    client?: ClientUpdateOneRequiredWithoutEstimatesNestedInput
+  }
+
+  export type EstimateUncheckedUpdateWithoutTechnicianInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EstimateUncheckedUpdateManyWithoutTechnicianInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ServiceCreateManyClientInput = {
     id?: string
     title: string
@@ -11264,6 +13614,17 @@ export namespace Prisma {
     createdById: string
     closedById?: string | null
     categoryId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EstimateCreateManyClientInput = {
+    id?: string
+    serviceId: string
+    technicianId: string
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    status?: $Enums.EstimateStatus
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -11288,6 +13649,7 @@ export namespace Prisma {
     closedBy?: UserUpdateOneWithoutServicesClosedNestedInput
     category?: ServiceCategoryUpdateOneWithoutServicesNestedInput
     payment?: PaymentUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateWithoutClientInput = {
@@ -11310,6 +13672,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUncheckedUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateManyWithoutClientInput = {
@@ -11329,6 +13692,39 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EstimateUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    service?: ServiceUpdateOneRequiredWithoutEstimateNestedInput
+    technician?: UserUpdateOneRequiredWithoutEstimatesNestedInput
+  }
+
+  export type EstimateUncheckedUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceId?: StringFieldUpdateOperationsInput | string
+    technicianId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EstimateUncheckedUpdateManyWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    serviceId?: StringFieldUpdateOperationsInput | string
+    technicianId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEstimateStatusFieldUpdateOperationsInput | $Enums.EstimateStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -11374,6 +13770,7 @@ export namespace Prisma {
     createdBy?: UserUpdateOneRequiredWithoutServicesCreatedNestedInput
     closedBy?: UserUpdateOneWithoutServicesClosedNestedInput
     payment?: PaymentUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateWithoutCategoryInput = {
@@ -11396,6 +13793,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
+    estimate?: EstimateUncheckedUpdateOneWithoutServiceNestedInput
   }
 
   export type ServiceUncheckedUpdateManyWithoutCategoryInput = {

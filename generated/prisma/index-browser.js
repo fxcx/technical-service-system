@@ -192,6 +192,18 @@ exports.Prisma.PaymentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.EstimateScalarFieldEnum = {
+  id: 'id',
+  serviceId: 'serviceId',
+  technicianId: 'technicianId',
+  clientId: 'clientId',
+  amount: 'amount',
+  description: 'description',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -227,12 +239,19 @@ exports.PaymentMethod = exports.$Enums.PaymentMethod = {
   OTHER: 'OTHER'
 };
 
+exports.EstimateStatus = exports.$Enums.EstimateStatus = {
+  SENT: 'SENT',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Client: 'Client',
   ServiceCategory: 'ServiceCategory',
   Service: 'Service',
-  Payment: 'Payment'
+  Payment: 'Payment',
+  Estimate: 'Estimate'
 };
 
 /**
