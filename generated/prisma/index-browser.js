@@ -178,34 +178,6 @@ exports.Prisma.ServiceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.ServiceReportScalarFieldEnum = {
-  id: 'id',
-  serviceId: 'serviceId',
-  finalReport: 'finalReport',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.ServicePhotoScalarFieldEnum = {
-  id: 'id',
-  reportId: 'reportId',
-  url: 'url',
-  technicalNotes: 'technicalNotes',
-  order: 'order',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.SparePartScalarFieldEnum = {
-  id: 'id',
-  reportId: 'reportId',
-  name: 'name',
-  quantity: 'quantity',
-  unitPrice: 'unitPrice',
-  totalPrice: 'totalPrice',
-  notes: 'notes',
-  createdAt: 'createdAt'
-};
-
 exports.Prisma.PaymentScalarFieldEnum = {
   id: 'id',
   method: 'method',
@@ -260,9 +232,6 @@ exports.Prisma.ModelName = {
   Client: 'Client',
   ServiceCategory: 'ServiceCategory',
   Service: 'Service',
-  ServiceReport: 'ServiceReport',
-  ServicePhoto: 'ServicePhoto',
-  SparePart: 'SparePart',
   Payment: 'Payment'
 };
 

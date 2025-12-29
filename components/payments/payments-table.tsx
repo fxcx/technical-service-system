@@ -11,7 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -20,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDate, formatCurrency, getPaymentMethodLabel } from "@/lib/utils";
-import { DollarSign, Filter, Calendar } from "lucide-react";
+import { DollarSign, Calendar } from "lucide-react";
 import type { Payment, User } from "@/types";
 import {
   startOfWeek,

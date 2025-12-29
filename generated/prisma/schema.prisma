@@ -29,13 +29,6 @@ enum PaymentMethod {
   OTHER
 }
 
-enum PaymentGateway {
-  MERCADOPAGO
-  STRIPE
-  PAYPAL
-  OTHER
-}
-
 // Models
 model User {
   id           String   @id @default(uuid())
@@ -109,49 +102,11 @@ model Service {
   closedBy   User?            @relation("ClosedServices", fields: [closedById], references: [id])
   category   ServiceCategory? @relation(fields: [categoryId], references: [id])
   payment    Payment?
-  report     ServiceReport?
 
   @@index([technicianId])
   @@index([clientId])
   @@index([status])
   @@index([categoryId])
-}
-
-model ServiceReport {
-  id          String         @id @default(uuid())
-  serviceId   String         @unique
-  finalReport String         @db.Text // Narrativa completa del trabajo
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  service     Service        @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  photos      ServicePhoto[]
-  spareParts  SparePart[]
-}
-
-model ServicePhoto {
-  id             String        @id @default(uuid())
-  reportId       String
-  url            String
-  technicalNotes String?       @db.Text // Observaciones técnicas por foto
-  order          Int           @default(0)
-  createdAt      DateTime      @default(now())
-  report         ServiceReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
-
-  @@index([reportId])
-}
-
-model SparePart {
-  id         String        @id @default(uuid())
-  reportId   String
-  name       String
-  quantity   Int           @default(1)
-  unitPrice  Decimal       @default(0) @db.Decimal(10, 2)
-  totalPrice Decimal       @default(0) @db.Decimal(10, 2)
-  notes      String?
-  createdAt  DateTime      @default(now())
-  report     ServiceReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
-
-  @@index([reportId])
 }
 
 model Payment {

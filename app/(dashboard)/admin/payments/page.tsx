@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { PaymentsTable } from "@/components/payments/payments-table";
+import { Role } from "@/generated/prisma";
 
 export default async function AdminPaymentsPage() {
   const payments = await prisma.payment.findMany({
@@ -10,7 +11,7 @@ export default async function AdminPaymentsPage() {
     orderBy: { createdAt: "desc" },
   });
   const technicians = await prisma.user.findMany({
-    where: { role: "TECHNICIAN" },
+    where: { role: Role.TECHNICIAN },
   });
 
   return (
