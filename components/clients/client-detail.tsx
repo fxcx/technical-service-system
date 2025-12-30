@@ -194,7 +194,7 @@ export function ClientDetail({ client, services, stats }: ClientDetailProps) {
               <div className="space-y-2 md:col-span-2">
                 <Label>Dirección</Label>
                 <Input
-                  value={formData.address}
+                  value={formData.address || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, address: e.target.value })
                   }

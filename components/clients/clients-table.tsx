@@ -1,28 +1,36 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { formatDate } from "@/lib/utils"
-import { Search, Users, Eye, MapPin, Phone } from "lucide-react"
-import type { Client } from "@/types"
+import { useState } from "react";
+import Link from "next/link";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { formatDate } from "@/lib/utils";
+import { Search, Users, Eye, MapPin, Phone, Delete } from "lucide-react";
+import type { Client } from "@/types";
+import { NextResponse } from "next/server";
 
 interface ClientsTableProps {
-  clients: Client[]
+  clients: Client[];
 }
 
 export function ClientsTable({ clients }: ClientsTableProps) {
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState("");
 
   const filteredClients = clients.filter(
     (client) =>
-      client.name.toLowerCase().includes(search.toLowerCase()) ||
-      client.address.toLowerCase().includes(search.toLowerCase()) ||
-      client.phone.includes(search),
-  )
+      client.address?.toLowerCase().includes(search.toLowerCase()) ||
+      client.phone?.toLowerCase().includes(search.toLowerCase()) ||
+      client.email?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <Card>
@@ -59,7 +67,10 @@ export function ClientsTable({ clients }: ClientsTableProps) {
             <TableBody>
               {filteredClients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell
+                    colSpan={6}
+                    className="text-center py-8 text-muted-foreground"
+                  >
                     No se encontraron clientes
                   </TableCell>
                 </TableRow>
@@ -69,7 +80,11 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                     <TableCell>
                       <div>
                         <p className="font-medium">{client.name}</p>
-                        {client.email && <p className="text-sm text-muted-foreground">{client.email}</p>}
+                        {client.email && (
+                          <p className="text-sm text-muted-foreground">
+                            {client.email}
+                          </p>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -92,6 +107,14 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
+                      <button
+                        className="p2 m2"
+                        onClick={() =>
+                          NextResponse.json({ success: true, id: client.id })
+                        }
+                      >
+                        X
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -101,5 +124,5 @@ export function ClientsTable({ clients }: ClientsTableProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

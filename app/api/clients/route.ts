@@ -65,3 +65,37 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session || session.role !== "ADMIN") {
+      return NextResponse.json(
+        { success: false, error: "Sin permisos" },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { id } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Datos incompletos" },
+        { status: 400 }
+      );
+    }
+
+    const client = await prisma.client.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true, data: client });
+  } catch (error) {
+    console.error("Client delete error:", error);
+    return NextResponse.json(
+      { success: false, error: "Error interno" },
+      { status: 500 }
+    );
+  }
+}
