@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ClientDetail } from "@/components/clients/client-detail";
+import { serialize } from "@/lib/utils";
 
 interface ClientPageProps {
   params: Promise<{ id: string }>;
@@ -51,7 +52,7 @@ export default async function AdminClientPage({ params }: ClientPageProps) {
     <div className="max-w-4xl mx-auto space-y-6">
       <ClientDetail
         client={clientHistory.client}
-        services={clientHistory.services}
+        services={serialize(clientHistory.services)}
         stats={clientHistory.stats}
       />
     </div>
