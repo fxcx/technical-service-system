@@ -10,8 +10,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
-import { Phone, Eye } from "lucide-react";
+import { Phone, Eye, Plus } from "lucide-react";
 import { TechnicianActions } from "@/components/technicians/technician-actions";
+import { serialize } from "@/lib/utils";
 import type { User } from "@/types";
 
 export default async function AdminTechniciansPage() {
@@ -37,13 +38,23 @@ export default async function AdminTechniciansPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Técnicos</h1>
-        <p className="text-muted-foreground">Gestiona el equipo de técnicos</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Técnicos</h1>
+          <p className="text-muted-foreground">
+            Gestiona el equipo de técnicos
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/admin/technicians/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Técnico
+          </Link>
+        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {technicianStats.map((tech) => (
+        {serialize(technicianStats).map((tech) => (
           <TechnicianCard key={tech.id} technician={tech} />
         ))}
       </div>

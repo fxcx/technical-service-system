@@ -59,6 +59,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
   const [paymentType, setPaymentType] = useState<PaymentType>("ON_SITE");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [amount, setAmount] = useState("");
+  const [debtAmount, setDebtAmount] = useState("");
 
   const canStart = status === "PENDING";
   const canComplete = status === "IN_PROGRESS";
@@ -111,7 +112,9 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             serviceId: service.id,
-            amount: Number.parseFloat(amount),
+            amount: Number.parseFloat(amount) || 0,
+            debtAmount: Number.parseFloat(debtAmount) || 0,
+            hasDebt: paymentType === "MANUAL",
             method: paymentMethod,
             paymentType,
             technicianId: service.technicianId,
@@ -214,6 +217,12 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
                 <p className="text-lg font-bold text-emerald-700">
                   {formatCurrency(service.payment.amountPaid)}
                 </p>
+                {Number(service.payment.debtAmount) > 0 && (
+                  <p className="text-sm text-red-600 font-medium">
+                    Deuda pendiente:{" "}
+                    {formatCurrency(service.payment.debtAmount)}
+                  </p>
+                )}
               </div>
             </>
           )}
@@ -303,25 +312,46 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="MANUAL" id="manual" />
                     <Label htmlFor="manual" className="font-normal">
-                      Manual
+                      Pago Pendiente (Deuda)
                     </Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="amount">Monto cobrado</Label>
+                <Label htmlFor="amount">Monto pagado hoy</Label>
                 <Input
                   id="amount"
                   type="number"
+                  step="0.01"
                   placeholder="0"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Dejar en 0 si no hubo cobro
+                  Monto que el cliente entrega ahora
                 </p>
               </div>
+
+              {paymentType === "MANUAL" && (
+                <div className="space-y-2">
+                  <Label htmlFor="debtAmount" className="text-red-600">
+                    Monto adeudado (Deuda)
+                  </Label>
+                  <Input
+                    id="debtAmount"
+                    type="number"
+                    step="0.01"
+                    placeholder="0"
+                    value={debtAmount}
+                    onChange={(e) => setDebtAmount(e.target.value)}
+                    className="border-red-200"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Lo que el cliente queda debiendo
+                  </p>
+                </div>
+              )}
 
               {amount && Number.parseFloat(amount) > 0 && (
                 <div className="space-y-2">

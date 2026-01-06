@@ -95,3 +95,41 @@ export function getRelativeDay(date: Date | string): string {
   if (isTomorrow(date)) return "Mañana";
   return formatDate(date);
 }
+export function serialize<T>(obj: T): T {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  if (typeof obj !== "object") {
+    return obj;
+  }
+
+  // Handle Date
+  if (obj instanceof Date) {
+    return obj.toISOString() as any;
+  }
+
+  // Handle Decimal
+  if (
+    //@ts-ignore
+    typeof obj.toNumber === "function" &&
+    //@ts-ignore
+    typeof obj.toFixed === "function"
+  ) {
+    //@ts-ignore
+    return obj.toNumber();
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => serialize(item)) as any;
+  }
+
+  const newObj: any = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      newObj[key] = serialize((obj as any)[key]);
+    }
+  }
+
+  return newObj;
+}

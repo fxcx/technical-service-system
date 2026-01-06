@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { ServicesTable } from "@/components/services/services-table";
 import { Plus } from "lucide-react";
+import { serialize } from "@/lib/utils";
 
 // Cache for 30 seconds - services list updates frequently
 export const revalidate = 30;
@@ -38,7 +39,10 @@ export default async function AdminServicesPage() {
         </Button>
       </div>
 
-      <ServicesTable services={services} technicians={technicians} />
+      <ServicesTable
+        services={serialize(services)}
+        technicians={serialize(technicians)}
+      />
     </div>
   );
 }

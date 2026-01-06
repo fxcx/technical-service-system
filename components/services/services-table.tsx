@@ -210,9 +210,16 @@ export function ServicesTable({ services, technicians }: ServicesTableProps) {
                     </TableCell>
                     <TableCell>
                       {service.payment ? (
-                        <span className="font-medium text-emerald-600">
-                          {formatCurrency(service.payment.amountPaid)}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-emerald-600">
+                            {formatCurrency(service.payment.amountPaid)}
+                          </span>
+                          {Number(service.payment.debtAmount) > 0 && (
+                            <span className="text-xs font-medium text-red-600">
+                              Debe: {formatCurrency(service.payment.debtAmount)}
+                            </span>
+                          )}
+                        </div>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}

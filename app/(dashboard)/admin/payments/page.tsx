@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { PaymentsTable } from "@/components/payments/payments-table";
 import { Role } from "@/generated/prisma";
+import { serialize } from "@/lib/utils";
 
 // Cache for 30 seconds - payments data updates frequently
 export const revalidate = 30;
@@ -26,7 +27,10 @@ export default async function AdminPaymentsPage() {
         </p>
       </div>
 
-      <PaymentsTable payments={payments} technicians={technicians} />
+      <PaymentsTable
+        payments={serialize(payments)}
+        technicians={serialize(technicians)}
+      />
     </div>
   );
 }

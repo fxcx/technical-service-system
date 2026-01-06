@@ -29,7 +29,12 @@ enum PaymentMethod {
   OTHER
 }
 
-// Models
+enum EstimateStatus {
+  SENT
+  APPROVED
+  REJECTED
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -76,12 +81,6 @@ model ServiceCategory {
   services    Service[]
 }
 
-enum EstimateStatus {
-  SENT
-  APPROVED
-  REJECTED
-}
-
 model Service {
   id             String        @id @default(uuid())
   title          String
@@ -122,9 +121,9 @@ model Payment {
   id             String        @id @default(uuid())
   method         PaymentMethod
   amountPaid     Decimal       @db.Decimal(10, 2) // Monto efectivamente cobrado
-  sparePartsCost Decimal       @default(0) @db.Decimal(10, 2)
-  debtAmount     Decimal       @default(0) @db.Decimal(10, 2)
-  hasDebt        Boolean       @default(false)
+  sparePartsCost Decimal       @default(0) @db.Decimal(10, 2) // valor de repuestos
+  debtAmount     Decimal       @default(0) @db.Decimal(10, 2) // debe
+  hasDebt        Boolean       @default(false) // 
   notes          String?
   technicianId   String
   serviceId      String        @unique

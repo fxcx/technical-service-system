@@ -2,233 +2,176 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import type { User } from "@/types";
-
-const formSchema = z.object({
-  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  email: z.string().email("Email inválido"),
-  phone: z.string().optional(),
-  password: z.string().optional(), // Optional for edit
-  role: z.enum(["ADMIN", "TECHNICIAN", "CLIENT"]),
-  isActive: z.boolean().default(true),
-});
+import { Switch } from "@/components/ui/switch";
 
 interface TechnicianFormProps {
-  initialData?: User;
-  isEdit?: boolean;
+  technician?: User;
 }
 
-export function TechnicianForm({
-  initialData,
-  isEdit = false,
-}: TechnicianFormProps) {
+export function TechnicianForm({ technician }: TechnicianFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: initialData?.name || "",
-      email: initialData?.email || "",
-      phone: initialData?.phone || "",
-      password: "",
-      role: initialData?.role || "TECHNICIAN",
-      isActive: initialData ? initialData.isActive : true,
-    },
+  const [formData, setFormData] = useState({
+    name: technician?.name || "",
+    email: technician?.email || "",
+    phone: technician?.phone || "",
+    password: "",
+    isActive: technician?.isActive ?? true,
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setLoading(true);
-    try {
-      if (isEdit && initialData) {
-        const res = await fetch(`/api/technicians/${initialData.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        });
 
-        if (!res.ok) throw new Error("Error al actualizar");
-        toast.success("Técnico actualizado correctamente");
-        router.push("/admin/technicians");
-        router.refresh();
-      } else {
-        // Handle create if we were reusing this form for create too, but typically create has its own simple flow or modal.
-        // For now, let's assume this form is primarily for the edit page we are building.
-        // If we want to support create, we'd POST to /api/auth/register or similar (but admin usually creates users differently).
-        // Let's stick to update for now as requested.
+    try {
+      const isEditing = !!technician;
+      const url = isEditing
+        ? `/api/technicians/${technician.id}`
+        : "/api/technicians";
+      const method = isEditing ? "PUT" : "POST";
+
+      const body: any = {
+        ...formData,
+        role: "TECHNICIAN",
+      };
+
+      // Si es edición y el password está vacío, lo quitamos para no sobrescribirlo
+      if (isEditing && !body.password) {
+        delete body.password;
       }
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Error al guardar");
+      }
+
+      toast.success(
+        isEditing
+          ? "Técnico actualizado correctamente"
+          : "Técnico creado exitosamente"
+      );
+      router.push("/admin/technicians");
+      router.refresh();
     } catch (error) {
-      toast.error("Error al guardar los cambios");
-      console.error(error);
+      toast.error(
+        error instanceof Error ? error.message : "Error al guardar el técnico"
+      );
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nombre Completo</FormLabel>
-              <FormControl>
-                <Input placeholder="Juan Pérez" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+    <Card>
+      <CardHeader>
+        <CardTitle>{technician ? "Editar Técnico" : "Nuevo Técnico"}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Nombre completo *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              placeholder="Juan Pérez"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                placeholder="juan@ejemplo.com"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Teléfono</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                placeholder="+56 9 1234 5678"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">
+              {technician ? "Nueva Contraseña (opcional)" : "Contraseña *"}
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              placeholder={
+                technician
+                  ? "Dejar en blanco para mantener la actual"
+                  : "Mínimo 6 caracteres"
+              }
+              required={!technician}
+              minLength={6}
+            />
+          </div>
+
+          {technician && (
+            <div className="flex items-center space-x-2 pt-2">
+              <Switch
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, isActive: checked })
+                }
+              />
+              <Label htmlFor="isActive">Técnico Activo</Label>
+            </div>
           )}
-        />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="juan@ejemplo.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="+56 9 1234 5678" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Rol</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar rol" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="TECHNICIAN">Técnico</SelectItem>
-                    <SelectItem value="ADMIN">Administrador</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="isActive"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Estado</FormLabel>
-                <Select
-                  onValueChange={(val) => field.onChange(val === "true")}
-                  defaultValue={field.value ? "true" : "false"}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar estado" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="true">Activo</SelectItem>
-                    <SelectItem value="false">Inactivo</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Los técnicos inactivos no pueden acceder al sistema
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contraseña {isEdit && "(Opcional)"}</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder={
-                    isEdit ? "Dejar en blanco para mantener actual" : "********"
-                  }
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                {isEdit
-                  ? "Solo llena este campo si deseas cambiar la contraseña"
-                  : "Contraseña para el nuevo usuario"}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEdit ? "Guardar Cambios" : "Crear Técnico"}
-          </Button>
-        </div>
-      </form>
-    </Form>
+          <div className="flex gap-2 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 bg-transparent"
+              onClick={() => router.back()}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" className="flex-1" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {technician ? "Guardar Cambios" : "Crear Técnico"}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

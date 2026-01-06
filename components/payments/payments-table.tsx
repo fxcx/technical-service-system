@@ -66,6 +66,11 @@ export function PaymentsTable({ payments, technicians }: PaymentsTableProps) {
     0
   );
 
+  const totalDebt = filteredPayments.reduce(
+    (sum, p) => sum + Number(p.debtAmount || 0),
+    0
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -73,7 +78,13 @@ export function PaymentsTable({ payments, technicians }: PaymentsTableProps) {
           <div>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
-              {filteredPayments.length} cobros - {formatCurrency(totalAmount)}
+              {filteredPayments.length} cobros - Total Pagado:{" "}
+              {formatCurrency(totalAmount)}
+              {totalDebt > 0 && (
+                <span className="text-red-500 text-sm ml-2">
+                  (Deuda: {formatCurrency(totalDebt)})
+                </span>
+              )}
             </CardTitle>
           </div>
           <div className="flex flex-col gap-2 md:flex-row md:items-center">
@@ -117,14 +128,15 @@ export function PaymentsTable({ payments, technicians }: PaymentsTableProps) {
                 <TableHead>Técnico</TableHead>
                 <TableHead>Método</TableHead>
 
-                <TableHead className="text-right">Monto</TableHead>
+                <TableHead className="text-right">Pagado</TableHead>
+                <TableHead className="text-right">Deuda</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredPayments.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="text-center py-8 text-muted-foreground"
                   >
                     No se encontraron cobros
@@ -146,8 +158,13 @@ export function PaymentsTable({ payments, technicians }: PaymentsTableProps) {
                     <TableCell>
                       {getPaymentMethodLabel(payment.method)}
                     </TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="text-right font-medium text-emerald-600">
                       {formatCurrency(payment.amountPaid)}
+                    </TableCell>
+                    <TableCell className="text-right font-medium text-red-600">
+                      {Number(payment.debtAmount) > 0
+                        ? formatCurrency(payment.debtAmount)
+                        : "-"}
                     </TableCell>
                   </TableRow>
                 ))

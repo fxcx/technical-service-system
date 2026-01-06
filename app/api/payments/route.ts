@@ -53,15 +53,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { serviceId, amount, method, paymentType, technicianId } = body as {
-      serviceId: string;
-      amount: number;
-      method: PaymentMethod;
-      paymentType: PaymentType;
-      technicianId: string;
-    };
+    const { serviceId, amount, debtAmount, hasDebt, method, technicianId } =
+      body as {
+        serviceId: string;
+        amount: number;
+        debtAmount?: number;
+        hasDebt?: boolean;
+        method: PaymentMethod;
+        technicianId: string;
+      };
 
-    if (!serviceId || !amount || !method || !technicianId) {
+    if (!serviceId || amount === undefined || !method || !technicianId) {
       return NextResponse.json(
         { success: false, error: "Datos incompletos" },
         { status: 400 }
@@ -96,6 +98,8 @@ export async function POST(request: NextRequest) {
       data: {
         serviceId,
         amountPaid: amount,
+        debtAmount: debtAmount || 0,
+        hasDebt: hasDebt || false,
         method,
         technicianId,
       },

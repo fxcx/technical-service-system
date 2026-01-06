@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ServiceDetail } from "@/components/technician/service-detail";
+import { serialize } from "@/lib/utils";
 
 interface ServicePageProps {
   params: Promise<{ id: string }>;
@@ -35,7 +36,7 @@ export default async function TechnicianServicePage({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <ServiceDetail service={service} />
+      <ServiceDetail service={serialize(service)} />
     </div>
   );
 }
