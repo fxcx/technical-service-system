@@ -1,0 +1,5 @@
+en la seccion de cierrre del servicio
+- agregar foto del recibo
+- agregar repuesto y cantidad
+
+si es un servicio en garantia
