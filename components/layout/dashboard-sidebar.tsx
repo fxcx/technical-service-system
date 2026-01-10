@@ -42,6 +42,7 @@ const adminNavItems = [
 
 const technicianNavItems = [
   { title: "Mi Agenda", href: "/technician/dashboard", icon: LayoutDashboard },
+  { title: "Calendario", href: "/technician/schedule", icon: Calendar },
   { title: "Mis Servicios", href: "/technician/services", icon: ClipboardList },
 ];
 

@@ -42,6 +42,8 @@ import {
   Play,
   CheckCircle,
   Loader2,
+  Camera,
+  X,
 } from "lucide-react";
 import type { Service, PaymentMethod, PaymentType } from "@/types";
 
@@ -60,6 +62,26 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [amount, setAmount] = useState("");
   const [debtAmount, setDebtAmount] = useState("");
+  const [receiptPhoto, setReceiptPhoto] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+
+  // Handle receipt photo selection
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setReceiptPhoto(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function removePhoto() {
+    setReceiptPhoto(null);
+    setReceiptPreview(null);
+  }
 
   const canStart = status === "PENDING";
   const canComplete = status === "IN_PROGRESS";
@@ -105,6 +127,21 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
 
       if (!statusRes.ok) throw new Error("Error al completar servicio");
 
+      // Upload receipt photo if provided
+      let receiptPhotoUrl: string | null = null;
+      if (receiptPhoto) {
+        const formData = new FormData();
+        formData.append("file", receiptPhoto);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          receiptPhotoUrl = uploadData.url;
+        }
+      }
+
       // Then register payment if amount > 0
       if (amount && Number.parseFloat(amount) > 0) {
         const paymentRes = await fetch("/api/payments", {
@@ -118,6 +155,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
             method: paymentMethod,
             paymentType,
             technicianId: service.technicianId,
+            receiptPhotoUrl,
           }),
         });
 
@@ -372,6 +410,47 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
                   </Select>
                 </div>
               )}
+
+              {/* Receipt Photo Upload */}
+              <div className="space-y-2">
+                <Label>Foto del recibo (opcional)</Label>
+                {receiptPreview ? (
+                  <div className="relative">
+                    <img
+                      src={receiptPreview}
+                      alt="Preview del recibo"
+                      className="w-full h-48 object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-8 w-8"
+                      onClick={removePhoto}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="receiptPhoto"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
+                  >
+                    <Camera className="h-8 w-8 text-muted-foreground mb-2" />
+                    <span className="text-sm text-muted-foreground">
+                      Tomar foto o seleccionar
+                    </span>
+                    <input
+                      id="receiptPhoto"
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={handlePhotoChange}
+                    />
+                  </label>
+                )}
+              </div>
 
               <div className="flex gap-2 pt-2">
                 <Button

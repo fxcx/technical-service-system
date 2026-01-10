@@ -185,6 +185,7 @@ exports.Prisma.PaymentScalarFieldEnum = {
   sparePartsCost: 'sparePartsCost',
   debtAmount: 'debtAmount',
   hasDebt: 'hasDebt',
+  receiptPhotoUrl: 'receiptPhotoUrl',
   notes: 'notes',
   technicianId: 'technicianId',
   serviceId: 'serviceId',

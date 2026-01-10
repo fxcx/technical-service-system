@@ -1,5 +1,8 @@
-en la seccion de cierrre del servicio
+en la seccion de cierrre del servicio en la pantalla del tecnico
 - agregar foto del recibo
 - agregar repuesto y cantidad
+- que los respuestos sean un enun donde el tecnico al momento de cerrar el servicio pueda elegir rapido el repuesto que se usao en ese servicio
+- que en el servicio tambien se pueda agregar el repuesto que se debe llevar a ese servicio
 
-si es un servicio en garantia
+
+y agregar si es un servicio en garantia

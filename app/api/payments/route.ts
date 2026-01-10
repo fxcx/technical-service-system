@@ -53,15 +53,23 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { serviceId, amount, debtAmount, hasDebt, method, technicianId } =
-      body as {
-        serviceId: string;
-        amount: number;
-        debtAmount?: number;
-        hasDebt?: boolean;
-        method: PaymentMethod;
-        technicianId: string;
-      };
+    const {
+      serviceId,
+      amount,
+      debtAmount,
+      hasDebt,
+      method,
+      technicianId,
+      receiptPhotoUrl,
+    } = body as {
+      serviceId: string;
+      amount: number;
+      debtAmount?: number;
+      hasDebt?: boolean;
+      method: PaymentMethod;
+      technicianId: string;
+      receiptPhotoUrl?: string;
+    };
 
     if (!serviceId || amount === undefined || !method || !technicianId) {
       return NextResponse.json(
@@ -102,6 +110,7 @@ export async function POST(request: NextRequest) {
         hasDebt: hasDebt || false,
         method,
         technicianId,
+        receiptPhotoUrl: receiptPhotoUrl || null,
       },
     });
 

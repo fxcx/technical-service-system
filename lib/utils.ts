@@ -7,9 +7,21 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(
-  amount: number | { toNumber: () => number }
+  amount: number | string | { toNumber: () => number } | null | undefined
 ): string {
-  const numAmount = typeof amount === "number" ? amount : amount.toNumber();
+  if (amount === null || amount === undefined) return "$0";
+
+  let numAmount: number;
+  if (typeof amount === "number") {
+    numAmount = amount;
+  } else if (typeof amount === "string") {
+    numAmount = parseFloat(amount) || 0;
+  } else if (typeof amount === "object" && "toNumber" in amount) {
+    numAmount = amount.toNumber();
+  } else {
+    numAmount = 0;
+  }
+
   return new Intl.NumberFormat("es-CL", {
     style: "currency",
     currency: "CLP",

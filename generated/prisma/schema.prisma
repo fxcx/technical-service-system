@@ -118,17 +118,18 @@ model Service {
 }
 
 model Payment {
-  id             String        @id @default(uuid())
-  method         PaymentMethod
-  amountPaid     Decimal       @db.Decimal(10, 2) // Monto efectivamente cobrado
-  sparePartsCost Decimal       @default(0) @db.Decimal(10, 2) // valor de repuestos
-  debtAmount     Decimal       @default(0) @db.Decimal(10, 2) // debe
-  hasDebt        Boolean       @default(false) // 
-  notes          String?
-  technicianId   String
-  serviceId      String        @unique
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id              String        @id @default(uuid())
+  method          PaymentMethod
+  amountPaid      Decimal       @db.Decimal(10, 2) // Monto efectivamente cobrado
+  sparePartsCost  Decimal       @default(0) @db.Decimal(10, 2) // valor de repuestos
+  debtAmount      Decimal       @default(0) @db.Decimal(10, 2) // debe
+  hasDebt         Boolean       @default(false) // 
+  receiptPhotoUrl String? // URL de la foto del recibo
+  notes           String?
+  technicianId    String
+  serviceId       String        @unique
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   // Relations
   technician User    @relation("TechnicianPayments", fields: [technicianId], references: [id])

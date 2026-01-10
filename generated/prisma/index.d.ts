@@ -6479,6 +6479,7 @@ export namespace Prisma {
     sparePartsCost: Decimal | null
     debtAmount: Decimal | null
     hasDebt: boolean | null
+    receiptPhotoUrl: string | null
     notes: string | null
     technicianId: string | null
     serviceId: string | null
@@ -6493,6 +6494,7 @@ export namespace Prisma {
     sparePartsCost: Decimal | null
     debtAmount: Decimal | null
     hasDebt: boolean | null
+    receiptPhotoUrl: string | null
     notes: string | null
     technicianId: string | null
     serviceId: string | null
@@ -6507,6 +6509,7 @@ export namespace Prisma {
     sparePartsCost: number
     debtAmount: number
     hasDebt: number
+    receiptPhotoUrl: number
     notes: number
     technicianId: number
     serviceId: number
@@ -6535,6 +6538,7 @@ export namespace Prisma {
     sparePartsCost?: true
     debtAmount?: true
     hasDebt?: true
+    receiptPhotoUrl?: true
     notes?: true
     technicianId?: true
     serviceId?: true
@@ -6549,6 +6553,7 @@ export namespace Prisma {
     sparePartsCost?: true
     debtAmount?: true
     hasDebt?: true
+    receiptPhotoUrl?: true
     notes?: true
     technicianId?: true
     serviceId?: true
@@ -6563,6 +6568,7 @@ export namespace Prisma {
     sparePartsCost?: true
     debtAmount?: true
     hasDebt?: true
+    receiptPhotoUrl?: true
     notes?: true
     technicianId?: true
     serviceId?: true
@@ -6664,6 +6670,7 @@ export namespace Prisma {
     sparePartsCost: Decimal
     debtAmount: Decimal
     hasDebt: boolean
+    receiptPhotoUrl: string | null
     notes: string | null
     technicianId: string
     serviceId: string
@@ -6697,6 +6704,7 @@ export namespace Prisma {
     sparePartsCost?: boolean
     debtAmount?: boolean
     hasDebt?: boolean
+    receiptPhotoUrl?: boolean
     notes?: boolean
     technicianId?: boolean
     serviceId?: boolean
@@ -6713,6 +6721,7 @@ export namespace Prisma {
     sparePartsCost?: boolean
     debtAmount?: boolean
     hasDebt?: boolean
+    receiptPhotoUrl?: boolean
     notes?: boolean
     technicianId?: boolean
     serviceId?: boolean
@@ -6729,6 +6738,7 @@ export namespace Prisma {
     sparePartsCost?: boolean
     debtAmount?: boolean
     hasDebt?: boolean
+    receiptPhotoUrl?: boolean
     notes?: boolean
     technicianId?: boolean
     serviceId?: boolean
@@ -6745,6 +6755,7 @@ export namespace Prisma {
     sparePartsCost?: boolean
     debtAmount?: boolean
     hasDebt?: boolean
+    receiptPhotoUrl?: boolean
     notes?: boolean
     technicianId?: boolean
     serviceId?: boolean
@@ -6752,7 +6763,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "method" | "amountPaid" | "sparePartsCost" | "debtAmount" | "hasDebt" | "notes" | "technicianId" | "serviceId" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
+  export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "method" | "amountPaid" | "sparePartsCost" | "debtAmount" | "hasDebt" | "receiptPhotoUrl" | "notes" | "technicianId" | "serviceId" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
   export type PaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     technician?: boolean | UserDefaultArgs<ExtArgs>
     service?: boolean | ServiceDefaultArgs<ExtArgs>
@@ -6779,6 +6790,7 @@ export namespace Prisma {
       sparePartsCost: Prisma.Decimal
       debtAmount: Prisma.Decimal
       hasDebt: boolean
+      receiptPhotoUrl: string | null
       notes: string | null
       technicianId: string
       serviceId: string
@@ -7215,6 +7227,7 @@ export namespace Prisma {
     readonly sparePartsCost: FieldRef<"Payment", 'Decimal'>
     readonly debtAmount: FieldRef<"Payment", 'Decimal'>
     readonly hasDebt: FieldRef<"Payment", 'Boolean'>
+    readonly receiptPhotoUrl: FieldRef<"Payment", 'String'>
     readonly notes: FieldRef<"Payment", 'String'>
     readonly technicianId: FieldRef<"Payment", 'String'>
     readonly serviceId: FieldRef<"Payment", 'String'>
@@ -8885,6 +8898,7 @@ export namespace Prisma {
     sparePartsCost: 'sparePartsCost',
     debtAmount: 'debtAmount',
     hasDebt: 'hasDebt',
+    receiptPhotoUrl: 'receiptPhotoUrl',
     notes: 'notes',
     technicianId: 'technicianId',
     serviceId: 'serviceId',
@@ -9456,6 +9470,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFilter<"Payment"> | boolean
+    receiptPhotoUrl?: StringNullableFilter<"Payment"> | string | null
     notes?: StringNullableFilter<"Payment"> | string | null
     technicianId?: StringFilter<"Payment"> | string
     serviceId?: StringFilter<"Payment"> | string
@@ -9472,6 +9487,7 @@ export namespace Prisma {
     sparePartsCost?: SortOrder
     debtAmount?: SortOrder
     hasDebt?: SortOrder
+    receiptPhotoUrl?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     technicianId?: SortOrder
     serviceId?: SortOrder
@@ -9492,6 +9508,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFilter<"Payment"> | boolean
+    receiptPhotoUrl?: StringNullableFilter<"Payment"> | string | null
     notes?: StringNullableFilter<"Payment"> | string | null
     technicianId?: StringFilter<"Payment"> | string
     createdAt?: DateTimeFilter<"Payment"> | Date | string
@@ -9507,6 +9524,7 @@ export namespace Prisma {
     sparePartsCost?: SortOrder
     debtAmount?: SortOrder
     hasDebt?: SortOrder
+    receiptPhotoUrl?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     technicianId?: SortOrder
     serviceId?: SortOrder
@@ -9529,6 +9547,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalWithAggregatesFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalWithAggregatesFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolWithAggregatesFilter<"Payment"> | boolean
+    receiptPhotoUrl?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     notes?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     technicianId?: StringWithAggregatesFilter<"Payment"> | string
     serviceId?: StringWithAggregatesFilter<"Payment"> | string
@@ -10067,6 +10086,7 @@ export namespace Prisma {
     sparePartsCost?: Decimal | DecimalJsLike | number | string
     debtAmount?: Decimal | DecimalJsLike | number | string
     hasDebt?: boolean
+    receiptPhotoUrl?: string | null
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10081,6 +10101,7 @@ export namespace Prisma {
     sparePartsCost?: Decimal | DecimalJsLike | number | string
     debtAmount?: Decimal | DecimalJsLike | number | string
     hasDebt?: boolean
+    receiptPhotoUrl?: string | null
     notes?: string | null
     technicianId: string
     serviceId: string
@@ -10095,6 +10116,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFieldUpdateOperationsInput | boolean
+    receiptPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10109,6 +10131,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFieldUpdateOperationsInput | boolean
+    receiptPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     technicianId?: StringFieldUpdateOperationsInput | string
     serviceId?: StringFieldUpdateOperationsInput | string
@@ -10123,6 +10146,7 @@ export namespace Prisma {
     sparePartsCost?: Decimal | DecimalJsLike | number | string
     debtAmount?: Decimal | DecimalJsLike | number | string
     hasDebt?: boolean
+    receiptPhotoUrl?: string | null
     notes?: string | null
     technicianId: string
     serviceId: string
@@ -10137,6 +10161,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFieldUpdateOperationsInput | boolean
+    receiptPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10149,6 +10174,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFieldUpdateOperationsInput | boolean
+    receiptPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     technicianId?: StringFieldUpdateOperationsInput | string
     serviceId?: StringFieldUpdateOperationsInput | string
@@ -10704,6 +10730,7 @@ export namespace Prisma {
     sparePartsCost?: SortOrder
     debtAmount?: SortOrder
     hasDebt?: SortOrder
+    receiptPhotoUrl?: SortOrder
     notes?: SortOrder
     technicianId?: SortOrder
     serviceId?: SortOrder
@@ -10724,6 +10751,7 @@ export namespace Prisma {
     sparePartsCost?: SortOrder
     debtAmount?: SortOrder
     hasDebt?: SortOrder
+    receiptPhotoUrl?: SortOrder
     notes?: SortOrder
     technicianId?: SortOrder
     serviceId?: SortOrder
@@ -10738,6 +10766,7 @@ export namespace Prisma {
     sparePartsCost?: SortOrder
     debtAmount?: SortOrder
     hasDebt?: SortOrder
+    receiptPhotoUrl?: SortOrder
     notes?: SortOrder
     technicianId?: SortOrder
     serviceId?: SortOrder
@@ -11887,6 +11916,7 @@ export namespace Prisma {
     sparePartsCost?: Decimal | DecimalJsLike | number | string
     debtAmount?: Decimal | DecimalJsLike | number | string
     hasDebt?: boolean
+    receiptPhotoUrl?: string | null
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -11900,6 +11930,7 @@ export namespace Prisma {
     sparePartsCost?: Decimal | DecimalJsLike | number | string
     debtAmount?: Decimal | DecimalJsLike | number | string
     hasDebt?: boolean
+    receiptPhotoUrl?: string | null
     notes?: string | null
     serviceId: string
     createdAt?: Date | string
@@ -12047,6 +12078,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFilter<"Payment"> | boolean
+    receiptPhotoUrl?: StringNullableFilter<"Payment"> | string | null
     notes?: StringNullableFilter<"Payment"> | string | null
     technicianId?: StringFilter<"Payment"> | string
     serviceId?: StringFilter<"Payment"> | string
@@ -12459,6 +12491,7 @@ export namespace Prisma {
     sparePartsCost?: Decimal | DecimalJsLike | number | string
     debtAmount?: Decimal | DecimalJsLike | number | string
     hasDebt?: boolean
+    receiptPhotoUrl?: string | null
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12472,6 +12505,7 @@ export namespace Prisma {
     sparePartsCost?: Decimal | DecimalJsLike | number | string
     debtAmount?: Decimal | DecimalJsLike | number | string
     hasDebt?: boolean
+    receiptPhotoUrl?: string | null
     notes?: string | null
     technicianId: string
     createdAt?: Date | string
@@ -12733,6 +12767,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFieldUpdateOperationsInput | boolean
+    receiptPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12746,6 +12781,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFieldUpdateOperationsInput | boolean
+    receiptPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     technicianId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13307,6 +13343,7 @@ export namespace Prisma {
     sparePartsCost?: Decimal | DecimalJsLike | number | string
     debtAmount?: Decimal | DecimalJsLike | number | string
     hasDebt?: boolean
+    receiptPhotoUrl?: string | null
     notes?: string | null
     serviceId: string
     createdAt?: Date | string
@@ -13532,6 +13569,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFieldUpdateOperationsInput | boolean
+    receiptPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13545,6 +13583,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFieldUpdateOperationsInput | boolean
+    receiptPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     serviceId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13558,6 +13597,7 @@ export namespace Prisma {
     sparePartsCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     debtAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     hasDebt?: BoolFieldUpdateOperationsInput | boolean
+    receiptPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     serviceId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
