@@ -9,3 +9,5 @@ pnpm-lock.yaml
 # Prisma
 generated
 docs
+docker-compose.yml
+node_modules
