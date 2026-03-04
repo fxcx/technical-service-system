@@ -7,11 +7,10 @@ datasource db {
   provider = "postgresql"
 }
 
-// Enums
+// estos son los unicos roles que interactuan con el sistema
 enum Role {
   ADMIN
   TECHNICIAN
-  CLIENT
 }
 
 enum ServiceStatus {
