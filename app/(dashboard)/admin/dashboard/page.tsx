@@ -21,7 +21,6 @@ async function getDashboardData() {
     pendingServices,
     inProgressServices,
     completedThisMonth,
-    totalCollectedAgg,
     activeTechnicians,
     totalClients,
   ] = await Promise.all([
@@ -52,9 +51,6 @@ async function getDashboardData() {
         },
       },
     }),
-    prisma.payment.aggregate({
-      _sum: { amountPaid: true },
-    }),
     prisma.user.count({ where: { role: "TECHNICIAN", isActive: true } }),
     prisma.client.count(),
   ]);
@@ -65,7 +61,6 @@ async function getDashboardData() {
       pendingServices,
       inProgressServices,
       completedThisMonth,
-      totalCollected: totalCollectedAgg._sum.amountPaid?.toNumber() || 0,
       activeTechnicians,
       totalClients,
     },

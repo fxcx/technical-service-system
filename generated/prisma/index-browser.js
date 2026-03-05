@@ -174,6 +174,7 @@ exports.Prisma.ServiceScalarFieldEnum = {
   createdById: 'createdById',
   closedById: 'closedById',
   categoryId: 'categoryId',
+  completedPhotoUrl: 'completedPhotoUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

@@ -16,9 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import type { Client, User, Service } from "@/types";
-import { NewClientDialog } from "@/components/clients/new-client-dialog";
+import { ClientSearchInput } from "@/components/clients/client-search-input";
 
 interface ServiceFormProps {
   clients: Client[];
@@ -36,7 +36,6 @@ export function ServiceForm({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [clientsList, setClientsList] = useState(clients);
-  const [showNewClient, setShowNewClient] = useState(false);
 
   const [formData, setFormData] = useState({
     title: service?.title || "",
@@ -49,6 +48,9 @@ export function ServiceForm({
     scheduledTime: service?.scheduledTime || "09:00",
     address: service?.address || "",
     notes: service?.notes || "",
+    expectedAmount: service?.expectedAmount
+      ? String(service.expectedAmount)
+      : "",
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -65,6 +67,9 @@ export function ServiceForm({
         body: JSON.stringify({
           ...formData,
           scheduledDate: new Date(`${formData.scheduledDate}T12:00:00`),
+          expectedAmount: formData.expectedAmount
+            ? Number.parseFloat(formData.expectedAmount)
+            : null,
           createdById,
         }),
       });
@@ -79,7 +84,7 @@ export function ServiceForm({
       router.refresh();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Error al guardar el servicio"
+        error instanceof Error ? error.message : "Error al guardar el servicio",
       );
     } finally {
       setLoading(false);
@@ -89,7 +94,6 @@ export function ServiceForm({
   function handleClientCreated(newClient: Client) {
     setClientsList([...clientsList, newClient]);
     setFormData({ ...formData, clientId: newClient.id });
-    setShowNewClient(false);
   }
 
   return (
@@ -129,34 +133,21 @@ export function ServiceForm({
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Cliente *</Label>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowNewClient(true)}
-                >
-                  <Plus className="mr-1 h-4 w-4" />
-                  Nuevo cliente
-                </Button>
-              </div>
-              <Select
+              <Label>Cliente *</Label>
+              <ClientSearchInput
+                clients={clientsList}
                 value={formData.clientId}
-                onValueChange={(v) => setFormData({ ...formData, clientId: v })}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clientsList.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name} - {client.address}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onClientSelected={(id) =>
+                  setFormData({ ...formData, clientId: id })
+                }
+                onClientCreated={handleClientCreated}
+              />
+              {!formData.clientId && (
+                <p className="text-[0.8rem] text-muted-foreground">
+                  Escribe al menos 2 caracteres para buscar un cliente existente
+                  o crear uno nuevo.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -220,6 +211,23 @@ export function ServiceForm({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="expectedAmount">Monto esperado ($)</Label>
+              <Input
+                id="expectedAmount"
+                type="number"
+                step="0.01"
+                value={formData.expectedAmount}
+                onChange={(e) =>
+                  setFormData({ ...formData, expectedAmount: e.target.value })
+                }
+                placeholder="Ej: 5000"
+              />
+              <p className="text-xs text-muted-foreground">
+                Monto que se espera cobrar por este servicio.
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="notes">Notas internas</Label>
               <Textarea
                 id="notes"
@@ -249,12 +257,6 @@ export function ServiceForm({
           </form>
         </CardContent>
       </Card>
-
-      <NewClientDialog
-        open={showNewClient}
-        onOpenChange={setShowNewClient}
-        onClientCreated={handleClientCreated}
-      />
     </>
   );
 }

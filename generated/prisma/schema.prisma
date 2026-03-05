@@ -81,25 +81,26 @@ model ServiceCategory {
 }
 
 model Service {
-  id             String        @id @default(uuid())
-  title          String
-  description    String?
-  status         ServiceStatus @default(PENDING)
-  scheduledDate  DateTime
-  scheduledTime  String
-  address        String? // Dirección del servicio
-  completedAt    DateTime?
-  notes          String?
-  expectedAmount Decimal?      @db.Decimal(10, 2) // Monto esperado, editable hasta cierre
-  closedAt       DateTime?
-  isLocked       Boolean       @default(false) // Helper, pero status=CLOSED es la autoridad
-  technicianId   String?
-  clientId       String?
-  createdById    String
-  closedById     String?
-  categoryId     String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                String        @id @default(uuid())
+  title             String
+  description       String?
+  status            ServiceStatus @default(PENDING)
+  scheduledDate     DateTime
+  scheduledTime     String
+  address           String? // Dirección del servicio
+  completedAt       DateTime?
+  notes             String?
+  expectedAmount    Decimal?      @db.Decimal(10, 2) // Monto esperado, editable hasta cierre
+  closedAt          DateTime?
+  isLocked          Boolean       @default(false) // Helper, pero status=CLOSED es la autoridad
+  technicianId      String?
+  clientId          String?
+  createdById       String
+  closedById        String?
+  categoryId        String?
+  completedPhotoUrl String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   // Relations
   technician User?            @relation("TechnicianServices", fields: [technicianId], references: [id])
