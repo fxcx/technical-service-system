@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json(
         { success: false, error: "No autenticado" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     console.error("Services fetch error:", error);
     return NextResponse.json(
       { success: false, error: "Error interno" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json(
         { success: false, error: "Sin permisos" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -72,13 +72,14 @@ export async function POST(request: NextRequest) {
       scheduledTime,
       address,
       notes,
+      expectedAmount,
       createdById,
     } = body;
 
     if (!title || !clientId || !scheduledDate || !scheduledTime) {
       return NextResponse.json(
         { success: false, error: "Datos incompletos" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest) {
         scheduledTime,
         address,
         notes,
+        expectedAmount: expectedAmount || null,
         createdById,
         status: "PENDING",
       },
@@ -108,7 +110,7 @@ export async function POST(request: NextRequest) {
     console.error("Service create error:", error);
     return NextResponse.json(
       { success: false, error: "Error interno" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

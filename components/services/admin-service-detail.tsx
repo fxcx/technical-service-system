@@ -125,6 +125,17 @@ export function AdminServiceDetail({
             </div>
           )}
 
+          {service.expectedAmount && (
+            <div className="rounded-lg border border-emerald-100 bg-emerald-50/50 p-4">
+              <h4 className="font-medium text-emerald-800 mb-1">
+                Monto esperado
+              </h4>
+              <p className="text-2xl font-bold text-emerald-700">
+                {formatCurrency(service.expectedAmount)}
+              </p>
+            </div>
+          )}
+
           <Separator />
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -227,6 +238,36 @@ export function AdminServiceDetail({
                       </p>
                     </div>
                   </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {service.completedPhotoUrl && (
+            <>
+              <Separator />
+              <div>
+                <h4 className="font-medium mb-3">Comprobante del servicio</h4>
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
+                  <img
+                    src={service.completedPhotoUrl}
+                    alt="Comprobante del servicio"
+                    className="h-full w-full object-cover"
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="absolute bottom-2 right-2 h-8"
+                    asChild
+                  >
+                    <a
+                      href={service.completedPhotoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Ver pantalla completa
+                    </a>
+                  </Button>
                 </div>
               </div>
             </>

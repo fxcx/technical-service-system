@@ -60,7 +60,9 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
   // Payment form state
   const [paymentType, setPaymentType] = useState<PaymentType>("ON_SITE");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(
+    service.expectedAmount ? String(service.expectedAmount) : "",
+  );
   const [debtAmount, setDebtAmount] = useState("");
   const [receiptPhoto, setReceiptPhoto] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
@@ -118,17 +120,8 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
     setLoading(true);
 
     try {
-      // First update status
-      const statusRes = await fetch(`/api/services/${service.id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "COMPLETED" }),
-      });
-
-      if (!statusRes.ok) throw new Error("Error al completar servicio");
-
       // Upload receipt photo if provided
-      let receiptPhotoUrl: string | null = null;
+      let uploadedPhotoUrl: string | null = null;
       if (receiptPhoto) {
         const formData = new FormData();
         formData.append("file", receiptPhoto);
@@ -138,9 +131,19 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
         });
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json();
-          receiptPhotoUrl = uploadData.url;
+          uploadedPhotoUrl = uploadData.url;
         }
       }
+
+      // First update status and save photo URL
+      const statusRes = await fetch(`/api/services/${service.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "COMPLETED",
+          completedPhotoUrl: uploadedPhotoUrl,
+        }),
+      });
 
       // Then register payment if amount > 0
       if (amount && Number.parseFloat(amount) > 0) {
@@ -155,7 +158,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
             method: paymentMethod,
             paymentType,
             technicianId: service.technicianId,
-            receiptPhotoUrl,
+            receiptPhotoUrl: uploadedPhotoUrl,
           }),
         });
 
@@ -165,7 +168,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
       setStatus("COMPLETED");
       setShowPayment(false);
       toast.success(
-        "Servicio completado" + (amount ? " y pago registrado" : "")
+        "Servicio completado" + (amount ? " y pago registrado" : ""),
       );
       router.refresh();
     } catch {
@@ -202,6 +205,15 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
               <h4 className="font-medium mb-1">Descripción</h4>
               <p className="text-sm text-muted-foreground">
                 {service.description}
+              </p>
+            </div>
+          )}
+
+          {service.expectedAmount && (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+              <h4 className="font-medium text-primary mb-1">Monto a cobrar</h4>
+              <p className="text-2xl font-bold text-primary">
+                {formatCurrency(service.expectedAmount)}
               </p>
             </div>
           )}
@@ -265,6 +277,36 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
             </>
           )}
 
+          {service.completedPhotoUrl && (
+            <>
+              <Separator />
+              <div>
+                <h4 className="font-medium mb-2">Comprobante del servicio</h4>
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
+                  <img
+                    src={service.completedPhotoUrl}
+                    alt="Comprobante del servicio"
+                    className="h-full w-full object-cover"
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="absolute bottom-2 right-2 h-8"
+                    asChild
+                  >
+                    <a
+                      href={service.completedPhotoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Ver pantalla completa
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+
           {!isCompleted && (
             <>
               <Separator />
@@ -277,7 +319,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
                   >
                     <a
                       href={`https://maps.google.com/?q=${encodeURIComponent(
-                        service.client.address
+                        service.client.address,
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

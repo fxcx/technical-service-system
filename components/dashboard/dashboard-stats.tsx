@@ -1,13 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/utils";
-import {
-  Calendar,
-  Clock,
-  CheckCircle,
-  DollarSign,
-  Users,
-  AlertCircle,
-} from "lucide-react";
+import { Calendar, Clock, CheckCircle, Users, AlertCircle } from "lucide-react";
 
 interface DashboardStatsProps {
   stats: {
@@ -15,7 +7,6 @@ interface DashboardStatsProps {
     pendingServices: number;
     inProgressServices: number;
     completedThisMonth: number;
-    totalCollected: number;
     activeTechnicians: number;
     totalClients: number;
   };
@@ -51,15 +42,6 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
     },
-    {
-      title: "Total Cobrado",
-      value: formatCurrency(stats.totalCollected),
-      icon: DollarSign,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      isMonetary: true,
-    },
-
     {
       title: "Técnicos Activos",
       value: stats.activeTechnicians,

@@ -1,24 +1,36 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
-import type { Client } from "@/types"
+import type React from "react";
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import type { Client } from "@/types";
 
 interface NewClientDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onClientCreated: (client: Client) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onClientCreated: (client: Client) => void;
+  initialName?: string;
 }
 
-export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClientDialogProps) {
-  const [loading, setLoading] = useState(false)
+export function NewClientDialog({
+  open,
+  onOpenChange,
+  onClientCreated,
+  initialName = "",
+}: NewClientDialogProps) {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -26,32 +38,48 @@ export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClie
     address: "",
     city: "",
     notes: "",
-  })
+  });
+
+  // Prefill name when the dialog opens with an initialName
+  useEffect(() => {
+    if (open) {
+      setFormData((prev) => ({ ...prev, name: initialName || "" }));
+    }
+  }, [open, initialName]);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
       const res = await fetch("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Error al crear cliente")
+        const data = await res.json();
+        throw new Error(data.error || "Error al crear cliente");
       }
 
-      const { data } = await res.json()
-      toast.success("Cliente creado")
-      onClientCreated(data)
-      setFormData({ name: "", email: "", phone: "", address: "", city: "", notes: "" })
+      const { data } = await res.json();
+      toast.success("Cliente creado");
+      onClientCreated(data);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+        city: "",
+        notes: "",
+      });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Error al crear cliente")
+      toast.error(
+        error instanceof Error ? error.message : "Error al crear cliente",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -60,7 +88,9 @@ export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClie
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Nuevo Cliente</DialogTitle>
-          <DialogDescription>Ingresa los datos del nuevo cliente</DialogDescription>
+          <DialogDescription>
+            Ingresa los datos del nuevo cliente
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -68,7 +98,9 @@ export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClie
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               required
             />
           </div>
@@ -78,7 +110,9 @@ export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClie
               <Input
                 id="phone"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
                 required
               />
             </div>
@@ -88,7 +122,9 @@ export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClie
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
             </div>
           </div>
@@ -97,7 +133,9 @@ export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClie
             <Input
               id="address"
               value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })
+              }
               required
             />
           </div>
@@ -106,7 +144,9 @@ export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClie
             <Input
               id="city"
               value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, city: e.target.value })
+              }
             />
           </div>
           <div className="space-y-2">
@@ -114,7 +154,9 @@ export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClie
             <Textarea
               id="notes"
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
               rows={2}
             />
           </div>
@@ -135,5 +177,5 @@ export function NewClientDialog({ open, onOpenChange, onClientCreated }: NewClie
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

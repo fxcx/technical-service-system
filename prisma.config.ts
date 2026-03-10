@@ -1,12 +1,14 @@
 import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
-
+type Env = {
+  DIRECT_URL: string;
+};
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
   },
   datasource: {
-    url: env("DATABASE_URL_DEV"),
+    url: env<Env>("DIRECT_URL"),
   },
 });

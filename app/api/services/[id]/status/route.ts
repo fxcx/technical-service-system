@@ -13,18 +13,21 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (!session) {
       return NextResponse.json(
         { success: false, error: "No autenticado" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const { id } = await params;
     const body = await request.json();
-    const { status } = body as { status: ServiceStatus };
+    const { status, completedPhotoUrl } = body as {
+      status: ServiceStatus;
+      completedPhotoUrl?: string;
+    };
 
     if (!status) {
       return NextResponse.json(
         { success: false, error: "Estado requerido" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,7 +37,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (!service) {
       return NextResponse.json(
         { success: false, error: "Servicio no encontrado" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -42,13 +45,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (session.role === "TECHNICIAN" && service.technicianId !== session.id) {
       return NextResponse.json(
         { success: false, error: "Sin permisos" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const updateData: any = { status };
     if (status === "COMPLETED") {
       updateData.completedAt = new Date();
+      if (completedPhotoUrl) {
+        updateData.completedPhotoUrl = completedPhotoUrl;
+      }
     }
 
     const updated = await prisma.service.update({
@@ -67,7 +73,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     console.error("Status update error:", error);
     return NextResponse.json(
       { success: false, error: "Error interno" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

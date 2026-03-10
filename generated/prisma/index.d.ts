@@ -50,8 +50,7 @@ export type Estimate = $Result.DefaultSelection<Prisma.$EstimatePayload>
 export namespace $Enums {
   export const Role: {
   ADMIN: 'ADMIN',
-  TECHNICIAN: 'TECHNICIAN',
-  CLIENT: 'CLIENT'
+  TECHNICIAN: 'TECHNICIAN'
 };
 
 export type Role = (typeof Role)[keyof typeof Role]
@@ -110,7 +109,9 @@ export const EstimateStatus: typeof $Enums.EstimateStatus
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
- * const prisma = new PrismaClient()
+ * const prisma = new PrismaClient({
+ *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+ * })
  * // Fetch zero or more Users
  * const users = await prisma.user.findMany()
  * ```
@@ -131,7 +132,9 @@ export class PrismaClient<
    * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
-   * const prisma = new PrismaClient()
+   * const prisma = new PrismaClient({
+   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * })
    * // Fetch zero or more Users
    * const users = await prisma.user.findMany()
    * ```
@@ -330,8 +333,13 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
+<<<<<<< HEAD
    * Prisma Client JS version: 7.4.1
    * Query Engine version: 55ae170b1ced7fc6ed07a15f110549408c501bb3
+=======
+   * Prisma Client JS version: 7.4.2
+   * Query Engine version: 94a226be1cf2967af2541cca5529f0f7ba866919
+>>>>>>> upstream/main
    */
   export type PrismaVersion = {
     client: string
@@ -5058,6 +5066,7 @@ export namespace Prisma {
     createdById: string | null
     closedById: string | null
     categoryId: string | null
+    completedPhotoUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5080,6 +5089,7 @@ export namespace Prisma {
     createdById: string | null
     closedById: string | null
     categoryId: string | null
+    completedPhotoUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5102,6 +5112,7 @@ export namespace Prisma {
     createdById: number
     closedById: number
     categoryId: number
+    completedPhotoUrl: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5134,6 +5145,7 @@ export namespace Prisma {
     createdById?: true
     closedById?: true
     categoryId?: true
+    completedPhotoUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5156,6 +5168,7 @@ export namespace Prisma {
     createdById?: true
     closedById?: true
     categoryId?: true
+    completedPhotoUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5178,6 +5191,7 @@ export namespace Prisma {
     createdById?: true
     closedById?: true
     categoryId?: true
+    completedPhotoUrl?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5287,6 +5301,7 @@ export namespace Prisma {
     createdById: string
     closedById: string | null
     categoryId: string | null
+    completedPhotoUrl: string | null
     createdAt: Date
     updatedAt: Date
     _count: ServiceCountAggregateOutputType | null
@@ -5328,6 +5343,7 @@ export namespace Prisma {
     createdById?: boolean
     closedById?: boolean
     categoryId?: boolean
+    completedPhotoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     technician?: boolean | Service$technicianArgs<ExtArgs>
@@ -5357,6 +5373,7 @@ export namespace Prisma {
     createdById?: boolean
     closedById?: boolean
     categoryId?: boolean
+    completedPhotoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     technician?: boolean | Service$technicianArgs<ExtArgs>
@@ -5384,6 +5401,7 @@ export namespace Prisma {
     createdById?: boolean
     closedById?: boolean
     categoryId?: boolean
+    completedPhotoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     technician?: boolean | Service$technicianArgs<ExtArgs>
@@ -5411,11 +5429,12 @@ export namespace Prisma {
     createdById?: boolean
     closedById?: boolean
     categoryId?: boolean
+    completedPhotoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ServiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "status" | "scheduledDate" | "scheduledTime" | "address" | "completedAt" | "notes" | "expectedAmount" | "closedAt" | "isLocked" | "technicianId" | "clientId" | "createdById" | "closedById" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
+  export type ServiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "status" | "scheduledDate" | "scheduledTime" | "address" | "completedAt" | "notes" | "expectedAmount" | "closedAt" | "isLocked" | "technicianId" | "clientId" | "createdById" | "closedById" | "categoryId" | "completedPhotoUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
   export type ServiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     technician?: boolean | Service$technicianArgs<ExtArgs>
     client?: boolean | Service$clientArgs<ExtArgs>
@@ -5469,6 +5488,7 @@ export namespace Prisma {
       createdById: string
       closedById: string | null
       categoryId: string | null
+      completedPhotoUrl: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["service"]>
@@ -5918,6 +5938,7 @@ export namespace Prisma {
     readonly createdById: FieldRef<"Service", 'String'>
     readonly closedById: FieldRef<"Service", 'String'>
     readonly categoryId: FieldRef<"Service", 'String'>
+    readonly completedPhotoUrl: FieldRef<"Service", 'String'>
     readonly createdAt: FieldRef<"Service", 'DateTime'>
     readonly updatedAt: FieldRef<"Service", 'DateTime'>
   }
@@ -8884,6 +8905,7 @@ export namespace Prisma {
     createdById: 'createdById',
     closedById: 'closedById',
     categoryId: 'categoryId',
+    completedPhotoUrl: 'completedPhotoUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -9336,6 +9358,7 @@ export namespace Prisma {
     createdById?: StringFilter<"Service"> | string
     closedById?: StringNullableFilter<"Service"> | string | null
     categoryId?: StringNullableFilter<"Service"> | string | null
+    completedPhotoUrl?: StringNullableFilter<"Service"> | string | null
     createdAt?: DateTimeFilter<"Service"> | Date | string
     updatedAt?: DateTimeFilter<"Service"> | Date | string
     technician?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -9365,6 +9388,7 @@ export namespace Prisma {
     createdById?: SortOrder
     closedById?: SortOrderInput | SortOrder
     categoryId?: SortOrderInput | SortOrder
+    completedPhotoUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     technician?: UserOrderByWithRelationInput
@@ -9397,6 +9421,7 @@ export namespace Prisma {
     createdById?: StringFilter<"Service"> | string
     closedById?: StringNullableFilter<"Service"> | string | null
     categoryId?: StringNullableFilter<"Service"> | string | null
+    completedPhotoUrl?: StringNullableFilter<"Service"> | string | null
     createdAt?: DateTimeFilter<"Service"> | Date | string
     updatedAt?: DateTimeFilter<"Service"> | Date | string
     technician?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -9426,6 +9451,7 @@ export namespace Prisma {
     createdById?: SortOrder
     closedById?: SortOrderInput | SortOrder
     categoryId?: SortOrderInput | SortOrder
+    completedPhotoUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ServiceCountOrderByAggregateInput
@@ -9456,6 +9482,7 @@ export namespace Prisma {
     createdById?: StringWithAggregatesFilter<"Service"> | string
     closedById?: StringNullableWithAggregatesFilter<"Service"> | string | null
     categoryId?: StringNullableWithAggregatesFilter<"Service"> | string | null
+    completedPhotoUrl?: StringNullableWithAggregatesFilter<"Service"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Service"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Service"> | Date | string
   }
@@ -9935,6 +9962,7 @@ export namespace Prisma {
     expectedAmount?: Decimal | DecimalJsLike | number | string | null
     closedAt?: Date | string | null
     isLocked?: boolean
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     technician?: UserCreateNestedOneWithoutServicesAsTechnicianInput
@@ -9964,6 +9992,7 @@ export namespace Prisma {
     createdById: string
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
@@ -9983,6 +10012,7 @@ export namespace Prisma {
     expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isLocked?: BoolFieldUpdateOperationsInput | boolean
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     technician?: UserUpdateOneWithoutServicesAsTechnicianNestedInput
@@ -10012,6 +10042,7 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
@@ -10036,6 +10067,7 @@ export namespace Prisma {
     createdById: string
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -10053,6 +10085,7 @@ export namespace Prisma {
     expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isLocked?: BoolFieldUpdateOperationsInput | boolean
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10075,6 +10108,7 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10604,6 +10638,7 @@ export namespace Prisma {
     createdById?: SortOrder
     closedById?: SortOrder
     categoryId?: SortOrder
+    completedPhotoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -10630,6 +10665,7 @@ export namespace Prisma {
     createdById?: SortOrder
     closedById?: SortOrder
     categoryId?: SortOrder
+    completedPhotoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -10652,6 +10688,7 @@ export namespace Prisma {
     createdById?: SortOrder
     closedById?: SortOrder
     categoryId?: SortOrder
+    completedPhotoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -11754,6 +11791,7 @@ export namespace Prisma {
     expectedAmount?: Decimal | DecimalJsLike | number | string | null
     closedAt?: Date | string | null
     isLocked?: boolean
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     client?: ClientCreateNestedOneWithoutServicesInput
@@ -11781,6 +11819,7 @@ export namespace Prisma {
     createdById: string
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
@@ -11810,6 +11849,7 @@ export namespace Prisma {
     expectedAmount?: Decimal | DecimalJsLike | number | string | null
     closedAt?: Date | string | null
     isLocked?: boolean
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     technician?: UserCreateNestedOneWithoutServicesAsTechnicianInput
@@ -11837,6 +11877,7 @@ export namespace Prisma {
     clientId?: string | null
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
@@ -11866,6 +11907,7 @@ export namespace Prisma {
     expectedAmount?: Decimal | DecimalJsLike | number | string | null
     closedAt?: Date | string | null
     isLocked?: boolean
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     technician?: UserCreateNestedOneWithoutServicesAsTechnicianInput
@@ -11893,6 +11935,7 @@ export namespace Prisma {
     clientId?: string | null
     createdById: string
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
@@ -12016,6 +12059,7 @@ export namespace Prisma {
     createdById?: StringFilter<"Service"> | string
     closedById?: StringNullableFilter<"Service"> | string | null
     categoryId?: StringNullableFilter<"Service"> | string | null
+    completedPhotoUrl?: StringNullableFilter<"Service"> | string | null
     createdAt?: DateTimeFilter<"Service"> | Date | string
     updatedAt?: DateTimeFilter<"Service"> | Date | string
   }
@@ -12130,6 +12174,7 @@ export namespace Prisma {
     expectedAmount?: Decimal | DecimalJsLike | number | string | null
     closedAt?: Date | string | null
     isLocked?: boolean
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     technician?: UserCreateNestedOneWithoutServicesAsTechnicianInput
@@ -12157,6 +12202,7 @@ export namespace Prisma {
     createdById: string
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
@@ -12250,6 +12296,7 @@ export namespace Prisma {
     expectedAmount?: Decimal | DecimalJsLike | number | string | null
     closedAt?: Date | string | null
     isLocked?: boolean
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     technician?: UserCreateNestedOneWithoutServicesAsTechnicianInput
@@ -12277,6 +12324,7 @@ export namespace Prisma {
     clientId?: string | null
     createdById: string
     closedById?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
@@ -12873,6 +12921,7 @@ export namespace Prisma {
     expectedAmount?: Decimal | DecimalJsLike | number | string | null
     closedAt?: Date | string | null
     isLocked?: boolean
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     technician?: UserCreateNestedOneWithoutServicesAsTechnicianInput
@@ -12901,6 +12950,7 @@ export namespace Prisma {
     createdById: string
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     estimate?: EstimateUncheckedCreateNestedOneWithoutServiceInput
@@ -12980,6 +13030,7 @@ export namespace Prisma {
     expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isLocked?: BoolFieldUpdateOperationsInput | boolean
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     technician?: UserUpdateOneWithoutServicesAsTechnicianNestedInput
@@ -13008,6 +13059,7 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     estimate?: EstimateUncheckedUpdateOneWithoutServiceNestedInput
@@ -13026,6 +13078,7 @@ export namespace Prisma {
     expectedAmount?: Decimal | DecimalJsLike | number | string | null
     closedAt?: Date | string | null
     isLocked?: boolean
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     technician?: UserCreateNestedOneWithoutServicesAsTechnicianInput
@@ -13054,6 +13107,7 @@ export namespace Prisma {
     createdById: string
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     payment?: PaymentUncheckedCreateNestedOneWithoutServiceInput
@@ -13158,6 +13212,7 @@ export namespace Prisma {
     expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isLocked?: BoolFieldUpdateOperationsInput | boolean
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     technician?: UserUpdateOneWithoutServicesAsTechnicianNestedInput
@@ -13186,6 +13241,7 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
@@ -13290,6 +13346,7 @@ export namespace Prisma {
     createdById: string
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13311,6 +13368,7 @@ export namespace Prisma {
     clientId?: string | null
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13332,6 +13390,7 @@ export namespace Prisma {
     clientId?: string | null
     createdById: string
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13374,6 +13433,7 @@ export namespace Prisma {
     expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isLocked?: BoolFieldUpdateOperationsInput | boolean
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneWithoutServicesNestedInput
@@ -13401,6 +13461,7 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
@@ -13424,6 +13485,7 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13441,6 +13503,7 @@ export namespace Prisma {
     expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isLocked?: BoolFieldUpdateOperationsInput | boolean
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     technician?: UserUpdateOneWithoutServicesAsTechnicianNestedInput
@@ -13468,6 +13531,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
@@ -13491,6 +13555,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13508,6 +13573,7 @@ export namespace Prisma {
     expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isLocked?: BoolFieldUpdateOperationsInput | boolean
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     technician?: UserUpdateOneWithoutServicesAsTechnicianNestedInput
@@ -13535,6 +13601,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
@@ -13558,6 +13625,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13654,6 +13722,7 @@ export namespace Prisma {
     createdById: string
     closedById?: string | null
     categoryId?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13682,6 +13751,7 @@ export namespace Prisma {
     expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isLocked?: BoolFieldUpdateOperationsInput | boolean
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     technician?: UserUpdateOneWithoutServicesAsTechnicianNestedInput
@@ -13709,6 +13779,7 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
@@ -13732,6 +13803,7 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13786,6 +13858,7 @@ export namespace Prisma {
     clientId?: string | null
     createdById: string
     closedById?: string | null
+    completedPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13803,6 +13876,7 @@ export namespace Prisma {
     expectedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isLocked?: BoolFieldUpdateOperationsInput | boolean
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     technician?: UserUpdateOneWithoutServicesAsTechnicianNestedInput
@@ -13830,6 +13904,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: PaymentUncheckedUpdateOneWithoutServiceNestedInput
@@ -13853,6 +13928,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     closedById?: NullableStringFieldUpdateOperationsInput | string | null
+    completedPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
