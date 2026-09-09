@@ -79,7 +79,7 @@ Las notificaciones Push utilizarán Web Push y Service Worker.
 - PostgreSQL
 - Supabase
 - supabase storage (para guardar imagenes)
-- Prisma ORM
+- Prisma 8 ORM
 
 Supabase PostgreSQL constituye la fuente oficial de verdad del sistema.
 
@@ -397,7 +397,6 @@ Inventario
 
 Integraciones
 
-Configuración
 ```
 
 Cada módulo posee responsabilidades específicas y debe mantener bajo acoplamiento con los demás módulos.
@@ -410,6 +409,8 @@ Cada módulo posee responsabilidades específicas y debe mantener bajo acoplamie
 Administrador
       ↓
 Crear Servicio
+      ↓
+Crear Cliente o buscar
       ↓
 Asignar Técnico
       ↓
@@ -445,7 +446,6 @@ Funciones:
 - Presupuestos
 - Rendiciones
 - Inventario
-- Configuración
 
 ---
 
@@ -460,8 +460,8 @@ Puede:
 - cerrar servicios
 - enviar presupuestos
 - registrar cobros
-- registrar repuestos utilizados
-- consultar rendiciones propias
+-
+- consultar rendiciones propias finalizadas
 
 Nunca debe poder administrar o consultar información perteneciente a otros técnicos cuando las reglas de negocio lo impidan.
 
