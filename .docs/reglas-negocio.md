@@ -29,11 +29,11 @@ Las integraciones únicamente reflejan información existente.
 
 ---
 
-## 2. Cada servicio representa un servicio técnica precial que hace el tecnico
+## 2. Cada servicio representa un servicio que hace el tecnico
 
 Un Servicio representa una visita programada a un cliente.
 
-El servicio posee su propio historial, estado, técnico asignado y documentación asociada.
+El servicio posee su propio historial, estado, cliente asociado, técnico asignado y documentación asociada.
 
 ---
 
@@ -41,7 +41,7 @@ El servicio posee su propio historial, estado, técnico asignado y documentació
 
 No existe límite de servicios asociados a un cliente.
 
-El historial debe permanecer disponible de forma permanente del servicio ya que queda registrado cada servicio de cada tecnico y cada servicio que tubo el cliente.
+El historial debe permanecer disponible de forma permanente del servicio ya que queda registrado cada servicio de cada tecnico y cada servicio que tubo cada cliente.
 
 ---
 
@@ -79,7 +79,7 @@ Comunicación con Cliente (mensaje manual copy paste del formulario creado)
 
 ↓
 
-Agenda
+el servicio creado pasa a la Agenda
 
 ↓
 
@@ -124,42 +124,47 @@ Cada cambio de estado debe quedar registrado en el historial.
 El Administrador crea un servicio indicando como mínimo:
 
 - Empresa
-- Cliente
-- Fecha
-- Hora (se pone por detras automaticamente)
+- Cliente (requerido)
+- telefono
 - Dirección
 - Localidad
-- Descripción
+- Equipo
+- categoria de servicio
+- Observaciones (opcional)
+- monto estimado de servicio ya que el tecnico una vez que asista al service puede finalizar el cierre con otro valor que ese va hacer el verdadero.
+- Fecha (que se va a realizar el servicio)
+- Hora (se genera automaticamente por detras, no se pone manual)
+- el servicio puede ya tener el nombre de un repuesto varios que se va a usar de manera interna para poder rendir el servicios, ya van aparecer con repuestos cargados y otros se cargaran al momento de rendir
 - Técnico (opcional)
 
 Una vez creado:
 
 - aparece en la agenda
-- puede sincronizarse con Google Sheets
 - puede enviarse al cliente mediante WhatsApp (copy past manual lo hace administracion)
+- puede sincronizarse con Google Sheets (es una implementacion para la V2 pero hay que dejar todo preparado)
 
 ---
 
 # Comunicación con el Cliente
 
 Cada servicio puede generar automáticamente un mensaje para WhatsApp.
+esto no es un modelo o un modulo grande es simple y util.
 
 El mensaje debe poder:
 
 - copiarse al portapapeles
-- abrir WhatsApp directamente
+- abrir WhatsApp directamente al numero del cliente
 
-La plantilla será configurable en futuras versiones.
+La plantilla tiene los datos del formulario de creacion del servicio.
 
 El sistema nunca enviará mensajes automáticamente.
-
-Siempre será el usuario quien confirme el envío.
+Siempre será el usuario quien confirme el envío no hay una automatizacion o una integracion de la api de whatsApp.
 
 ---
 
 # Agenda (schedule)
 
-La agenda representa todos los servicios programados,cada tecnico tiene su propia agenda, cada tecnico tiene una hoja de googlesheest como agenda.
+La agenda representa todos los servicios programados,cada tecnico tiene su propia agenda, cada tecnico tiene una hoja de googlesheest como agenda que se sicroniza con la del sistema.
 
 Debe actualizarse automáticamente cuando:
 
@@ -183,11 +188,13 @@ Nunca modifica la información del sistema ya que el sistema es offline se ctual
 Cada técnico únicamente puede visualizar:
 
 - sus servicios
-- sus cobros
+- Lista de presio para tecnico (Modelo: inventario va a poder dar las listas)
 - sus presupuestos
 - su rendición
 
-Nunca podrá acceder a información perteneciente a otro técnico.
+Nunca podrá acceder a información perteneciente a otro técnico lo unicos que se va a poder ver es por logica es el historial del cliente.
+
+ya que el tecnico pude ver del detalle del servicio y con eso el historial del cliente.
 
 ---
 
@@ -196,8 +203,8 @@ Nunca podrá acceder a información perteneciente a otro técnico.
 Cuando un técnico finaliza un servicio podrá:
 
 - cerrar el trabajo
-- registrar un cobro
-- enviar un presupuesto
+- registrar un cobro (es el cobro que importa ya que al crear el servicio se crea un valor parcial nosabemos en que cobro se va a terminar al final del servicio ya que puede sugir adicionales)
+- enviar un presupuesto (opcional)
 
 Las acciones son independientes.
 
@@ -222,10 +229,10 @@ No existen estados intermedios.
 
 Cuando el técnico envía un presupuesto:
 
-- Administración recibe el presupuesto pendiente.
+- Administración recibe el presupuesto pendiente con los detalles de ese servicio.
 - El presupuesto permanece visible hasta que Administración lo finaliza.
 
-Los presupuestos desaparecen del menu de presupuestos una vez finalizado por administracion.
+Los presupuestos desaparecen del menu de presupuestos una vez finalizado por administracion el que desaparezcan de ese menu no significa que ese servicio es eliminado.
 
 ---
 
@@ -233,11 +240,11 @@ Los presupuestos desaparecen del menu de presupuestos una vez finalizado por adm
 
 Los cobros representan dinero efectivamente recibido por el técnico.
 
-Cada servicio puede tener un único cobro o deuda.
+Cada servicio puede tener un único cobro o deuda o ambas ya que puede faltar parte del pago.
 
 El cobro puede incluir:
 
-- monto cobrado (requerido)
+- monto cobrado total
 - efectivo / transferencia / otros (requerido)
 - deuda si es el caso (opcional)
 - gastos (opcional)
@@ -249,43 +256,47 @@ esto simplifica administracion contactarce con el cliente que no abono
 
 # Repuestos
 
-Un cobro puede contener múltiples repuestos los repuestos van a estar vivulados al inventario para una rapida buscada de repuesto que se uso y valor agilizando el cierre de rendicion.
+Un Servicio realizado puede contener múltiples repuestos, los repuestos van a estar viculados al inventario y rendicion para una rapida buscada de repuesto que se uso y valor agilizando el cierre de rendicion.
 
-Cada repuesto debe registrar al momento de rendir:
+Este modelo debe registrar:
 
 - Provedoor (de donde compro el repuesto)
+- Nombre
 - cantidad
 - costo unitario
 - costo total
 
-Los repuestos forman parte de la rendición económica donde administracion va agregar al momento de rendir con el tecnico uno a uno que repuesto uso, administracion agrega el nombre de reuesto que va a poder tener todos los repuestos coon busqueda por codigo o por nom bre ccon proveddor y valor de venta.
+Los repuestos forman parte de la rendición económica donde administracion va agregar al momento de rendir con el tecnico uno a uno que repuesto uso, administracion agrega Provedoor, nombre, ect.
 
-adminitracionb al mometo de rendir acciones
+adminitracionb al mometo de rendir, acciones.
 
-- agregar repuesto que viene del inventario
+- agregar repuesto que va a tener de referencia la lista del modelo inventario ya con el valor y lo agrega al servicio
 - editar valor
-- finalizar repuesto con monto total
+- finalizar
 
 ---
 
 # Inventario Proveedores
 
-Los proveedores permiten identificar el origen de cada repuesto.
+El modulo de inventario permiten identificar el origen de cada repuesto y tener el valor de costo y venta.
 
-administran stock Lista de precios de tecnico y interna de administracion donde se puede ver el costo real de repuestos.
+administra stock Lista de precio.,
+
+- una de tecnico
+- otra interna de administracion donde se puede ver el costo real de repuestos.
 
 Su finalidad es poder darle una lista de precios a los tecnicos y tener una lista propia de administracion al momento de rendir va a servir parqa sacar el costo de los repuestos una vez finalizado el cierre con el tecnico.
 
-El INVENTARIO proveedores podrán administrarse desde el panel de Administración unicamente el Panel solo pordra ver la lista de precios que se le asigne.
+El tecnico solo va a poder ver la lista para tecnicos.
 
 **Administracion**
 
-- carga lista que es una hoja de googlesheets
+- carga lista que es una hoja de calculo de googlesheets
 - ver lista tal cual se cargo
 - calculo automatico de porcentaje de ganancia de
 - editar
 - buscar repuesto
-- asinar una lista de precios para el tecnico donde le agrega 1.40 porciento
+- asinar una lista de precios para el tecnico donde va a tener el valor venta
 
 **Tecnico**
 
@@ -294,33 +305,37 @@ El INVENTARIO proveedores podrán administrarse desde el panel de Administració
 
 ---
 
-# Rendición Semanal, Mensual o con fecha seleccionadas
+# Modulo Rendición
 
-Cada técnico posee una rendición.
+Rendición Semanal, Mensual o con fecha seleccionadas Cada técnico posee una rendición.
 
-La rendición agrupa todos los cobros realizados durante la seleccion que se establecio en administracion, las fechas de renciones completadas ya no deben poder ser seleccionadas.
+La rendición agrupa todos los cobros realizados durante la fecha que se establecio, las fechas ya renddidas no seran seleccionables administracion.
 
-**Para cada servicio se calcula en una tabla legible y simple **
+las fechas de renciones completadas ya no deben poder ser seleccionadas para rendirse nuevamente.
 
-Monto Cobrado total del tecnico
+**Rendicion tabla legible y simple **
 
+servicio
 ↓
 
-- Efectivo
-
-- Transferencia
-
+Monto Cobrado total del tecnico
+↓
+empresa cobros por compania
 ↓
 
 Monto de gastos
 
 ↓
 
-a favor
+a favor (una seccion que se agrega para descontar)
 
 ↓
 
-empresa cobros por compania
+↓
+
+- Efectivo
+
+- Transferencia
 
 ↓
 
@@ -380,19 +395,8 @@ Futuras integraciones:
 
 - Google Calendar
 - Outlook Calendar
-- APIs de mensajería
 
 Las integraciones nunca reemplazan al sistema principal.
-
----
-
-# Seguridad
-
-Los técnicos únicamente pueden modificar información de sus propios servicios.
-
-Todas las operaciones sensibles requieren autenticación.
-
-Toda modificación debe validar permisos antes de ejecutarse.
 
 ---
 
