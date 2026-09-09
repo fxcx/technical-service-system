@@ -1,9 +1,46 @@
 // use prisma-next
-// Prisma 8 RC — sintaxis correcta: Decimal sin precisión, temporal.updatedAt(), Uuid nativo
 
+// Prisma 8 RC
+// Decimal sin precisión
+// DateTime con @default(now())
+// Uuid nativo
+//
 // ─────────────────────────────────────────────────────────────────────────────
+// ARQUITECTURA
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Company
+//   ├── Service[]
+//   ├── InventoryItem[]
+//   └── Settlement[]
+//
+// Service
+//   ├── Payment?
+//   ├── Estimate?
+//   ├── ServicePart[]
+//   └── ActivityLog[]
+//
+// InventoryItem
+//   └── ServicePart[]
+//
+// Settlement
+//   ├── SettlementItem[]
+//   └── SettlementPart[]
+//
+// ServicePart
+//   └── información operativa del repuesto
+//
+// SettlementPart
+//   └── snapshot histórico del repuesto al momento de rendir
+//
+// Payment
+//   └── información exclusivamente económica del cobro/deuda
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ═════════════════════════════════════════════════════════════════════════════
 // ENUMS
-// ─────────────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
 enum Role {
   @@type("pg/text@1")
 
@@ -44,73 +81,184 @@ enum SettlementStatus {
   PAID
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MODELS
-// ─────────────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// USER
+// ═════════════════════════════════════════════════════════════════════════════
 model User {
-  id                      Uuid             @id @default(uuid(7))
-  email                   String           @unique
+  id                      Uuid          @id @default(uuid(7))
+  email                   String        @unique
   name                    String
   role                    Role
   avatar                  String?
   passwordHash            String
   phone                   String?
   dni                     String?
-  isActive                Boolean          @default(true)
-  commissionRate          Decimal          @default(0.5000) // variable por técnico (ej: 0.50 = 50%)
-  createdAt               DateTime         @default(now())
-  updatedAt               DateTime         @default(now())
+  isActive                Boolean       @default(true)
+
+  // 0.50 = 50%
+  //
+  // Este es el porcentaje ACTUAL del técnico.
+  // Settlement.commissionRate guarda el porcentaje
+  // histórico utilizado en cada rendición.
+  commissionRate          Decimal       @default(0.5000)
+
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @default(now())
 
   // Relations
-  servicesAsTechnician    Service[]        @relation("TechnicianServices")
-  servicesCreated         Service[]        @relation("CreatedServices")
-  servicesClosed          Service[]        @relation("ClosedServices")
-  payments                Payment[]        @relation("TechnicianPayments")
-  estimates               Estimate[]
-  settlementsAsTechnician Settlement[]     @relation("TechnicianSettlements")
-  settlementsLiquidated   Settlement[]     @relation("LiquidatedSettlements")
+  servicesAsTechnician    Service[]     @relation("TechnicianServices")
+  servicesClosed          Service[]     @relation("ClosedServices")
+  payments                Payment[]     @relation("TechnicianPayments")
+  estimatesCreated        Estimate[]    @relation("EstimateCreatedBy")
+  estimatesCompleted      Estimate[]    @relation("EstimateCompletedBy")
+  settlementsAsTechnician Settlement[]  @relation("TechnicianSettlements")
+  settlementsLiquidated   Settlement[]  @relation("LiquidatedSettlements")
   activityLogs            ActivityLog[]
-  integrationLogs         IntegrationLog[]
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// COMPANY
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// Empresa para la cual se realiza el servicio.
+//
+// La misma empresa posee su catálogo/inventario de repuestos.
+//
+// Ejemplo:
+//
+// Empresa A
+//   ├── Servicio 1001
+//   ├── Servicio 1002
+//   ├── Bomba X
+//   └── Sensor X
+//
+// Empresa B
+//   ├── Servicio 1003
+//   ├── Bomba Y
+//   └── Válvula Y
+//
+// ═════════════════════════════════════════════════════════════════════════════
 model Company {
-  id          Uuid         @id @default(uuid(7))
-  name        String       @unique
-  type        String // ej: "TALLER_DE_CALDERAS"
-  logo        String?
-  icon        String?
-  phone       String?
-  address     String?
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @default(now())
+  id             Uuid            @id @default(uuid(7))
+  name           String          @unique
+  type           String
+  logo           String?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now())
 
   // Relations
-  services    Service[]
-  settlements Settlement[]
+  services       Service[]
+  inventoryItems InventoryItem[]
+  settlements    Settlement[]
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// CLIENT
+// ═════════════════════════════════════════════════════════════════════════════
 model Client {
-  id        Uuid       @id @default(uuid(7))
+  id        Uuid      @id @default(uuid(7))
   name      String?
-  email     String?    @unique
-  phone     String     @unique
+  email     String?   @unique
+  phone     String    @unique
   address   String?
-  locality  String? // ciudad / localidad
-  notes     String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
+  locality  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
 
   // Relations
   services  Service[]
-  estimates Estimate[]
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// SERVICE
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// Unidad principal del negocio.
+//
+// Un servicio puede tener:
+//
+// - una empresa
+// - un cliente
+// - un técnico
+// - un pago
+// - un presupuesto
+// - múltiples repuestos
+// - múltiples logs
+//
+// Los repuestos pertenecen al SERVICE.
+//
+// No pertenecen al PAYMENT.
+//
+// ═════════════════════════════════════════════════════════════════════════════
+model Service {
+  id             Uuid            @id @default(uuid(7))
+  // Foreign Keys
+  companyId      Uuid
+  clientId       Uuid
+  categoryId     Uuid
+  technicianId   Uuid
+  createdById    Uuid
+  closedById     Uuid?
+
+  // Identificador operativo
+  orderNumber    Int             @unique @default(autoincrement())
+
+  // Datos del servicio
+  observation    String?
+  status         ServiceStatus   @default(PENDING)
+  scheduledDate  DateTime
+  address        String
+  locality       String
+
+  // Importe esperado inicialmente.
+  expectedAmount Decimal?
+
+  // Importe final del servicio.
+  finalAmount    Decimal?
+  completedAt    DateTime?
+  closedAt       DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now())
+
+  // Relations
+  company        Company         @relation(fields:[companyId], references:[id])
+  client         Client          @relation(fields:[clientId], references:[id])
+  category       ServiceCategory @relation(fields:[categoryId], references:[id])
+  technician     User?           @relation("TechnicianServices", fields:[technicianId], references:[id])
+  createdBy      User            @relation("CreatedServices", fields:[createdById], references:[id])
+  closedBy       User?           @relation("ClosedServices", fields:[closedById], references:[id])
+
+  // Un servicio puede todavía no tener pago.
+  payment        Payment?
+
+  // Un servicio puede tener un presupuesto.
+  estimate       Estimate?
+
+  // Repuestos utilizados/cargados en el servicio.
+  parts          ServicePart[]
+
+  // Auditoría.
+  activityLogs   ActivityLog[]
+
+  // Indexes
+  @@index([technicianId, scheduledDate])
+  @@index([technicianId, status, scheduledDate])
+  @@index([status, scheduledDate])
+  @@index([companyId, scheduledDate])
+  @@index([clientId])
+  @@index([categoryId])
+  @@index([createdById])
+  @@index([closedById])
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SERVICE CATEGORY
+// ═════════════════════════════════════════════════════════════════════════════
 model ServiceCategory {
   id        Uuid      @id @default(uuid(7))
   name      String    @unique
   color     String?
-  icon      String?
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
@@ -119,144 +267,177 @@ model ServiceCategory {
   services  Service[]
 }
 
-model Service {
-  id                Uuid             @id @default(uuid(7))
-  orderNumber       Int              @unique @default(autoincrement())
-  companyId         Uuid
-  clientId          Uuid
-  categoryId        Uuid?
-  technicianId      Uuid?
-  createdById       Uuid
-  closedById        Uuid?
-  title             String
-  description       String?
-  status            ServiceStatus    @default(PENDING)
-  scheduledDate     DateTime
-  scheduledTime     String
-  address           String?
-  locality          String?
-  notes             String?
-  expectedAmount    Decimal?
-  completedAt       DateTime?
-  closedAt          DateTime?
-  completedPhotoUrl String?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @default(now())
-
-  // Relations
-  company           Company          @relation(fields:[companyId], references:[id])
-  client            Client           @relation(fields:[clientId], references:[id])
-  category          ServiceCategory? @relation(fields:[categoryId], references:[id])
-  technician        User?            @relation("TechnicianServices", fields:[technicianId], references:[id])
-  createdBy         User             @relation("CreatedServices", fields:[createdById], references:[id])
-  closedBy          User?            @relation("ClosedServices", fields:[closedById], references:[id])
-  payment           Payment?
-  estimate          Estimate?
-  activityLogs      ActivityLog[]
-
-  @@index([technicianId, scheduledDate])
-  @@index([status, scheduledDate])
-  @@index([clientId])
-  @@index([categoryId])
-  @@index([companyId])
-  @@index([createdById])
-  @@index([closedById])
-}
-
+// ═════════════════════════════════════════════════════════════════════════════
+// PAYMENT
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// Payment representa únicamente:
+//
+// - dinero cobrado
+// - deuda
+// - método de pago
+//
+// Los repuestos NO pertenecen a Payment.
+//
+// ═════════════════════════════════════════════════════════════════════════════
 model Payment {
-  id              Uuid          @id @default(uuid(7))
-  serviceId       Uuid          @unique
-  technicianId    Uuid
-  settlementId    Uuid?
-  method          PaymentMethod
-  amountPaid      Decimal
-  sparePartsCost  Decimal       @default(0)
-  debtAmount      Decimal       @default(0)
-  hasDebt         Boolean       @default(false)
-  receiptPhotoUrl String?
-  notes           String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @default(now())
+  id           Uuid          @id @default(uuid(7))
+  serviceId    Uuid          @unique
+  technicianId Uuid
+  settlementId Uuid?
+  method       PaymentMethod
+  amountPaid   Decimal       @default(0)
+  debtAmount   Decimal       @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now())
 
   // Relations
-  service         Service       @relation(fields:[serviceId], references:[id])
-  technician      User          @relation("TechnicianPayments", fields:[technicianId], references:[id])
-  settlement      Settlement?   @relation(fields:[settlementId], references:[id])
-  parts           PaymentPart[]
+  service      Service       @relation(fields:[serviceId], references:[id])
+  technician   User          @relation("TechnicianPayments", fields:[technicianId], references:[id])
+  settlement   Settlement?   @relation(fields:[settlementId], references:[id])
 
+  // Indexes
   @@index([technicianId])
   @@index([settlementId])
   @@index([createdAt])
 }
 
-model PaymentPart {
-  id              Uuid           @id @default(uuid(7))
-  paymentId       Uuid
-  supplierId      Uuid?
-  inventoryItemId Uuid? // referencia al catálogo de inventario
-  name            String
-  description     String?
-  quantity        Int
-  unitPrice       Decimal
-  totalPrice      Decimal
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @default(now())
-
-  // Relations
-  payment         Payment        @relation(fields:[paymentId], references:[id], onDelete: Cascade)
-  supplier        Supplier?      @relation(fields:[supplierId], references:[id])
-  inventoryItem   InventoryItem? @relation(fields:[inventoryItemId], references:[id])
-
-  @@index([paymentId])
-  @@index([supplierId])
-  @@index([inventoryItemId])
-}
-
-model Supplier {
-  id             Uuid            @id @default(uuid(7))
-  name           String          @unique
-  phone          String?
-  email          String?
-  notes          String?
-  isActive       Boolean         @default(true)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @default(now())
-
-  // Relations
-  paymentParts   PaymentPart[]
-  inventoryItems InventoryItem[]
-}
-
+// ═════════════════════════════════════════════════════════════════════════════
+// INVENTORY ITEM
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// Catálogo/inventario de repuestos perteneciente a una empresa.
+//
+// IMPORTANTE:
+//
+// El precio actual NO es el precio histórico de un servicio.
+//
+// Cuando un InventoryItem se utiliza en ServicePart,
+// se copian los valores necesarios:
+//
+// - name
+// - costPrice
+// - sellPrice
+//
+// De esta forma, si mañana cambia el precio del inventario,
+// el servicio histórico no cambia.
+//
+// ═════════════════════════════════════════════════════════════════════════════
 model InventoryItem {
   id           Uuid          @id @default(uuid(7))
-  supplierId   Uuid?
-  code         String?       @unique
+  companyId    Uuid
+
+  // Código interno de la empresa.
+  code         String        @unique
+  // Stock actual.
+  stock        Int           @default(0)
   name         String
-  description  String?
   unit         String?
-  costPrice    Decimal // precio de costo (administración ve este)
-  sellPrice    Decimal // precio de venta al cliente
-  techPrice    Decimal // precio lista técnico (+% sobre sell)
+  // Precio de costo actual.
+  costPrice    Decimal
+  // Precio de venta actual.
+  sellPrice    Decimal
+  // Precio para técnico.
+  techPrice    Decimal
   isActive     Boolean       @default(true)
   importedAt   DateTime      @default(now())
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @default(now())
 
   // Relations
-  supplier     Supplier?     @relation(fields:[supplierId], references:[id])
-  paymentParts PaymentPart[]
+  company      Company       @relation(fields:[companyId], references:[id])
+  serviceParts ServicePart[]
 
-  @@index([supplierId])
-  @@index([name])
-  @@index([code])
+  // Indexes
+  @@unique([companyId, code])
+  @@index([companyId])
+  @@index([companyId, name])
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// SERVICE PART
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// Repuesto utilizado en un servicio.
+//
+// Puede agregarse:
+//
+// 1. Al crear el servicio.
+// 2. Durante la ejecución.
+// 3. Durante la preparación de la rendición.
+//
+// En todos los casos sigue siendo ServicePart.
+//
+// NO creamos un modelo intermedio.
+//
+//
+//
+// Service
+//    │
+//    └── ServicePart
+//           │
+//           └── InventoryItem
+//                  │
+//                  └── Company
+//
+// Regla de negocio:
+//
+// Service.companyId debe coincidir con
+// InventoryItem.companyId.
+//
+// Esa validación debe hacerse en el servicio de dominio.
+//
+// ═════════════════════════════════════════════════════════════════════════════
+model ServicePart {
+  id              Uuid           @id @default(uuid(7))
+  serviceId       Uuid
+  inventoryItemId Uuid?
+
+  // Snapshot operativo del nombre.
+  name            String
+  description     String?
+  quantity        Decimal
+  // Costo del repuesto.
+  unitCost        Decimal
+  totalCost       Decimal
+
+  // Precio al que se vendió.
+  unitSalePrice   Decimal
+  totalSalePrice  Decimal
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now())
+
+  // Relations
+  service         Service        @relation(fields:[serviceId], references:[id], onDelete: Cascade)
+  inventoryItem   InventoryItem? @relation(fields:[inventoryItemId], references:[id])
+
+  // Indexes
+  @@index([serviceId])
+  @@index([inventoryItemId])
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// ESTIMATE
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// Un Service puede tener un único Estimate.
+//
+// El cliente se obtiene mediante:
+//
+// Estimate → Service → Client
+//
+// No duplicamos clientId.
+//
+// ═════════════════════════════════════════════════════════════════════════════
 model Estimate {
   id            Uuid           @id @default(uuid(7))
   serviceId     Uuid           @unique
-  userId        Uuid? // técnico que creó el presupuesto
-  clientId      Uuid?
-  completedById Uuid? // admin que finalizó
+
+  // Usuario que creó el presupuesto.
+  createdById   Uuid?
+  // Usuario que lo completó/finalizó.
+  completedById Uuid?
   amount        Decimal
   description   String?
   notes         String?
@@ -267,30 +448,65 @@ model Estimate {
 
   // Relations
   service       Service        @relation(fields:[serviceId], references:[id], onDelete: Cascade)
-  user          User?          @relation(fields:[userId], references:[id])
-  client        Client?        @relation(fields:[clientId], references:[id])
+  createdBy     User?          @relation("EstimateCreatedBy", fields:[createdById], references:[id])
+  completedBy   User?          @relation("EstimateCompletedBy", fields:[completedById], references:[id])
 
+  // Indexes
+  @@index([createdById])
+  @@index([completedById])
   @@index([status])
-  @@index([serviceId])
-  @@index([userId])
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// SETTLEMENT
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// CABECERA DE LA RENDICIÓN.
+//
+// La rendición representa la liquidación económica de un técnico
+// durante un período determinado.
+//
+// Los valores guardados aquí son SNAPSHOT de la liquidación.
+//
+// Una vez PAID, la rendición debe considerarse inmutable.
+//
+// ═════════════════════════════════════════════════════════════════════════════
 model Settlement {
   id             Uuid             @id @default(uuid(7))
   technicianId   Uuid
-  companyId      Uuid? // empresa asociada (opcional, para filtrar por empresa)
+  companyId      Uuid?
   liquidatedById Uuid?
-  // Período libre: admin elige startDate y endDate por cada rendición
+  // Período de la rendición.
   startDate      DateTime
   endDate        DateTime
-  label          String? // ej: "Semana 31 - Julio 2026"
-  commissionRate Decimal // heredado del commissionRate del técnico al momento de generar
-  ordersCount    Int              @default(0)
-  paymentsCount  Int              @default(0)
+  label          String?
+  // Porcentaje histórico del técnico.
+  commissionRate Decimal
+  // Cantidad de servicios rendidos.
+  servicesCount  Int              @default(0)
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // COBROS
+  // ───────────────────────────────────────────────────────────────────────────
   totalCollected Decimal          @default(0)
-  totalParts     Decimal          @default(0)
-  netAmount      Decimal          @default(0)
+  totalDebt      Decimal          @default(0)
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // REPUESTOS
+  // ───────────────────────────────────────────────────────────────────────────
+  // Costo total de repuestos.
+  totalPartsCost Decimal          @default(0)
+  // Precio total de venta de repuestos.
+  totalPartsSale Decimal          @default(0)
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // LIQUIDACIÓN
+  // ───────────────────────────────────────────────────────────────────────────
+  // Base sobre la cual se calcula la comisión.
+  commissionBase Decimal          @default(0)
+  // Dinero correspondiente al técnico.
   techCommission Decimal          @default(0)
+  // Dinero correspondiente a la empresa.
   compCommission Decimal          @default(0)
   status         SettlementStatus @default(PENDING)
   notes          String?
@@ -302,13 +518,129 @@ model Settlement {
   technician     User             @relation("TechnicianSettlements", fields:[technicianId], references:[id])
   liquidatedBy   User?            @relation("LiquidatedSettlements", fields:[liquidatedById], references:[id])
   company        Company?         @relation(fields:[companyId], references:[id])
-  payments       Payment[]
 
-  @@index([technicianId])
+  // Pagos asociados.
+  payments       Payment[]
+  // Snapshot de servicios.
+  items          SettlementItem[]
+  // Snapshot de repuestos.
+  parts          SettlementPart[]
+
+  // Indexes
+  @@index([technicianId, status])
+  @@index([technicianId, startDate, endDate])
+  @@index([companyId, startDate, endDate])
   @@index([status])
-  @@index([startDate, endDate])
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// SETTLEMENT ITEM
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// SNAPSHOT DEL SERVICIO INCLUIDO EN LA RENDICIÓN.
+//
+// Esto permite conocer exactamente qué servicios formaron
+// una rendición histórica.
+//
+// ═════════════════════════════════════════════════════════════════════════════
+model SettlementItem {
+  id               Uuid       @id @default(uuid(7))
+  settlementId     Uuid
+  serviceId        Uuid
+  paymentId        Uuid?
+
+  // Snapshot económico del servicio.
+  serviceAmount    Decimal    @default(0)
+  collectedAmount  Decimal    @default(0)
+  debtAmount       Decimal    @default(0)
+
+  // Snapshot de repuestos.
+  partsCostAmount  Decimal    @default(0)
+  partsSaleAmount  Decimal    @default(0)
+
+  // Snapshot de comisión.
+  commissionBase   Decimal    @default(0)
+  commissionRate   Decimal
+  technicianAmount Decimal    @default(0)
+  companyAmount    Decimal    @default(0)
+  createdAt        DateTime   @default(now())
+
+  // Relations
+  settlement       Settlement @relation(fields:[settlementId], references:[id], onDelete: Cascade)
+  service          Service    @relation(fields:[serviceId], references:[id])
+  payment          Payment?   @relation(fields:[paymentId], references:[id])
+
+  // Indexes
+  @@unique([settlementId, serviceId])
+  @@index([settlementId])
+  @@index([serviceId])
+  @@index([paymentId])
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SETTLEMENT PART
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// SNAPSHOT HISTÓRICO DEL REPUESTO.
+//
+// Permite mostrar en una rendición:
+//
+// Empresa A
+//
+//   Bomba
+//   Cantidad: 1
+//   Costo: $40.000
+//   Venta: $60.000
+//
+//   Sensor
+//   Cantidad: 2
+//   Costo: $10.000
+//   Venta: $18.000
+//
+// Empresa B
+//
+//   Válvula
+//   Cantidad: 1
+//   Costo: $30.000
+//   Venta: $45.000
+//
+// Estos valores NO cambian aunque posteriormente
+// cambie InventoryItem.
+//
+// ═════════════════════════════════════════════════════════════════════════════
+model SettlementPart {
+  id             Uuid       @id @default(uuid(7))
+  settlementId   Uuid
+  serviceId      Uuid
+  companyId      Uuid?
+
+  // Snapshot del nombre.
+  name           String
+  quantity       Decimal
+
+  // Costo histórico.
+  unitCost       Decimal
+  totalCost      Decimal
+
+  // Venta histórica.
+  unitSalePrice  Decimal
+  totalSalePrice Decimal
+  createdAt      DateTime   @default(now())
+
+  // Relations
+  settlement     Settlement @relation(fields:[settlementId], references:[id], onDelete: Cascade)
+  service        Service    @relation(fields:[serviceId], references:[id])
+  company        Company?   @relation(fields:[companyId], references:[id])
+
+  // Indexes
+  @@index([settlementId])
+  @@index([serviceId])
+  @@index([companyId])
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// ACTIVITY LOG
+// ═════════════════════════════════════════════════════════════════════════════
 model ActivityLog {
   id          Uuid     @id @default(uuid(7))
   serviceId   Uuid
@@ -317,32 +649,11 @@ model ActivityLog {
   description String
   metadata    Json?
   createdAt   DateTime @default(now())
-
   // Relations
   service     Service  @relation(fields:[serviceId], references:[id], onDelete: Cascade)
   user        User     @relation(fields:[userId], references:[id])
 
-  @@index([serviceId])
-  @@index([userId])
-  @@index([createdAt])
-}
-
-model IntegrationLog {
-  id        Uuid     @id @default(uuid(7))
-  type      String
-  entity    String
-  entityId  Uuid
-  action    String
-  result    String
-  message   String?
-  userId    Uuid?
-  createdAt DateTime @default(now())
-
-  // Relations
-  user      User?    @relation(fields:[userId], references:[id])
-
-  @@index([type])
-  @@index([entityId])
-  @@index([userId])
-  @@index([createdAt])
+  // Indexes
+  @@index([serviceId, createdAt])
+  @@index([userId, createdAt])
 }
