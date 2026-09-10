@@ -95,22 +95,13 @@ model User {
   dni                     String?
   isActive                Boolean       @default(true)
 
-  // 0.50 = 50%
-  //
   // Este es el porcentaje ACTUAL del técnico.
   // Settlement.commissionRate guarda el porcentaje
-  // histórico utilizado en cada rendición.
-  commissionRate          Decimal       @default(0.5000)
-
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @default(now())
-
   // Relations
   servicesAsTechnician    Service[]     @relation("TechnicianServices")
-  servicesClosed          Service[]     @relation("ClosedServices")
   payments                Payment[]     @relation("TechnicianPayments")
-  estimatesCreated        Estimate[]    @relation("EstimateCreatedBy")
-  estimatesCompleted      Estimate[]    @relation("EstimateCompletedBy")
   settlementsAsTechnician Settlement[]  @relation("TechnicianSettlements")
   settlementsLiquidated   Settlement[]  @relation("LiquidatedSettlements")
   activityLogs            ActivityLog[]
@@ -140,7 +131,7 @@ model User {
 // ═════════════════════════════════════════════════════════════════════════════
 model Company {
   id             Uuid            @id @default(uuid(7))
-  name           String          @unique
+  name           String
   type           String
   logo           String?
   isActive       Boolean         @default(true)
@@ -286,8 +277,8 @@ model Payment {
   technicianId Uuid
   settlementId Uuid?
   method       PaymentMethod
-  amountPaid   Decimal       @default(0)
-  debtAmount   Decimal       @default(0)
+  amountPaid   Decimal
+  debtAmount   Decimal
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @default(now())
 
@@ -431,29 +422,21 @@ model ServicePart {
 //
 // ═════════════════════════════════════════════════════════════════════════════
 model Estimate {
-  id            Uuid           @id @default(uuid(7))
-  serviceId     Uuid           @unique
+  id          Uuid           @id @default(uuid(7))
+  serviceId   Uuid           @unique
 
-  // Usuario que creó el presupuesto.
-  createdById   Uuid?
-  // Usuario que lo completó/finalizó.
-  completedById Uuid?
-  amount        Decimal
-  description   String?
-  notes         String?
-  status        EstimateStatus @default(PENDING)
-  completedAt   DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @default(now())
+  amount      Decimal
+  description String?
+  notes       String?
+  status      EstimateStatus @default(PENDING)
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @default(now())
 
   // Relations
-  service       Service        @relation(fields:[serviceId], references:[id], onDelete: Cascade)
-  createdBy     User?          @relation("EstimateCreatedBy", fields:[createdById], references:[id])
-  completedBy   User?          @relation("EstimateCompletedBy", fields:[completedById], references:[id])
+  service     Service        @relation(fields:[serviceId], references:[id], onDelete: Cascade)
 
   // Indexes
-  @@index([createdById])
-  @@index([completedById])
   @@index([status])
 }
 
