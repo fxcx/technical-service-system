@@ -3,7 +3,7 @@
     "context7": {
       "serverUrl": "https://mcp.context7.com/mcp",
       "headers": {
-        "Authorization": "Bearer ctx7sk-82deeb24-4b1d-4c13-9eab-7b23e447038e"
+        "Authorization": "Bearer ${MCP_CONTEXT}"
       }
     }
   }
