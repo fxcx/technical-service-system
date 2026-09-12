@@ -95,12 +95,12 @@ model User {
   dni                     String?
   isActive                Boolean       @default(true)
 
-  // Este es el porcentaje ACTUAL del técnico.
-  // Settlement.commissionRate guarda el porcentaje
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @default(now())
   // Relations
   servicesAsTechnician    Service[]     @relation("TechnicianServices")
+  servicesCreated         Service[]     @relation("CreatedServices")
+  servicesClosed          Service[]     @relation("ClosedServices")
   payments                Payment[]     @relation("TechnicianPayments")
   settlementsAsTechnician Settlement[]  @relation("TechnicianSettlements")
   settlementsLiquidated   Settlement[]  @relation("LiquidatedSettlements")
@@ -130,18 +130,23 @@ model User {
 //
 // ═════════════════════════════════════════════════════════════════════════════
 model Company {
-  id             Uuid            @id @default(uuid(7))
-  name           String
-  type           String
-  logo           String?
-  isActive       Boolean         @default(true)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @default(now())
+  id                   Uuid            @id @default(uuid(7))
+  name                 String
+  logo                 String?
+  isActive             Boolean         @default(true)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @default(now())
+  // Porcentaje que se suma sobre costList para obtener el costo real de esa empresa.
+  // Ej: Empresa A = 21 (solo IVA), Empresa B = 33 (IVA + otro impuesto)
+  costMarkupPercent    Decimal          @default("0")
+
+  // Margen de ganancia por defecto, aplicado si el ítem no tiene uno propio.
+  defaultMarginPercent Decimal          @default("0")
 
   // Relations
-  services       Service[]
-  inventoryItems InventoryItem[]
-  settlements    Settlement[]
+  services             Service[]
+  inventoryItems       InventoryItem[]
+  settlements          Settlement[]
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -183,54 +188,55 @@ model Client {
 //
 // ═════════════════════════════════════════════════════════════════════════════
 model Service {
-  id             Uuid            @id @default(uuid(7))
+  id              Uuid             @id @default(uuid(7))
   // Foreign Keys
-  companyId      Uuid
-  clientId       Uuid
-  categoryId     Uuid
-  technicianId   Uuid
-  createdById    Uuid
-  closedById     Uuid?
+  companyId       Uuid
+  clientId        Uuid
+  categoryId      Uuid
+  technicianId    Uuid
+  createdById     Uuid
+  closedById      Uuid?
 
   // Identificador operativo
-  orderNumber    Int             @unique @default(autoincrement())
+  orderNumber     Int              @unique @default(autoincrement())
 
   // Datos del servicio
-  observation    String?
-  status         ServiceStatus   @default(PENDING)
-  scheduledDate  DateTime
-  address        String
-  locality       String
+  observation     String?
+  status          ServiceStatus    @default(PENDING)
+  scheduledDate   DateTime
+  address         String
+  locality        String
 
   // Importe esperado inicialmente.
-  expectedAmount Decimal?
+  expectedAmount  Decimal?
 
   // Importe final del servicio.
-  finalAmount    Decimal?
-  completedAt    DateTime?
-  closedAt       DateTime?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @default(now())
+  finalAmount     Decimal
+  completedAt     DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now())
 
   // Relations
-  company        Company         @relation(fields:[companyId], references:[id])
-  client         Client          @relation(fields:[clientId], references:[id])
-  category       ServiceCategory @relation(fields:[categoryId], references:[id])
-  technician     User?           @relation("TechnicianServices", fields:[technicianId], references:[id])
-  createdBy      User            @relation("CreatedServices", fields:[createdById], references:[id])
-  closedBy       User?           @relation("ClosedServices", fields:[closedById], references:[id])
+  company         Company          @relation(fields:[companyId], references:[id])
+  client          Client           @relation(fields:[clientId], references:[id])
+  category        ServiceCategory  @relation(fields:[categoryId], references:[id])
+  technician      User             @relation("TechnicianServices", fields:[technicianId], references:[id])
+  createdBy       User             @relation("CreatedServices", fields:[createdById], references:[id])
+  closedBy        User?            @relation("ClosedServices", fields:[closedById], references:[id])
 
   // Un servicio puede todavía no tener pago.
-  payment        Payment?
+  payment         Payment?
 
   // Un servicio puede tener un presupuesto.
-  estimate       Estimate?
+  estimate        Estimate?
 
   // Repuestos utilizados/cargados en el servicio.
-  parts          ServicePart[]
-
+  parts           ServicePart[]
+  settlementItems SettlementItem[]
+  settlementParts SettlementPart[]
   // Auditoría.
-  activityLogs   ActivityLog[]
+  activityLogs    ActivityLog[]
 
   // Indexes
   @@index([technicianId, scheduledDate])
@@ -272,20 +278,21 @@ model ServiceCategory {
 //
 // ═════════════════════════════════════════════════════════════════════════════
 model Payment {
-  id           Uuid          @id @default(uuid(7))
-  serviceId    Uuid          @unique
-  technicianId Uuid
-  settlementId Uuid?
-  method       PaymentMethod
-  amountPaid   Decimal
-  debtAmount   Decimal
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @default(now())
+  id              Uuid             @id @default(uuid(7))
+  serviceId       Uuid             @unique
+  technicianId    Uuid
+  settlementId    Uuid?
+  method          PaymentMethod
+  amountPaid      Decimal
+  debtAmount      Decimal
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now())
 
   // Relations
-  service      Service       @relation(fields:[serviceId], references:[id])
-  technician   User          @relation("TechnicianPayments", fields:[technicianId], references:[id])
-  settlement   Settlement?   @relation(fields:[settlementId], references:[id])
+  service         Service          @relation(fields:[serviceId], references:[id])
+  technician      User             @relation("TechnicianPayments", fields:[technicianId], references:[id])
+  settlement      Settlement?      @relation(fields:[settlementId], references:[id])
+  settlementItems SettlementItem[]
 
   // Indexes
   @@index([technicianId])
@@ -315,29 +322,36 @@ model Payment {
 //
 // ═════════════════════════════════════════════════════════════════════════════
 model InventoryItem {
-  id           Uuid          @id @default(uuid(7))
-  companyId    Uuid
+  id            Uuid          @id @default(uuid(7))
+  companyId     Uuid
 
   // Código interno de la empresa.
-  code         String        @unique
+  code          String        @unique
   // Stock actual.
-  stock        Int           @default(0)
-  name         String
-  unit         String?
-  // Precio de costo actual.
-  costPrice    Decimal
-  // Precio de venta actual.
-  sellPrice    Decimal
+  stock         Int           @default(0)
+  name          String
+  unit          String?
+  // = costList + Company.costMarkupPercent (calculado al importar)
+  costPrice     Decimal
+  // = costPrice + margen aplicado (item o company)
+  sellPrice     Decimal
   // Precio para técnico.
-  techPrice    Decimal
-  isActive     Boolean       @default(true)
-  importedAt   DateTime      @default(now())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @default(now())
+  techPrice     Decimal
+  // Precio tal cual viene de la lista/planilla original, SIN ajustes.
+  costInitList  Decimal
+
+  // Override opcional del margen para ESTE ítem puntual.
+  // Si es null, se usa Company.defaultMarginPercent.
+  marginPercent Decimal
+
+  isActive      Boolean       @default(true)
+  importedAt    DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
 
   // Relations
-  company      Company       @relation(fields:[companyId], references:[id])
-  serviceParts ServicePart[]
+  company       Company       @relation(fields:[companyId], references:[id])
+  serviceParts  ServicePart[]
 
   // Indexes
   @@unique([companyId, code])
@@ -386,7 +400,7 @@ model ServicePart {
 
   // Snapshot operativo del nombre.
   name            String
-  description     String?
+  nota            String?
   quantity        Decimal
   // Costo del repuesto.
   unitCost        Decimal
@@ -471,26 +485,26 @@ model Settlement {
   // ───────────────────────────────────────────────────────────────────────────
   // COBROS
   // ───────────────────────────────────────────────────────────────────────────
-  totalCollected Decimal          @default(0)
-  totalDebt      Decimal          @default(0)
+  totalCollected Decimal          @default("0")
+  totalDebt      Decimal          @default("0")
 
   // ───────────────────────────────────────────────────────────────────────────
   // REPUESTOS
   // ───────────────────────────────────────────────────────────────────────────
   // Costo total de repuestos.
-  totalPartsCost Decimal          @default(0)
+  totalPartsCost Decimal          @default("0")
   // Precio total de venta de repuestos.
-  totalPartsSale Decimal          @default(0)
+  totalPartsSale Decimal          @default("0")
 
   // ───────────────────────────────────────────────────────────────────────────
   // LIQUIDACIÓN
   // ───────────────────────────────────────────────────────────────────────────
   // Base sobre la cual se calcula la comisión.
-  commissionBase Decimal          @default(0)
+  commissionBase Decimal          @default("0")
   // Dinero correspondiente al técnico.
-  techCommission Decimal          @default(0)
+  techCommission Decimal          @default("0")
   // Dinero correspondiente a la empresa.
-  compCommission Decimal          @default(0)
+  compCommission Decimal          @default("0")
   status         SettlementStatus @default(PENDING)
   notes          String?
   liquidatedAt   DateTime?
@@ -533,19 +547,19 @@ model SettlementItem {
   paymentId        Uuid?
 
   // Snapshot económico del servicio.
-  serviceAmount    Decimal    @default(0)
-  collectedAmount  Decimal    @default(0)
-  debtAmount       Decimal    @default(0)
+  serviceAmount    Decimal          @default("0")
+  collectedAmount  Decimal          @default("0")
+  debtAmount       Decimal          @default("0")
 
   // Snapshot de repuestos.
-  partsCostAmount  Decimal    @default(0)
-  partsSaleAmount  Decimal    @default(0)
+  partsCostAmount  Decimal          @default("0")
+  partsSaleAmount  Decimal          @default("0")
 
   // Snapshot de comisión.
-  commissionBase   Decimal    @default(0)
+  commissionBase   Decimal          @default("0")
   commissionRate   Decimal
-  technicianAmount Decimal    @default(0)
-  companyAmount    Decimal    @default(0)
+  technicianAmount Decimal          @default("0")
+  companyAmount    Decimal          @default("0")
   createdAt        DateTime   @default(now())
 
   // Relations
