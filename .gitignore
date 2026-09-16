@@ -1,16 +1,16 @@
 # Prisma
 node_modules
-migrations
+# migrations
 pnpm-lock.yaml
 
 # Next.js
 .next
 
 # Prisma
-generated
+# generated
 docker-compose.yml
 node_modules
 
 # Secretos / configuración local
-.env.*
-.env
+# .env.*
+# .env

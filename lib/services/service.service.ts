@@ -1,6 +1,6 @@
 /**
  * Service Service (Órdenes de Trabajo) — TechService
- * Documentación: docs/ordenes.md, docs/reglas-negocio.md, docs/decisiones.md
+ * Documentación: .docs/modulos/services.md, .docs/reglas-negocio.md
  *
  * Reglas clave:
  * - El Administrador crea y gestiona. El Técnico solo opera sus propias órdenes.
@@ -23,58 +23,41 @@ export type UpdateServiceInput = z.infer<typeof updateServiceSchema>;
 export type UpdateStatusInput = z.infer<typeof updateStatusSchema>;
 export type FinishServiceInput = z.infer<typeof finishServiceSchema>;
 
+/** Selección segura de User (sin passwordHash) */
+const USER_SELECT = {
+  id: true,
+  name: true,
+  email: true,
+  phone: true,
+  dni: true,
+  role: true,
+  isActive: true,
+  avatar: true,
+  createdAt: true,
+  updatedAt: true,
+  passwordHash: false,
+} as const;
+
 const FULL_INCLUDE = {
-  technician: {
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      role: true,
-      isActive: true,
-      avatar: true,
-      createdAt: true,
-      updatedAt: true,
-      passwordHash: false,
-    },
-  },
+  company: true,
   client: true,
-  createdBy: {
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      role: true,
-      isActive: true,
-      avatar: true,
-      createdAt: true,
-      updatedAt: true,
-      passwordHash: false,
-    },
-  },
-  closedBy: {
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      role: true,
-      isActive: true,
-      avatar: true,
-      createdAt: true,
-      updatedAt: true,
-      passwordHash: false,
-    },
-  },
-  payment: { include: { parts: { include: { supplier: true } } } },
-  estimate: true,
   category: true,
+  technician: { select: USER_SELECT },
+  createdBy: { select: USER_SELECT },
+  closedBy: { select: USER_SELECT },
+  payment: true,
+  estimate: true,
+  parts: {
+    include: {
+      inventoryItem: {
+        select: { id: true, name: true, code: true, unit: true },
+      },
+    },
+    orderBy: { createdAt: "asc" as const },
+  },
   activityLogs: {
     include: {
-      user: {
-        select: { id: true, name: true, role: true, passwordHash: false },
-      },
+      user: { select: { id: true, name: true, role: true } },
     },
     orderBy: { createdAt: "asc" as const },
   },
@@ -83,12 +66,14 @@ const FULL_INCLUDE = {
 function buildWhere(filters: ServiceFilters, session: SessionUser) {
   const where: Record<string, unknown> = {};
 
-  // Técnicos solo ven sus propias órdenes (DEC-012)
+  // Técnicos solo ven sus propias órdenes
   if (session.role === "TECHNICIAN") {
     where.technicianId = session.id;
   } else {
     if (filters.technicianId) where.technicianId = filters.technicianId;
     if (filters.clientId) where.clientId = filters.clientId;
+    if (filters.companyId) where.companyId = filters.companyId;
+    if (filters.categoryId) where.categoryId = filters.categoryId;
   }
 
   if (filters.status) where.status = filters.status;
@@ -143,20 +128,18 @@ export async function createService(
 
   const service = await prisma.service.create({
     data: {
-      title: data.title,
-      description: data.description,
       companyId: data.companyId,
       clientId: data.clientId,
+      categoryId: data.categoryId,
       technicianId: data.technicianId ?? undefined,
       scheduledDate: new Date(data.scheduledDate),
-      scheduledTime: data.scheduledTime,
       address: data.address,
       locality: data.locality,
-      notes: data.notes,
+      observation: data.observation ?? undefined,
       expectedAmount: data.expectedAmount ?? undefined,
-      categoryId: data.categoryId ?? undefined,
-      createdById: session.id,
+      finalAmount: data.finalAmount ?? 0,
       status: "PENDING",
+      createdById: session.id,
     },
     include: FULL_INCLUDE,
   });
@@ -166,11 +149,7 @@ export async function createService(
     session.id,
     ACTIONS.SERVICE_CREATED,
     "Orden creada",
-    {
-      title: data.title,
-      clientId: data.clientId,
-      technicianId: data.technicianId,
-    },
+    { clientId: data.clientId, technicianId: data.technicianId },
   );
 
   if (data.technicianId) {
@@ -179,9 +158,7 @@ export async function createService(
       session.id,
       ACTIONS.SERVICE_TECHNICIAN_ASSIGNED,
       "Técnico asignado",
-      {
-        technicianId: data.technicianId,
-      },
+      { technicianId: data.technicianId },
     );
   }
 
@@ -201,61 +178,47 @@ export async function updateService(
   if (existing.status === "CLOSED")
     throw new Error("No se puede modificar una orden cerrada");
 
+  const prevTechnicianId = existing.technicianId;
+
   const service = await prisma.service.update({
     where: { id },
     data: {
-      ...(data.title && { title: data.title }),
-      ...(data.description !== undefined && { description: data.description }),
+      ...(data.companyId && { companyId: data.companyId }),
       ...(data.clientId && { clientId: data.clientId }),
+      ...(data.categoryId && { categoryId: data.categoryId }),
       ...(data.technicianId !== undefined && {
         technicianId: data.technicianId,
       }),
       ...(data.scheduledDate && {
         scheduledDate: new Date(data.scheduledDate),
       }),
-      ...(data.scheduledTime && { scheduledTime: data.scheduledTime }),
       ...(data.address !== undefined && { address: data.address }),
-      ...(data.notes !== undefined && { notes: data.notes }),
+      ...(data.locality !== undefined && { locality: data.locality }),
+      ...(data.observation !== undefined && { observation: data.observation }),
       ...(data.expectedAmount !== undefined && {
         expectedAmount: data.expectedAmount,
       }),
-      ...(data.categoryId !== undefined && { categoryId: data.categoryId }),
+      ...(data.finalAmount !== undefined && { finalAmount: data.finalAmount }),
     },
     include: FULL_INCLUDE,
   });
 
-  const changes: Record<string, unknown> = {};
   if (
     data.technicianId !== undefined &&
-    data.technicianId !== existing.technicianId
+    data.technicianId !== prevTechnicianId
   ) {
-    changes.technicianId = data.technicianId;
     await logActivity(
       id,
       session.id,
       ACTIONS.SERVICE_TECHNICIAN_ASSIGNED,
       "Técnico modificado",
-      changes,
+      { from: prevTechnicianId, to: data.technicianId },
     );
   }
-  if (
-    data.scheduledDate &&
-    new Date(data.scheduledDate).toDateString() !==
-    existing.scheduledDate.toDateString()
-  ) {
-    changes.from = existing.scheduledDate;
-    changes.to = data.scheduledDate;
-  }
 
-  await logActivity(
-    id,
-    session.id,
-    ACTIONS.SERVICE_UPDATED,
-    "Orden actualizada",
-    {
-      fields: Object.keys(data),
-    },
-  );
+  await logActivity(id, session.id, ACTIONS.SERVICE_UPDATED, "Orden actualizada", {
+    fields: Object.keys(data),
+  });
 
   return service as unknown as Service;
 }
@@ -277,13 +240,8 @@ export async function updateServiceStatus(
     throw new Error("No se puede cambiar el estado de una orden cerrada");
 
   const updateData: Record<string, unknown> = { status: data.status };
-  if (data.status === "IN_PROGRESS") {
-    updateData.completedAt = null; // reset if going back
-  }
-  if (data.status === "COMPLETED" || data.status === "CLOSED") {
+  if (data.status === "COMPLETED") {
     updateData.completedAt = new Date();
-    if (data.completedPhotoUrl)
-      updateData.completedPhotoUrl = data.completedPhotoUrl;
   }
 
   const service = await prisma.service.update({
@@ -297,18 +255,16 @@ export async function updateServiceStatus(
     session.id,
     ACTIONS.SERVICE_STATUS_CHANGED,
     `Estado cambiado a ${data.status}`,
-    {
-      from: existing.status,
-      to: data.status,
-    },
+    { from: existing.status, to: data.status },
   );
 
   return service as unknown as Service;
 }
 
 /**
- * Cierra definitivamente una orden (status=CLOSED, isLocked=true).
+ * Cierra definitivamente una orden (status=CLOSED).
  * Solo el Administrador puede cerrar.
+ * Requiere el monto final del servicio.
  */
 export async function finishService(
   id: string,
@@ -328,26 +284,21 @@ export async function finishService(
       status: "CLOSED",
       closedAt: new Date(),
       closedById: session.id,
-      ...(data.notes !== undefined && { notes: data.notes }),
-      ...(data.completedPhotoUrl && {
-        completedPhotoUrl: data.completedPhotoUrl,
-      }),
+      finalAmount: data.finalAmount,
+      ...(data.observation !== undefined && { observation: data.observation }),
     },
     include: FULL_INCLUDE,
   });
 
-  await logActivity(
-    id,
-    session.id,
-    ACTIONS.SERVICE_CLOSED,
-    "Orden cerrada y bloqueada",
-  );
+  await logActivity(id, session.id, ACTIONS.SERVICE_CLOSED, "Orden cerrada", {
+    finalAmount: data.finalAmount,
+  });
 
   return service as unknown as Service;
 }
 
 /**
- * Cancela una orden (soft delete según docs/reglas-negocio.md).
+ * Cancela una orden (soft delete).
  * Los servicios NUNCA se eliminan físicamente.
  */
 export async function cancelService(
@@ -368,12 +319,7 @@ export async function cancelService(
     include: FULL_INCLUDE,
   });
 
-  await logActivity(
-    id,
-    session.id,
-    ACTIONS.SERVICE_CANCELLED,
-    "Orden cancelada",
-  );
+  await logActivity(id, session.id, ACTIONS.SERVICE_CANCELLED, "Orden cancelada");
 
   return service as unknown as Service;
 }

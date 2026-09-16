@@ -1,10 +1,11 @@
 /**
  * Payment Service (Cobros) — TechService
- * Documentación: docs/reglas-negocio.md, docs/facturacion.md
+ * Documentación: .docs/modulos/services.md, .docs/reglas-negocio.md
  *
  * Reglas clave:
  * - Cada servicio puede tener UN ÚNICO cobro.
- * - El costo de repuestos se calcula automáticamente desde PaymentParts.
+ * - Un cobro registra: método, monto cobrado, y deuda pendiente.
+ * - Los repuestos ya NO pertenecen al cobro → ver service-part.service.ts
  * - Solo técnicos asignados pueden registrar cobros.
  */
 import { prisma } from "@/lib/prisma";
@@ -19,24 +20,28 @@ import type {
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;
 export type UpdatePaymentInput = z.infer<typeof updatePaymentSchema>;
 
+const USER_SELECT = {
+  id: true,
+  name: true,
+  email: true,
+  phone: true,
+  role: true,
+  isActive: true,
+  avatar: true,
+  createdAt: true,
+  updatedAt: true,
+  passwordHash: false,
+} as const;
+
 const FULL_INCLUDE = {
-  service: { include: { client: true } },
-  technician: {
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      role: true,
-      isActive: true,
-      avatar: true,
-      createdAt: true,
-      updatedAt: true,
-      passwordHash: false,
+  service: {
+    include: {
+      client: true,
+      company: true,
+      category: true,
     },
   },
-  parts: { include: { supplier: true } },
-  settlement: true,
+  technician: { select: USER_SELECT },
 };
 
 export async function listPayments(
@@ -98,7 +103,6 @@ export async function createPayment(
   data: CreatePaymentInput,
   session: SessionUser,
 ): Promise<Payment> {
-  // Verificar que el servicio existe
   const service = await prisma.service.findUnique({
     where: { id: data.serviceId },
   });
@@ -118,32 +122,13 @@ export async function createPayment(
   if (existingPayment)
     throw new Error("Esta orden ya tiene un cobro registrado");
 
-  // Calcular costo de repuestos si se incluyen
-  const partsCost = (data.parts ?? []).reduce(
-    (acc, p) => acc + p.unitPrice * p.quantity,
-    0,
-  );
-
   const payment = await prisma.payment.create({
     data: {
       serviceId: data.serviceId,
       technicianId: data.technicianId,
       method: data.method,
       amountPaid: data.amountPaid,
-      sparePartsCost: partsCost,
-      notes: data.notes,
-      receiptPhotoUrl: data.receiptPhotoUrl ?? undefined,
-      parts: data.parts?.length
-        ? {
-            create: data.parts.map((p) => ({
-              supplierId: p.supplierId,
-              description: p.description,
-              quantity: p.quantity,
-              unitPrice: p.unitPrice,
-              totalPrice: p.unitPrice * p.quantity,
-            })),
-          }
-        : undefined,
+      debtAmount: data.debtAmount ?? 0,
     },
     include: FULL_INCLUDE,
   });
@@ -156,7 +141,7 @@ export async function createPayment(
     {
       amountPaid: data.amountPaid,
       method: data.method,
-      sparePartsCost: partsCost,
+      debtAmount: data.debtAmount ?? 0,
     },
   );
 
@@ -164,8 +149,8 @@ export async function createPayment(
 }
 
 /**
- * Actualiza un cobro (solo ADMIN).
- * Permite registrar pagos adicionales para saldar deuda.
+ * Actualiza un cobro.
+ * Solo el Administrador puede modificar cobros ya registrados.
  */
 export async function updatePayment(
   id: string,
@@ -178,28 +163,12 @@ export async function updatePayment(
   const existing = await prisma.payment.findUnique({ where: { id } });
   if (!existing) throw new Error("Cobro no encontrado");
 
-  let newAmountPaid = Number(existing.amountPaid);
-  let newDebtAmount = Number(existing.debtAmount);
-  let newHasDebt = existing.hasDebt;
-
-  if (data.additionalPayment !== undefined && data.additionalPayment > 0) {
-    newAmountPaid = newAmountPaid + data.additionalPayment;
-    newDebtAmount = Math.max(0, newDebtAmount - data.additionalPayment);
-    newHasDebt = newDebtAmount > 0;
-  } else {
-    if (data.debtAmount !== undefined)
-      newDebtAmount = Math.max(0, data.debtAmount);
-    if (data.hasDebt !== undefined) newHasDebt = data.hasDebt;
-    if (newDebtAmount === 0) newHasDebt = false;
-  }
-
   const updated = await prisma.payment.update({
     where: { id },
     data: {
-      amountPaid: newAmountPaid,
-      debtAmount: newDebtAmount,
-      hasDebt: newHasDebt,
-      ...(data.notes !== undefined && { notes: data.notes }),
+      ...(data.method && { method: data.method }),
+      ...(data.amountPaid !== undefined && { amountPaid: data.amountPaid }),
+      ...(data.debtAmount !== undefined && { debtAmount: data.debtAmount }),
     },
     include: FULL_INCLUDE,
   });
@@ -209,25 +178,8 @@ export async function updatePayment(
     session.id,
     ACTIONS.PAYMENT_UPDATED,
     "Cobro actualizado",
-    {
-      newAmountPaid,
-      newDebtAmount,
-    },
+    { amountPaid: updated.amountPaid, debtAmount: updated.debtAmount },
   );
 
   return updated as unknown as Payment;
-}
-
-/**
- * Recalcula sparePartsCost en el payment sumando todos sus PaymentParts.
- */
-export async function recalculateSparePartsCost(
-  paymentId: string,
-): Promise<void> {
-  const parts = await prisma.paymentPart.findMany({ where: { paymentId } });
-  const total = parts.reduce((acc, p) => acc + Number(p.totalPrice), 0);
-  await prisma.payment.update({
-    where: { id: paymentId },
-    data: { sparePartsCost: total },
-  });
 }
