@@ -1,17 +1,14 @@
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/prisma"
 import { EstimatesTable } from "@/components/estimates/estimates-table"
 import { serialize } from "@/lib/utils"
 
 export const revalidate = 0 // Disable static cache for estimates to ensure real-time status
 
 export default async function AdminEstimatesPage() {
-  const estimates = await prisma.estimate.findMany({
-    include: {
-      service: true,
-      client: true,
-    },
-    orderBy: { createdAt: "desc" },
-  })
+  const estimates = await db.orm.public.Estimate
+    .include("service", (s: any) => s.include("client", (c: any) => c))
+    .orderBy((e: any) => e.createdAt.desc())
+    .all()
 
   return (
     <div className="space-y-6">
@@ -22,7 +19,7 @@ export default async function AdminEstimatesPage() {
         </p>
       </div>
 
-      <EstimatesTable initialEstimates={serialize(estimates)} />
+      <EstimatesTable initialEstimates={serialize(estimates as any)} />
     </div>
   )
 }

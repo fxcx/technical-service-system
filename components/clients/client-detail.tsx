@@ -58,8 +58,8 @@ export function ClientDetail({ client, services, stats }: ClientDetailProps) {
     email: client.email || "",
     phone: client.phone || "",
     address: client.address,
-    city: client.city || "",
-    notes: client.notes || "",
+    city: client.locality || "",
+    notes: "",
   });
 
   async function handleSave() {
@@ -131,8 +131,8 @@ export function ClientDetail({ client, services, stats }: ClientDetailProps) {
                       email: client.email || "",
                       phone: client.phone || "",
                       address: client.address,
-                      city: client.city || "",
-                      notes: client.notes || "",
+                      city: client.locality || "",
+                      notes: "",
                     });
                   }}
                 >
@@ -157,7 +157,7 @@ export function ClientDetail({ client, services, stats }: ClientDetailProps) {
               <div className="space-y-2">
                 <Label>Nombre</Label>
                 <Input
-                  value={formData.name}
+                  value={formData.name || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
@@ -218,8 +218,8 @@ export function ClientDetail({ client, services, stats }: ClientDetailProps) {
                   <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
                   <div>
                     <p>{client.address}</p>
-                    {client.city && (
-                      <p className="text-muted-foreground">{client.city}</p>
+                    {client.locality && (
+                      <p className="text-muted-foreground">{client.locality}</p>
                     )}
                   </div>
                 </div>
@@ -244,10 +244,10 @@ export function ClientDetail({ client, services, stats }: ClientDetailProps) {
                   </div>
                 )}
               </div>
-              {client.notes && (
+              {false && (
                 <div>
                   <p className="text-sm font-medium mb-1">Notas</p>
-                  <p className="text-muted-foreground">{client.notes}</p>
+                  <p className="text-muted-foreground">""</p>
                 </div>
               )}
             </div>
@@ -317,7 +317,7 @@ export function ClientDetail({ client, services, stats }: ClientDetailProps) {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-medium">{service.title}</p>
+                      <p className="font-medium">{service.observation}</p>
                       <Badge
                         className={getStatusColor(service.status)}
                         variant="secondary"
@@ -327,7 +327,7 @@ export function ClientDetail({ client, services, stats }: ClientDetailProps) {
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {formatDate(service.scheduledDate)} -{" "}
-                      {formatTime(service.scheduledTime)}
+                      {formatTime(service.scheduledDate)}
                     </p>
                     {service.technician && (
                       <p className="text-sm text-muted-foreground">

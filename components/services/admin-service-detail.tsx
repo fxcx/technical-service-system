@@ -104,11 +104,11 @@ export function AdminServiceDetail({
             clientName={service.client?.name || "Cliente"}
             clientPhone={service.client?.phone}
             scheduledDate={service.scheduledDate as unknown as string}
-            scheduledTime={service.scheduledTime}
+            scheduledTime={service.scheduledDate}
             address={service.address || service.client?.address || ""}
-            description={service.description || service.title}
+            description={service.observation || ""}
             technicianName={service.technician?.name || "Sin asignar"}
-            notes={service.notes}
+            notes={service.observation}
           />
           <Button variant="outline" size="sm" asChild>
             <Link href={`/admin/services/${service.id}/edit`}>
@@ -123,7 +123,7 @@ export function AdminServiceDetail({
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle className="text-xl">{service.title}</CardTitle>
+              <CardTitle className="text-xl">{service.observation}</CardTitle>
               <CardDescription>ID: {service.id}</CardDescription>
             </div>
             <Badge className={getStatusColor(status)} variant="secondary">
@@ -132,10 +132,10 @@ export function AdminServiceDetail({
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {service.description && (
+          {service.observation && (
             <div>
               <h4 className="font-medium mb-1">Descripción</h4>
-              <p className="text-muted-foreground">{service.description}</p>
+              <p className="text-muted-foreground">{service.observation}</p>
             </div>
           )}
 
@@ -160,7 +160,7 @@ export function AdminServiceDetail({
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span>
                     {formatDate(service.scheduledDate)} -{" "}
-                    {formatTime(service.scheduledTime)}
+                    {formatTime(service.scheduledDate)}
                   </span>
                 </div>
                 <div className="flex items-start gap-2">
@@ -287,12 +287,12 @@ export function AdminServiceDetail({
             </>
           )}
 
-          {service.notes && (
+          {service.observation && (
             <>
               <Separator />
               <div>
                 <h4 className="font-medium mb-1">Notas internas</h4>
-                <p className="text-muted-foreground">{service.notes}</p>
+                <p className="text-muted-foreground">{service.observation}</p>
               </div>
             </>
           )}

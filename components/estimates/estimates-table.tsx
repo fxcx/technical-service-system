@@ -65,8 +65,8 @@ export function EstimatesTable({ initialEstimates }: EstimatesTableProps) {
   const filteredEstimates = initialEstimates.filter((est) => {
     const matchesTab = est.status === activeTab
     const matchesSearch =
-      est.service?.title.toLowerCase().includes(search.toLowerCase()) ||
-      est.client?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      est.service?.observation?.toLowerCase().includes(search.toLowerCase()) ||
+      est.service?.client?.name?.toLowerCase().includes(search.toLowerCase()) ||
       est.description?.toLowerCase().includes(search.toLowerCase())
 
     return matchesTab && matchesSearch
@@ -143,7 +143,7 @@ export function EstimatesTable({ initialEstimates }: EstimatesTableProps) {
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="font-semibold text-foreground">
-                          {est.service?.title}
+                          {est.service?.observation}
                         </span>
                         <span className="text-xs text-muted-foreground">
                           OT-
@@ -161,12 +161,12 @@ export function EstimatesTable({ initialEstimates }: EstimatesTableProps) {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {est.client ? (
+                        {est.service?.client ? (
                           <Link
-                            href={`/admin/clients/${est.client.id}`}
+                            href={`/admin/clients/${est.service?.client.id}`}
                             className="text-primary hover:underline font-medium"
                           >
-                            {est.client.name}
+                            {est.service?.client.name}
                           </Link>
                         ) : (
                           <span className="text-muted-foreground">

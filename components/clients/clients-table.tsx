@@ -142,7 +142,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                           {client.phone}
                         </div>
                       </TableCell>
-                      <TableCell>{client.city || "-"}</TableCell>
+                      <TableCell>{client.locality || "-"}</TableCell>
                       <TableCell>{formatDate(client.createdAt)}</TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" asChild>

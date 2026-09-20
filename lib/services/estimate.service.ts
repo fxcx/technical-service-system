@@ -7,66 +7,60 @@
  * - Solo el Administrador puede aprobarlo o rechazarlo.
  * - Máximo 1 presupuesto activo por orden.
  */
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { logActivity, ACTIONS } from "./activity-log.service";
+import { nowInstant } from "@/lib/utils";
 import type { Estimate, EstimateFilters, SessionUser } from "@/types";
 import type { z } from "zod";
 import type { createEstimateSchema } from "@/lib/validations";
 
 export type CreateEstimateInput = z.infer<typeof createEstimateSchema>;
 
-const FULL_INCLUDE = {
-  service: { include: { client: true } },
-  technician: {
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      role: true,
-      isActive: true,
-      avatar: true,
-      createdAt: true,
-      updatedAt: true,
-      passwordHash: false,
-    },
-  },
-  client: true,
-};
+function applyFullInclude(query: any) {
+  return query.include("service", (s: any) => 
+    s.include("client", (c: any) => c)
+     .include("technician", (t: any) => 
+        t.select("id", "name", "email", "phone", "role", "isActive", "avatar", "createdAt", "updatedAt")
+     )
+  );
+}
 
 export async function listEstimates(
   filters: EstimateFilters,
   session: SessionUser,
 ): Promise<Estimate[]> {
-  const where: any = {};
+  let query: any = db.orm.public.Estimate;
 
-  // Técnicos solo ven sus propios presupuestos (relacionados a su orden)
-  if (session.role === "TECHNICIAN") {
-    where.service = { technicianId: session.id };
-  } else {
-    if (filters.technicianId) {
-      where.service = { technicianId: filters.technicianId };
-    }
+  const techId = session.role === "TECHNICIAN" ? session.id : filters.technicianId;
+  
+  if (techId) {
+    const serviceIds = await db.orm.public.Service
+      .where({ technicianId: techId })
+      .select("id")
+      .all()
+      .then((res: any[]) => res.map(r => r.id));
+      
+    if (serviceIds.length === 0) return [];
+    query = query.where((m: any) => m.serviceId.in(serviceIds));
   }
 
-  if (filters.status) where.status = filters.status;
+  if (filters.status) {
+    query = query.where({ status: filters.status });
+  }
 
-  return prisma.estimate.findMany({
-    where,
-    include: FULL_INCLUDE,
-    orderBy: { createdAt: "desc" },
-  }) as unknown as Estimate[];
+  return applyFullInclude(query)
+    .orderBy((e: any) => e.createdAt.desc())
+    .all() as unknown as Promise<Estimate[]>;
 }
 
 export async function getEstimateById(
   id: string,
   session: SessionUser,
 ): Promise<Estimate | null> {
-  const estimate = await prisma.estimate.findUnique({
-    where: { id },
-    include: FULL_INCLUDE,
-  });
-
+  let query: any = db.orm.public.Estimate;
+  query = applyFullInclude(query);
+  
+  const estimate = await query.first({ id });
   if (!estimate) return null;
 
   if (session.role === "TECHNICIAN" && estimate.service?.technicianId !== session.id) {
@@ -79,19 +73,15 @@ export async function getEstimateById(
 export async function getEstimateByService(
   serviceId: string,
 ): Promise<Estimate | null> {
-  return prisma.estimate.findUnique({
-    where: { serviceId },
-    include: FULL_INCLUDE,
-  }) as unknown as Estimate | null;
+  let query: any = db.orm.public.Estimate;
+  return applyFullInclude(query).first({ serviceId }) as unknown as Promise<Estimate | null>;
 }
 
 export async function createEstimate(
   data: CreateEstimateInput,
   session: SessionUser,
 ): Promise<Estimate> {
-  const service = await prisma.service.findUnique({
-    where: { id: data.serviceId },
-  });
+  const service = await db.orm.public.Service.first({ id: data.serviceId });
   if (!service) throw new Error("Orden no encontrada");
 
   // Solo el técnico asignado puede enviar presupuesto
@@ -102,26 +92,19 @@ export async function createEstimate(
   }
 
   // Solo 1 presupuesto por orden (docs/presupuestos.md)
-  const existing = await prisma.estimate.findUnique({
-    where: { serviceId: data.serviceId },
-  });
+  const existing = await db.orm.public.Estimate.first({ serviceId: data.serviceId });
   if (existing) {
     throw new Error(
       "Esta orden ya tiene un presupuesto. No se puede crear otro.",
     );
   }
 
-  const estimate = await prisma.estimate.create({
-    data: {
-      serviceId: data.serviceId,
-      userId: session.role === "TECHNICIAN" ? session.id : undefined,
-      clientId: service.clientId,
-      amount: data.amount,
-      description: data.description,
-      notes: data.notes,
-      status: "PENDING",
-    },
-    include: FULL_INCLUDE,
+  const created = await db.orm.public.Estimate.create({
+    serviceId: data.serviceId,
+    amount: data.amount.toString(),
+    description: data.description,
+    notes: data.notes,
+    status: "PENDING",
   });
 
   await logActivity(
@@ -134,7 +117,7 @@ export async function createEstimate(
     },
   );
 
-  return estimate as unknown as Estimate;
+  return applyFullInclude(db.orm.public.Estimate).first({ id: created.id }) as unknown as Promise<Estimate>;
 }
 
 export async function finalizeEstimate(
@@ -146,18 +129,14 @@ export async function finalizeEstimate(
       "Solo un Administrador puede finalizar presupuestos",
     );
 
-  const estimate = await prisma.estimate.findUnique({ where: { id } });
+  const estimate = await db.orm.public.Estimate.first({ id });
   if (!estimate) throw new Error("Presupuesto no encontrado");
   if (estimate.status !== "PENDING")
     throw new Error("El presupuesto ya fue finalizado");
 
-  const updated = await prisma.estimate.update({
-    where: { id },
-    data: {
-      status: "COMPLETED",
-      completedAt: new Date(),
-    },
-    include: FULL_INCLUDE,
+  await db.orm.public.Estimate.where({ id }).update({
+    status: "COMPLETED",
+    completedAt: nowInstant(),
   });
 
   await logActivity(
@@ -167,5 +146,5 @@ export async function finalizeEstimate(
     "Presupuesto finalizado",
   );
 
-  return updated as unknown as Estimate;
+  return applyFullInclude(db.orm.public.Estimate).first({ id }) as unknown as Promise<Estimate>;
 }

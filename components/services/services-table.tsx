@@ -73,8 +73,8 @@ export function ServicesTable({ services, technicians }: ServicesTableProps) {
 
   const filteredServices = services.filter((service) => {
     const matchesSearch =
-      service.title.toLowerCase().includes(search.toLowerCase()) ||
-      service.client?.name.toLowerCase().includes(search.toLowerCase());
+      service.observation?.toLowerCase().includes(search.toLowerCase()) ||
+      service.client?.name?.toLowerCase().includes(search.toLowerCase());
 
     const matchesStatus =
       statusFilter === "ALL" || service.status === statusFilter;
@@ -168,15 +168,15 @@ export function ServicesTable({ services, technicians }: ServicesTableProps) {
                       <div className="text-sm">
                         <div>{formatDate(service.scheduledDate)}</div>
                         <div className="text-muted-foreground">
-                          {formatTime(service.scheduledTime)}
+                          {formatTime(service.scheduledDate)}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{service.title}</div>
-                      {service.description && (
+                      <div className="font-medium">{service.observation}</div>
+                      {service.observation && (
                         <div className="text-sm text-muted-foreground truncate max-w-[200px]">
-                          {service.description}
+                          {service.observation}
                         </div>
                       )}
                     </TableCell>

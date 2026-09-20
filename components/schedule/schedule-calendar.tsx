@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatTime, getStatusColor } from "@/lib/utils";
+import { formatTime, getStatusColor, toDate } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import type { Service, User } from "@/types";
 import { WhatsAppActions } from "@/components/whatsapp/whatsapp-actions";
@@ -56,7 +56,7 @@ export function ScheduleCalendar({
     ) {
       return false;
     }
-    const serviceDate = new Date(service.scheduledDate);
+    const serviceDate = toDate(service.scheduledDate);
     return weekDates.some(
       (d) => d.toDateString() === serviceDate.toDateString(),
     );
@@ -65,9 +65,13 @@ export function ScheduleCalendar({
   const getServicesForDate = (date: Date) => {
     return filteredServices
       .filter(
-        (s) => new Date(s.scheduledDate).toDateString() === date.toDateString(),
+        (s) => toDate(s.scheduledDate).toDateString() === date.toDateString(),
       )
-      .sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
+      .sort((a, b) => {
+        const dateA = toDate(a.scheduledDate);
+        const dateB = toDate(b.scheduledDate);
+        return dateA.getTime() - dateB.getTime();
+      });
   };
 
   const goToPreviousWeek = () => {
@@ -191,9 +195,9 @@ export function ScheduleCalendar({
                             className="flex-1 min-w-0"
                           >
                             <p className="font-medium truncate">
-                              {formatTime(service.scheduledTime)}
+                              {formatTime(service.scheduledDate)}
                             </p>
-                            <p className="truncate">{service.title}</p>
+                            <p className="truncate">{service.observation}</p>
                             {isAdminView && service.technician && (
                               <p className="truncate text-[10px] opacity-80">
                                 {service.technician.name}
@@ -201,7 +205,7 @@ export function ScheduleCalendar({
                             )}
                             {!isAdminView && service.client && (
                               <p className="truncate text-[10px] opacity-80">
-                                {service.client.name}
+                                {service.client?.name}
                               </p>
                             )}
                           </Link>
@@ -214,15 +218,17 @@ export function ScheduleCalendar({
                               scheduledDate={
                                 service.scheduledDate as unknown as string
                               }
-                              scheduledTime={service.scheduledTime}
+                              scheduledTime={
+                                service.scheduledDate as unknown as string
+                              }
                               address={
                                 service.address || service.client?.address || ""
                               }
-                              description={service.description || service.title}
+                              description={service.observation || ""}
                               technicianName={
                                 service.technician?.name || "Sin asignar"
                               }
-                              notes={service.notes}
+                              notes={service.observation}
                             />
                           )}
                         </div>

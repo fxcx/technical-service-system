@@ -13,8 +13,12 @@ node_modules
 # Secretos / configuración local
 .env.*
 .env
+.env.local
 
 # Agent
 .claude
 .agents
 .agent
+
+# docker
+docker-compose.yml

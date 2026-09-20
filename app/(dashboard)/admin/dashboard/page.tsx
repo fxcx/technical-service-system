@@ -1,70 +1,63 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { TodayServices } from "@/components/dashboard/today-services";
+import {
+  startOfDayInstant,
+  endOfDayInstant,
+  startOfMonthInstant,
+  endOfMonthInstant,
+} from "@/lib/utils";
+import type { Service } from "@/types";
 
 // Cache this page for 60 seconds to reduce database load
 export const revalidate = 60;
 
 async function getDashboardData() {
-  const today = new Date();
-  const startOfDay = new Date(today);
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(today);
-  endOfDay.setHours(23, 59, 59, 999);
-
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const startOfDay = startOfDayInstant();
+  const endOfDay = endOfDayInstant();
+  const startOfMonth = startOfMonthInstant();
+  const endOfMonth = endOfMonthInstant();
 
   // Execute all queries in parallel for better performance
   const [
     todayServicesData,
-    pendingServices,
-    inProgressServices,
-    completedThisMonth,
-    activeTechnicians,
-    totalClients,
+    pendingServicesResult,
+    inProgressServicesResult,
+    completedThisMonthResult,
+    activeTechniciansResult,
+    totalClientsResult,
   ] = await Promise.all([
     // Get full today's services data instead of just counting
-    prisma.service.findMany({
-      where: {
-        scheduledDate: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-      },
-      include: {
-        technician: true,
-        client: true,
-        createdBy: true,
-        payment: true,
-      },
-      orderBy: { scheduledTime: "asc" },
-    }),
-    prisma.service.count({ where: { status: "PENDING" } }),
-    prisma.service.count({ where: { status: "IN_PROGRESS" } }),
-    prisma.service.count({
-      where: {
-        status: "COMPLETED",
-        scheduledDate: {
-          gte: startOfMonth,
-          lte: endOfMonth,
-        },
-      },
-    }),
-    prisma.user.count({ where: { role: "TECHNICIAN", isActive: true } }),
-    prisma.client.count(),
+    db.orm.public.Service
+      .where((s) => s.scheduledDate.gte(startOfDay))
+      .where((s) => s.scheduledDate.lte(endOfDay))
+      .include("technician", (t) => t)
+      .include("client", (c) => c)
+      .include("createdBy", (u) => u)
+      .include("payment", (p) => p)
+      .orderBy((s) => s.scheduledDate.asc())
+      .all(),
+    db.orm.public.Service.where({ status: "PENDING" }).aggregate((a) => ({ count: a.count() })),
+    db.orm.public.Service.where({ status: "IN_PROGRESS" }).aggregate((a) => ({ count: a.count() })),
+    db.orm.public.Service
+      .where({ status: "COMPLETED" })
+      .where((s) => s.scheduledDate.gte(startOfMonth))
+      .where((s) => s.scheduledDate.lte(endOfMonth))
+      .aggregate((a) => ({ count: a.count() })),
+    db.orm.public.User.where({ role: "TECHNICIAN", isActive: true }).aggregate((a) => ({ count: a.count() })),
+    db.orm.public.Client.aggregate((a) => ({ count: a.count() })),
   ]);
 
   return {
     stats: {
       todayServices: todayServicesData.length,
-      pendingServices,
-      inProgressServices,
-      completedThisMonth,
-      activeTechnicians,
-      totalClients,
+      pendingServices: pendingServicesResult.count as number,
+      inProgressServices: inProgressServicesResult.count as number,
+      completedThisMonth: completedThisMonthResult.count as number,
+      activeTechnicians: activeTechniciansResult.count as number,
+      totalClients: totalClientsResult.count as number,
     },
-    todayServices: todayServicesData,
+    todayServices: todayServicesData as unknown as Service[],
   };
 }
 

@@ -97,7 +97,7 @@ export function EstimateDetail({ estimate }: EstimateDetailProps) {
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="text-xl">
-                  Presupuesto para: {estimate.service?.title}
+                  Presupuesto para: {estimate.service?.observation}
                 </CardTitle>
                 <CardDescription className="mt-1">
                   OT-
@@ -149,7 +149,7 @@ export function EstimateDetail({ estimate }: EstimateDetailProps) {
                 Detalle del servicio solicitado
               </h4>
               <p className="text-sm text-foreground bg-muted/40 p-4 rounded-lg border border-dashed">
-                {estimate.service?.description ||
+                {estimate.service?.observation ||
                   "Sin descripción adicional en la orden original."}
               </p>
             </div>
@@ -195,12 +195,12 @@ export function EstimateDetail({ estimate }: EstimateDetailProps) {
                 <span className="text-xs text-muted-foreground block font-medium">
                   Nombre
                 </span>
-                {estimate.client ? (
+                {estimate.service?.client ? (
                   <Link
-                    href={`/admin/clients/${estimate.client.id}`}
+                    href={`/admin/clients/${estimate.service?.client.id}`}
                     className="text-primary hover:underline font-semibold text-sm"
                   >
-                    {estimate.client?.name || "Sin nombre"}
+                    {estimate.service?.client?.name || "Sin nombre"}
                   </Link>
                 ) : (
                   <span className="text-sm font-medium text-foreground">
@@ -214,10 +214,10 @@ export function EstimateDetail({ estimate }: EstimateDetailProps) {
                   Teléfono
                 </span>
                 <span className="text-sm font-semibold text-foreground">
-                  {estimate.client?.phone || "No informado"}
+                  {estimate.service?.client?.phone || "No informado"}
                 </span>
               </div>
-              {estimate.client?.email && (
+              {estimate.service?.client?.email && (
                 <>
                   <Separator className="bg-neutral-100 dark:bg-neutral-800" />
                   <div>
@@ -225,12 +225,12 @@ export function EstimateDetail({ estimate }: EstimateDetailProps) {
                       Email
                     </span>
                     <span className="text-sm text-foreground break-all">
-                      {estimate.client.email}
+                      {estimate.service?.client.email}
                     </span>
                   </div>
                 </>
               )}
-              {estimate.client?.address && (
+              {estimate.service?.client?.address && (
                 <>
                   <Separator className="bg-neutral-100 dark:bg-neutral-800" />
                   <div>
@@ -238,8 +238,8 @@ export function EstimateDetail({ estimate }: EstimateDetailProps) {
                       Dirección
                     </span>
                     <span className="text-sm text-foreground">
-                      {estimate.client.address}
-                      {estimate.client.city && `, ${estimate.client.city}`}
+                      {estimate.service?.client.address}
+                      {estimate.service?.client.locality && `, ${estimate.service?.client.locality}`}
                     </span>
                   </div>
                 </>

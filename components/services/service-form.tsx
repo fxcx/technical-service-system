@@ -1,6 +1,8 @@
 "use client";
 
 import type React from "react";
+import { formatCurrency, toDate } from "@/lib/utils";
+import { formatTime } from "@/lib/utils";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +37,7 @@ import {
   generateWhatsAppMessage,
   buildWhatsAppUrl,
   type WhatsAppTemplateVars,
-} from "@/lib/helpers/whatsapp";
+} from "@/utils/helpers/whatsapp";
 
 interface ServiceFormProps {
   clients: Client[];
@@ -55,16 +57,16 @@ export function ServiceForm({
   const [clientsList, setClientsList] = useState(clients);
 
   const [formData, setFormData] = useState({
-    title: service?.title || "",
-    description: service?.description || "",
+    title: service?.observation || "",
+    description: service?.observation || "",
     clientId: service?.clientId || "",
     technicianId: service?.technicianId || "",
     scheduledDate: service?.scheduledDate
-      ? new Date(service.scheduledDate).toISOString().split("T")[0]
+      ? toDate(service.scheduledDate).toISOString().split("T")[0]
       : new Date().toISOString().split("T")[0],
-    scheduledTime: service?.scheduledTime || "09:00",
+    scheduledTime: service?.scheduledDate || "09:00",
     address: service?.address || "",
-    notes: service?.notes || "",
+    notes: service?.observation || "",
     expectedAmount: service?.expectedAmount
       ? String(service.expectedAmount)
       : "",
@@ -96,7 +98,7 @@ export function ServiceForm({
           day: "numeric",
         },
       ),
-      hora: formData.scheduledTime,
+      hora: formData.scheduledDate,
       direccion: formData.address || client?.address || "A confirmar",
       descripcion: formData.description || formData.title,
       tecnico: tech?.name || "Sin asignar",
@@ -283,7 +285,7 @@ export function ServiceForm({
                 <Input
                   id="scheduledTime"
                   type="time"
-                  value={formData.scheduledTime}
+                  value={formData.scheduledDate}
                   onChange={(e) =>
                     setFormData({ ...formData, scheduledTime: e.target.value })
                   }

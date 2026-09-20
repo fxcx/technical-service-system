@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { TechnicianAgenda } from "@/components/technician/technician-agenda";
 import { TechnicianStats } from "@/components/technician/technician-stats";
+import { serialize, startOfDayInstant } from "@/lib/utils";
 
 export default async function TechnicianDashboardPage() {
   const session = await getSession();
@@ -11,38 +12,24 @@ export default async function TechnicianDashboardPage() {
     redirect("/login");
   }
 
-  const today = new Date();
-  const startOfDay = new Date(today);
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(today);
-  endOfDay.setHours(23, 59, 59, 999);
+  const startOfDay = startOfDayInstant();
 
-  const todayServices = await prisma.service.findMany({
-    where: {
-      technicianId: session.id,
-      scheduledDate: {
-        gte: startOfDay,
-      },
-      NOT: {
-        status: "CANCELLED",
-      },
-    },
-    include: {
-      technician: true,
-      client: true,
-      createdBy: true,
-      payment: true,
-    },
-    orderBy: [{ scheduledDate: "asc" }, { scheduledTime: "asc" }],
-  });
+  const todayServices = await db.orm.public.Service
+    .where({ technicianId: session.id })
+    .where((s) => s.scheduledDate.gte(startOfDay))
+    .where((s) => s.status.neq("CANCELLED"))
+    .include("technician", (t) => t)
+    .include("client", (c) => c)
+    .include("createdBy", (u) => u)
+    .include("payment", (p) => p)
+    .orderBy((s) => s.scheduledDate.asc())
+    .all();
 
   const stats = {
     todayCount: todayServices.length,
     pendingCount: todayServices.filter((s) => s.status === "PENDING").length,
-    inProgressCount: todayServices.filter((s) => s.status === "IN_PROGRESS")
-      .length,
-    completedCount: todayServices.filter((s) => s.status === "COMPLETED")
-      .length,
+    inProgressCount: todayServices.filter((s) => s.status === "IN_PROGRESS").length,
+    completedCount: todayServices.filter((s) => s.status === "COMPLETED").length,
   };
 
   return (
@@ -61,7 +48,7 @@ export default async function TechnicianDashboardPage() {
       </div>
 
       <TechnicianStats stats={stats} />
-      <TechnicianAgenda services={todayServices} />
+      <TechnicianAgenda services={serialize(todayServices)} />
     </div>
   );
 }

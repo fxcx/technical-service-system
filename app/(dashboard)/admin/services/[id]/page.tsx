@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { AdminServiceDetail } from "@/components/services/admin-service-detail";
@@ -16,29 +16,26 @@ export default async function AdminServicePage({ params }: ServicePageProps) {
   }
 
   const { id } = await params;
-  const service = await prisma.service.findUnique({
-    where: { id },
-    include: {
-      technician: true,
-      client: true,
-      createdBy: true,
-      payment: true,
-    },
-  });
+  const service = await db.orm.public.Service
+    .include("technician", (t: any) => t)
+    .include("client", (c: any) => c)
+    .include("createdBy", (u: any) => u)
+    .include("payment", (p: any) => p)
+    .first({ id });
 
   if (!service) {
     notFound();
   }
 
-  const technicians = await prisma.user.findMany({
-    where: { role: "TECHNICIAN" },
-  });
+  const technicians = await db.orm.public.User
+    .where({ role: "TECHNICIAN" })
+    .all();
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <AdminServiceDetail
-        service={serialize(service)}
-        technicians={serialize(technicians.filter((t) => t.isActive))}
+        service={serialize(service as any)}
+        technicians={serialize(technicians.filter((t: any) => t.isActive) as any)}
       />
     </div>
   );

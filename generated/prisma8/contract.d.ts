@@ -22,6 +22,7 @@ import type {
 
 import type {
   ContractWithTypeMaps,
+  RelationKeys,
   TypeMaps as TypeMapsType,
 } from '@prisma/orm-postgres/family-contract/types';
 import type {
@@ -33,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'063b2d824898d9fc4d7ef99a381d82adde969d4d0dbd295eed6d988dbfde69fa'>;
+  StorageHashBase<'0b3db542437512cf53603ad3207f517bab79483c78089710649ef04a92967a35'>;
 export type ExecutionHash =
   ExecutionHashBase<'6ec90d5562ccc116648f5c77dd72b213d25f23223360fe89ecbdf4c7e8bf18c7'>;
 export type ProfileHash =
@@ -325,6 +326,7 @@ export type FieldOutputTypes = {
       readonly locality: CodecTypes['pg/text@1']['output'];
       readonly expectedAmount: CodecTypes['pg/numeric@1']['output'] | null;
       readonly finalAmount: CodecTypes['pg/numeric@1']['output'];
+      readonly completedPhotoUrl: CodecTypes['pg/text@1']['output'] | null;
       readonly completedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly closedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -413,7 +415,7 @@ export type FieldOutputTypes = {
       readonly passwordHash: CodecTypes['pg/text@1']['output'];
       readonly phone: CodecTypes['pg/text@1']['output'] | null;
       readonly dni: CodecTypes['pg/text@1']['output'] | null;
-      readonly isActive: CodecTypes['pg/bool@1']['output'];
+      readonly isActive: CodecTypes['pg/bool@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
@@ -505,6 +507,7 @@ export type FieldInputTypes = {
       readonly locality: CodecTypes['pg/text@1']['input'];
       readonly expectedAmount: CodecTypes['pg/numeric@1']['input'] | null;
       readonly finalAmount: CodecTypes['pg/numeric@1']['input'];
+      readonly completedPhotoUrl: CodecTypes['pg/text@1']['input'] | null;
       readonly completedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly closedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -593,7 +596,7 @@ export type FieldInputTypes = {
       readonly passwordHash: CodecTypes['pg/text@1']['input'];
       readonly phone: CodecTypes['pg/text@1']['input'] | null;
       readonly dni: CodecTypes['pg/text@1']['input'] | null;
-      readonly isActive: CodecTypes['pg/bool@1']['input'];
+      readonly isActive: CodecTypes['pg/bool@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
@@ -677,6 +680,7 @@ export type StorageColumnTypes = {
       readonly closedById: CodecTypes['pg/uuid@1']['output'] | null;
       readonly companyId: CodecTypes['pg/uuid@1']['output'];
       readonly completedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly completedPhotoUrl: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly createdById: CodecTypes['pg/uuid@1']['output'];
       readonly expectedAmount: CodecTypes['pg/numeric@1']['output'] | null;
@@ -770,7 +774,7 @@ export type StorageColumnTypes = {
       readonly dni: CodecTypes['pg/text@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/uuid@1']['output'];
-      readonly isActive: CodecTypes['pg/bool@1']['output'];
+      readonly isActive: CodecTypes['pg/bool@1']['output'] | null;
       readonly name: CodecTypes['pg/text@1']['output'];
       readonly passwordHash: CodecTypes['pg/text@1']['output'];
       readonly phone: CodecTypes['pg/text@1']['output'] | null;
@@ -857,6 +861,7 @@ export type StorageColumnInputTypes = {
       readonly closedById: CodecTypes['pg/uuid@1']['input'] | null;
       readonly companyId: CodecTypes['pg/uuid@1']['input'];
       readonly completedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly completedPhotoUrl: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly createdById: CodecTypes['pg/uuid@1']['input'];
       readonly expectedAmount: CodecTypes['pg/numeric@1']['input'] | null;
@@ -950,7 +955,7 @@ export type StorageColumnInputTypes = {
       readonly dni: CodecTypes['pg/text@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/uuid@1']['input'];
-      readonly isActive: CodecTypes['pg/bool@1']['input'];
+      readonly isActive: CodecTypes['pg/bool@1']['input'] | null;
       readonly name: CodecTypes['pg/text@1']['input'];
       readonly passwordHash: CodecTypes['pg/text@1']['input'];
       readonly phone: CodecTypes['pg/text@1']['input'] | null;
@@ -959,6 +964,285 @@ export type StorageColumnInputTypes = {
     };
   };
 };
+
+export namespace Models {
+  export type public_User = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    email: CodecTypes['pg/text@1']['output'];
+    name: CodecTypes['pg/text@1']['output'];
+    role: 'ADMIN' | 'TECHNICIAN';
+    avatar: CodecTypes['pg/text@1']['output'] | null;
+    passwordHash: CodecTypes['pg/text@1']['output'];
+    phone: CodecTypes['pg/text@1']['output'] | null;
+    dni: CodecTypes['pg/text@1']['output'] | null;
+    isActive: CodecTypes['pg/bool@1']['output'] | null;
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    activityLogs: public_ActivityLog[];
+    payments: public_Payment[];
+    servicesAsTechnician: public_Service[];
+    servicesClosed: public_Service[];
+    servicesCreated: public_Service[];
+    settlementsAsTechnician: public_Settlement[];
+    settlementsLiquidated: public_Settlement[];
+    readonly [RelationKeys]?:
+      | 'activityLogs'
+      | 'payments'
+      | 'servicesAsTechnician'
+      | 'servicesClosed'
+      | 'servicesCreated'
+      | 'settlementsAsTechnician'
+      | 'settlementsLiquidated';
+  };
+  export type public_Company = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    name: CodecTypes['pg/text@1']['output'];
+    logo: CodecTypes['pg/text@1']['output'] | null;
+    isActive: CodecTypes['pg/bool@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    costMarkupPercent: CodecTypes['pg/numeric@1']['output'];
+    defaultMarginPercent: CodecTypes['pg/numeric@1']['output'];
+    inventoryItems: public_InventoryItem[];
+    services: public_Service[];
+    settlements: public_Settlement[];
+    readonly [RelationKeys]?: 'inventoryItems' | 'services' | 'settlements';
+  };
+  export type public_Client = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    name: CodecTypes['pg/text@1']['output'] | null;
+    email: CodecTypes['pg/text@1']['output'] | null;
+    phone: CodecTypes['pg/text@1']['output'];
+    address: CodecTypes['pg/text@1']['output'] | null;
+    locality: CodecTypes['pg/text@1']['output'] | null;
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    services: public_Service[];
+    readonly [RelationKeys]?: 'services';
+  };
+  export type public_Service = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    companyId: CodecTypes['pg/uuid@1']['output'];
+    clientId: CodecTypes['pg/uuid@1']['output'];
+    categoryId: CodecTypes['pg/uuid@1']['output'];
+    technicianId: CodecTypes['pg/uuid@1']['output'];
+    createdById: CodecTypes['pg/uuid@1']['output'];
+    closedById: CodecTypes['pg/uuid@1']['output'] | null;
+    orderNumber: CodecTypes['pg/int4@1']['output'];
+    observation: CodecTypes['pg/text@1']['output'] | null;
+    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'CLOSED';
+    scheduledDate: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    address: CodecTypes['pg/text@1']['output'];
+    locality: CodecTypes['pg/text@1']['output'];
+    expectedAmount: CodecTypes['pg/numeric@1']['output'] | null;
+    finalAmount: CodecTypes['pg/numeric@1']['output'];
+    completedPhotoUrl: CodecTypes['pg/text@1']['output'] | null;
+    completedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    closedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    activityLogs: public_ActivityLog[];
+    category: public_ServiceCategory;
+    client: public_Client;
+    closedBy: public_User | null;
+    company: public_Company;
+    createdBy: public_User;
+    estimate: public_Estimate | null;
+    parts: public_ServicePart[];
+    payment: public_Payment | null;
+    settlementItems: public_SettlementItem[];
+    settlementParts: public_SettlementPart[];
+    technician: public_User;
+    readonly [RelationKeys]?:
+      | 'activityLogs'
+      | 'category'
+      | 'client'
+      | 'closedBy'
+      | 'company'
+      | 'createdBy'
+      | 'estimate'
+      | 'parts'
+      | 'payment'
+      | 'settlementItems'
+      | 'settlementParts'
+      | 'technician';
+  };
+  export type public_ServiceCategory = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    name: CodecTypes['pg/text@1']['output'];
+    color: CodecTypes['pg/text@1']['output'] | null;
+    isActive: CodecTypes['pg/bool@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    services: public_Service[];
+    readonly [RelationKeys]?: 'services';
+  };
+  export type public_Payment = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    serviceId: CodecTypes['pg/uuid@1']['output'];
+    technicianId: CodecTypes['pg/uuid@1']['output'];
+    settlementId: CodecTypes['pg/uuid@1']['output'] | null;
+    method: 'CASH' | 'TRANSFER' | 'CARD' | 'OTHER';
+    amountPaid: CodecTypes['pg/numeric@1']['output'];
+    debtAmount: CodecTypes['pg/numeric@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    service: public_Service;
+    settlement: public_Settlement | null;
+    settlementItems: public_SettlementItem[];
+    technician: public_User;
+    readonly [RelationKeys]?: 'service' | 'settlement' | 'settlementItems' | 'technician';
+  };
+  export type public_InventoryItem = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    companyId: CodecTypes['pg/uuid@1']['output'];
+    code: CodecTypes['pg/text@1']['output'];
+    stock: CodecTypes['pg/int4@1']['output'];
+    name: CodecTypes['pg/text@1']['output'];
+    unit: CodecTypes['pg/text@1']['output'] | null;
+    costPrice: CodecTypes['pg/numeric@1']['output'];
+    sellPrice: CodecTypes['pg/numeric@1']['output'];
+    techPrice: CodecTypes['pg/numeric@1']['output'];
+    costInitList: CodecTypes['pg/numeric@1']['output'];
+    marginPercent: CodecTypes['pg/numeric@1']['output'];
+    isActive: CodecTypes['pg/bool@1']['output'];
+    importedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    company: public_Company;
+    serviceParts: public_ServicePart[];
+    readonly [RelationKeys]?: 'company' | 'serviceParts';
+  };
+  export type public_ServicePart = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    serviceId: CodecTypes['pg/uuid@1']['output'];
+    inventoryItemId: CodecTypes['pg/uuid@1']['output'] | null;
+    name: CodecTypes['pg/text@1']['output'];
+    nota: CodecTypes['pg/text@1']['output'] | null;
+    quantity: CodecTypes['pg/numeric@1']['output'];
+    unitCost: CodecTypes['pg/numeric@1']['output'];
+    totalCost: CodecTypes['pg/numeric@1']['output'];
+    unitSalePrice: CodecTypes['pg/numeric@1']['output'];
+    totalSalePrice: CodecTypes['pg/numeric@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    inventoryItem: public_InventoryItem | null;
+    service: public_Service;
+    readonly [RelationKeys]?: 'inventoryItem' | 'service';
+  };
+  export type public_Estimate = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    serviceId: CodecTypes['pg/uuid@1']['output'];
+    amount: CodecTypes['pg/numeric@1']['output'];
+    description: CodecTypes['pg/text@1']['output'] | null;
+    notes: CodecTypes['pg/text@1']['output'] | null;
+    status: 'PENDING' | 'COMPLETED';
+    completedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    service: public_Service;
+    readonly [RelationKeys]?: 'service';
+  };
+  export type public_Settlement = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    technicianId: CodecTypes['pg/uuid@1']['output'];
+    companyId: CodecTypes['pg/uuid@1']['output'] | null;
+    liquidatedById: CodecTypes['pg/uuid@1']['output'] | null;
+    startDate: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    endDate: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    label: CodecTypes['pg/text@1']['output'] | null;
+    commissionRate: CodecTypes['pg/numeric@1']['output'];
+    servicesCount: CodecTypes['pg/int4@1']['output'];
+    totalCollected: CodecTypes['pg/numeric@1']['output'];
+    totalDebt: CodecTypes['pg/numeric@1']['output'];
+    totalPartsCost: CodecTypes['pg/numeric@1']['output'];
+    totalPartsSale: CodecTypes['pg/numeric@1']['output'];
+    commissionBase: CodecTypes['pg/numeric@1']['output'];
+    techCommission: CodecTypes['pg/numeric@1']['output'];
+    compCommission: CodecTypes['pg/numeric@1']['output'];
+    status: 'PENDING' | 'PAID';
+    notes: CodecTypes['pg/text@1']['output'] | null;
+    liquidatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    company: public_Company | null;
+    items: public_SettlementItem[];
+    liquidatedBy: public_User | null;
+    parts: public_SettlementPart[];
+    payments: public_Payment[];
+    technician: public_User;
+    readonly [RelationKeys]?:
+      'company' | 'items' | 'liquidatedBy' | 'parts' | 'payments' | 'technician';
+  };
+  export type public_SettlementItem = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    settlementId: CodecTypes['pg/uuid@1']['output'];
+    serviceId: CodecTypes['pg/uuid@1']['output'];
+    paymentId: CodecTypes['pg/uuid@1']['output'] | null;
+    serviceAmount: CodecTypes['pg/numeric@1']['output'];
+    collectedAmount: CodecTypes['pg/numeric@1']['output'];
+    debtAmount: CodecTypes['pg/numeric@1']['output'];
+    partsCostAmount: CodecTypes['pg/numeric@1']['output'];
+    partsSaleAmount: CodecTypes['pg/numeric@1']['output'];
+    commissionBase: CodecTypes['pg/numeric@1']['output'];
+    commissionRate: CodecTypes['pg/numeric@1']['output'];
+    technicianAmount: CodecTypes['pg/numeric@1']['output'];
+    companyAmount: CodecTypes['pg/numeric@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    payment: public_Payment | null;
+    service: public_Service;
+    settlement: public_Settlement;
+    readonly [RelationKeys]?: 'payment' | 'service' | 'settlement';
+  };
+  export type public_SettlementPart = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    settlementId: CodecTypes['pg/uuid@1']['output'];
+    serviceId: CodecTypes['pg/uuid@1']['output'];
+    companyId: CodecTypes['pg/uuid@1']['output'] | null;
+    name: CodecTypes['pg/text@1']['output'];
+    quantity: CodecTypes['pg/numeric@1']['output'];
+    unitCost: CodecTypes['pg/numeric@1']['output'];
+    totalCost: CodecTypes['pg/numeric@1']['output'];
+    unitSalePrice: CodecTypes['pg/numeric@1']['output'];
+    totalSalePrice: CodecTypes['pg/numeric@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    company: public_Company | null;
+    service: public_Service;
+    settlement: public_Settlement;
+    readonly [RelationKeys]?: 'company' | 'service' | 'settlement';
+  };
+  export type public_ActivityLog = {
+    id: CodecTypes['pg/uuid@1']['output'];
+    serviceId: CodecTypes['pg/uuid@1']['output'];
+    userId: CodecTypes['pg/uuid@1']['output'];
+    action: CodecTypes['pg/text@1']['output'];
+    description: CodecTypes['pg/text@1']['output'];
+    metadata: CodecTypes['pg/json@1']['output'] | null;
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    service: public_Service;
+    user: public_User;
+    readonly [RelationKeys]?: 'service' | 'user';
+  };
+}
+
+export declare const models: {
+  public: {
+    User: Models.public_User;
+    Company: Models.public_Company;
+    Client: Models.public_Client;
+    Service: Models.public_Service;
+    ServiceCategory: Models.public_ServiceCategory;
+    Payment: Models.public_Payment;
+    InventoryItem: Models.public_InventoryItem;
+    ServicePart: Models.public_ServicePart;
+    Estimate: Models.public_Estimate;
+    Settlement: Models.public_Settlement;
+    SettlementItem: Models.public_SettlementItem;
+    SettlementPart: Models.public_SettlementPart;
+    ActivityLog: Models.public_ActivityLog;
+  };
+};
+
 export type TypeMaps = TypeMapsType<
   CodecTypes,
   QueryOperationTypes,
@@ -1583,6 +1867,11 @@ type ContractBase = Omit<
                   readonly nativeType: 'numeric';
                   readonly codecId: 'pg/numeric@1';
                   readonly nullable: false;
+                };
+                readonly completedPhotoUrl: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
                 };
                 readonly completedAt: {
                   readonly nativeType: 'timestamptz';
@@ -2461,7 +2750,7 @@ type ContractBase = Omit<
                 readonly isActive: {
                   readonly nativeType: 'bool';
                   readonly codecId: 'pg/bool@1';
-                  readonly nullable: false;
+                  readonly nullable: true;
                   readonly default: {
                     readonly kind: 'literal';
                     readonly value: DefaultLiteralValue<'pg/bool@1', true>;
@@ -2604,6 +2893,7 @@ type ContractBase = Omit<
                   readonly model: 'Service';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['serviceId'];
                   readonly targetFields: readonly ['id'];
@@ -2612,6 +2902,7 @@ type ContractBase = Omit<
               readonly user: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['userId'];
                   readonly targetFields: readonly ['id'];
@@ -2847,6 +3138,7 @@ type ContractBase = Omit<
                   readonly model: 'Service';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['serviceId'];
                   readonly targetFields: readonly ['id'];
@@ -2948,6 +3240,7 @@ type ContractBase = Omit<
                   readonly model: 'Company';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['companyId'];
                   readonly targetFields: readonly ['id'];
@@ -3039,6 +3332,7 @@ type ContractBase = Omit<
                   readonly model: 'Service';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['serviceId'];
                   readonly targetFields: readonly ['id'];
@@ -3050,6 +3344,7 @@ type ContractBase = Omit<
                   readonly model: 'Settlement';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['settlementId'];
                   readonly targetFields: readonly ['id'];
@@ -3069,6 +3364,7 @@ type ContractBase = Omit<
               readonly technician: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['technicianId'];
                   readonly targetFields: readonly ['id'];
@@ -3156,6 +3452,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
               };
+              readonly completedPhotoUrl: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly completedAt: {
                 readonly nullable: true;
                 readonly type: {
@@ -3203,6 +3503,7 @@ type ContractBase = Omit<
                   readonly model: 'ServiceCategory';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['categoryId'];
                   readonly targetFields: readonly ['id'];
@@ -3214,6 +3515,7 @@ type ContractBase = Omit<
                   readonly model: 'Client';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['clientId'];
                   readonly targetFields: readonly ['id'];
@@ -3222,6 +3524,7 @@ type ContractBase = Omit<
               readonly closedBy: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['closedById'];
                   readonly targetFields: readonly ['id'];
@@ -3233,6 +3536,7 @@ type ContractBase = Omit<
                   readonly model: 'Company';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['companyId'];
                   readonly targetFields: readonly ['id'];
@@ -3241,6 +3545,7 @@ type ContractBase = Omit<
               readonly createdBy: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['createdById'];
                   readonly targetFields: readonly ['id'];
@@ -3252,6 +3557,7 @@ type ContractBase = Omit<
                   readonly model: 'Estimate';
                 };
                 readonly cardinality: '1:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['serviceId'];
@@ -3274,6 +3580,7 @@ type ContractBase = Omit<
                   readonly model: 'Payment';
                 };
                 readonly cardinality: '1:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['serviceId'];
@@ -3304,6 +3611,7 @@ type ContractBase = Omit<
               readonly technician: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['technicianId'];
                   readonly targetFields: readonly ['id'];
@@ -3329,6 +3637,7 @@ type ContractBase = Omit<
                 readonly locality: { readonly column: 'locality' };
                 readonly expectedAmount: { readonly column: 'expectedAmount' };
                 readonly finalAmount: { readonly column: 'finalAmount' };
+                readonly completedPhotoUrl: { readonly column: 'completedPhotoUrl' };
                 readonly completedAt: { readonly column: 'completedAt' };
                 readonly closedAt: { readonly column: 'closedAt' };
                 readonly createdAt: { readonly column: 'createdAt' };
@@ -3459,6 +3768,7 @@ type ContractBase = Omit<
                   readonly model: 'InventoryItem';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['inventoryItemId'];
                   readonly targetFields: readonly ['id'];
@@ -3470,6 +3780,7 @@ type ContractBase = Omit<
                   readonly model: 'Service';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['serviceId'];
                   readonly targetFields: readonly ['id'];
@@ -3604,6 +3915,7 @@ type ContractBase = Omit<
                   readonly model: 'Company';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['companyId'];
                   readonly targetFields: readonly ['id'];
@@ -3623,6 +3935,7 @@ type ContractBase = Omit<
               readonly liquidatedBy: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['liquidatedById'];
                   readonly targetFields: readonly ['id'];
@@ -3653,6 +3966,7 @@ type ContractBase = Omit<
               readonly technician: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['technicianId'];
                   readonly targetFields: readonly ['id'];
@@ -3756,6 +4070,7 @@ type ContractBase = Omit<
                   readonly model: 'Payment';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['paymentId'];
                   readonly targetFields: readonly ['id'];
@@ -3767,6 +4082,7 @@ type ContractBase = Omit<
                   readonly model: 'Service';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['serviceId'];
                   readonly targetFields: readonly ['id'];
@@ -3778,6 +4094,7 @@ type ContractBase = Omit<
                   readonly model: 'Settlement';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['settlementId'];
                   readonly targetFields: readonly ['id'];
@@ -3862,6 +4179,7 @@ type ContractBase = Omit<
                   readonly model: 'Company';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['companyId'];
                   readonly targetFields: readonly ['id'];
@@ -3873,6 +4191,7 @@ type ContractBase = Omit<
                   readonly model: 'Service';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['serviceId'];
                   readonly targetFields: readonly ['id'];
@@ -3884,6 +4203,7 @@ type ContractBase = Omit<
                   readonly model: 'Settlement';
                 };
                 readonly cardinality: 'N:1';
+                readonly nullable: false;
                 readonly on: {
                   readonly localFields: readonly ['settlementId'];
                   readonly targetFields: readonly ['id'];
@@ -3943,7 +4263,7 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly isActive: {
-                readonly nullable: false;
+                readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
               };
               readonly createdAt: {

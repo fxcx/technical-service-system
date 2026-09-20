@@ -4,8 +4,8 @@ import bcrypt from "bcrypt";
 
 const createAdmin = async () => {
     try {
-        const name = "Admin User";
-        const email = "admin@system.com";
+        const name = "Admin";
+        const email = "admin@techservice.com";
         const password = "adminpassword123";
         const saltRounds = 10;
 
@@ -13,22 +13,23 @@ const createAdmin = async () => {
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
         console.log(`Creating user: ${email}`);
-        const user = await prisma.orm.public.User.upsert({
-            conflictOn: { email },
-            create: {
+        let user = await prisma.orm.public.User.where({ email }).first();
+        if (user) {
+            user = await prisma.orm.public.User.where({ email }).update({
+                name,
+                passwordHash,
+                role: "ADMIN",
+            });
+        } else {
+            user = await prisma.orm.public.User.create({
                 name,
                 email,
                 passwordHash,
                 role: "ADMIN",
-            },
-            update: {
-                name,
-                passwordHash,
-                role: "ADMIN",
-            },
-        });
+            });
+        }
 
-        console.log("Admin user created successfully:", user.id);
+        console.log("Admin user created successfully:", user?.email);
     } catch (error) {
         console.error("Error creating admin user:", error);
     }

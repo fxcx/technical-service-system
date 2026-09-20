@@ -203,6 +203,7 @@
             "relations": {
               "service": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "serviceId"
@@ -218,6 +219,7 @@
               },
               "user": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "userId"
@@ -579,6 +581,7 @@
             "relations": {
               "service": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "serviceId"
@@ -738,6 +741,7 @@
             "relations": {
               "company": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "companyId"
@@ -894,6 +898,7 @@
             "relations": {
               "service": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "serviceId"
@@ -909,6 +914,7 @@
               },
               "settlement": {
                 "cardinality": "N:1",
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "settlementId"
@@ -939,6 +945,7 @@
               },
               "technician": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "technicianId"
@@ -1035,6 +1042,13 @@
                 "nullable": true,
                 "type": {
                   "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "completedPhotoUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -1147,6 +1161,7 @@
               },
               "category": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "categoryId"
@@ -1162,6 +1177,7 @@
               },
               "client": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "clientId"
@@ -1177,6 +1193,7 @@
               },
               "closedBy": {
                 "cardinality": "N:1",
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "closedById"
@@ -1192,6 +1209,7 @@
               },
               "company": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "companyId"
@@ -1207,6 +1225,7 @@
               },
               "createdBy": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "createdById"
@@ -1222,6 +1241,7 @@
               },
               "estimate": {
                 "cardinality": "1:1",
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "id"
@@ -1252,6 +1272,7 @@
               },
               "payment": {
                 "cardinality": "1:1",
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "id"
@@ -1297,6 +1318,7 @@
               },
               "technician": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "technicianId"
@@ -1333,6 +1355,9 @@
                 },
                 "completedAt": {
                   "column": "completedAt"
+                },
+                "completedPhotoUrl": {
+                  "column": "completedPhotoUrl"
                 },
                 "createdAt": {
                   "column": "createdAt"
@@ -1552,6 +1577,7 @@
             "relations": {
               "inventoryItem": {
                 "cardinality": "N:1",
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "inventoryItemId"
@@ -1567,6 +1593,7 @@
               },
               "service": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "serviceId"
@@ -1783,6 +1810,7 @@
             "relations": {
               "company": {
                 "cardinality": "N:1",
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "companyId"
@@ -1813,6 +1841,7 @@
               },
               "liquidatedBy": {
                 "cardinality": "N:1",
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "liquidatedById"
@@ -1858,6 +1887,7 @@
               },
               "technician": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "technicianId"
@@ -2046,6 +2076,7 @@
             "relations": {
               "payment": {
                 "cardinality": "N:1",
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "paymentId"
@@ -2061,6 +2092,7 @@
               },
               "service": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "serviceId"
@@ -2076,6 +2108,7 @@
               },
               "settlement": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "settlementId"
@@ -2222,6 +2255,7 @@
             "relations": {
               "company": {
                 "cardinality": "N:1",
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "companyId"
@@ -2237,6 +2271,7 @@
               },
               "service": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "serviceId"
@@ -2252,6 +2287,7 @@
               },
               "settlement": {
                 "cardinality": "N:1",
+                "nullable": false,
                 "on": {
                   "localFields": [
                     "settlementId"
@@ -2344,7 +2380,7 @@
                 }
               },
               "isActive": {
-                "nullable": false,
+                "nullable": true,
                 "type": {
                   "codecId": "pg/bool@1",
                   "kind": "scalar"
@@ -3280,6 +3316,11 @@
                 "completedAt": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "completedPhotoUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
                   "nullable": true
                 },
                 "createdAt": {
@@ -4430,7 +4471,7 @@
                     "value": true
                   },
                   "nativeType": "bool",
-                  "nullable": false
+                  "nullable": true
                 },
                 "name": {
                   "codecId": "pg/text@1",
@@ -4531,7 +4572,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "063b2d824898d9fc4d7ef99a381d82adde969d4d0dbd295eed6d988dbfde69fa"
+    "storageHash": "0b3db542437512cf53603ad3207f517bab79483c78089710649ef04a92967a35"
   },
   "execution": {
     "executionHash": "6ec90d5562ccc116648f5c77dd72b213d25f23223360fe89ecbdf4c7e8bf18c7",

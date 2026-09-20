@@ -24,6 +24,7 @@ export function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL(redirectUrl, request.url))
       } catch {
         // Invalid session, allow access to login
+
       }
     }
     return NextResponse.next()

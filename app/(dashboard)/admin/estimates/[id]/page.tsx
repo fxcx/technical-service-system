@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/prisma"
 import { EstimateDetail } from "@/components/estimates/estimate-detail"
 import { serialize } from "@/lib/utils"
 
@@ -12,17 +12,9 @@ interface EstimatePageProps {
 export default async function AdminEstimatePage({ params }: EstimatePageProps) {
   const { id } = await params
 
-  const estimate = await prisma.estimate.findUnique({
-    where: { id },
-    include: {
-      service: {
-        include: {
-          technician: true,
-        },
-      },
-      client: true,
-    },
-  })
+  const estimate = await db.orm.public.Estimate
+    .include("service", (s: any) => s.include("technician", (t: any) => t).include("client", (c: any) => c))
+    .first({ id })
 
   if (!estimate) {
     notFound()
@@ -39,7 +31,7 @@ export default async function AdminEstimatePage({ params }: EstimatePageProps) {
         </p>
       </div>
 
-      <EstimateDetail estimate={serialize(estimate)} />
+      <EstimateDetail estimate={serialize(estimate as any)} />
     </div>
   )
 }

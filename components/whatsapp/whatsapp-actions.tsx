@@ -14,7 +14,7 @@ import {
   generateWhatsAppMessage,
   buildWhatsAppUrl,
   type WhatsAppTemplateVars,
-} from "@/lib/helpers/whatsapp";
+} from "@/utils/helpers/whatsapp";
 
 interface WhatsAppActionsProps {
   serviceId: string;

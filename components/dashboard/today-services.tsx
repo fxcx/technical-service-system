@@ -11,7 +11,7 @@ interface TodayServicesProps {
 }
 
 export function TodayServices({ services }: TodayServicesProps) {
-  const sortedServices = [...services].sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime))
+  const sortedServices = [...services].sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
 
   return (
     <Card>
@@ -44,11 +44,11 @@ export function TodayServices({ services }: TodayServicesProps) {
                 className="flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary font-medium text-sm">
-                  {formatTime(service.scheduledTime).split(" ")[0]}
+                  {formatTime(service.scheduledDate).split(" ")[0]}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium truncate">{service.title}</p>
+                    <p className="font-medium truncate">{service.observation}</p>
                     <Badge className={getStatusColor(service.status)} variant="secondary">
                       {getStatusLabel(service.status)}
                     </Badge>

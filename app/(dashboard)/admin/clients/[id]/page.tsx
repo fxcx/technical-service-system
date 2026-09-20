@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { ClientDetail } from "@/components/clients/client-detail";
 import { serialize } from "@/lib/utils";
 
@@ -8,24 +8,22 @@ interface ClientPageProps {
 }
 
 async function getClientHistory(clientId: string) {
-  const client = await prisma.client.findUnique({ where: { id: clientId } });
+  const client = await db.orm.public.Client.first({ id: clientId });
   if (!client) return null;
 
-  const services = await prisma.service.findMany({
-    where: { clientId },
-    include: {
-      technician: true,
-      payment: true,
-    },
-    orderBy: { scheduledDate: "desc" },
-  });
+  const services = await db.orm.public.Service
+    .where({ clientId })
+    .include("technician", (t: any) => t)
+    .include("payment", (p: any) => p)
+    .orderBy((s: any) => s.scheduledDate.desc())
+    .all();
 
   const totalServices = services.length;
   const completedServices = services.filter(
-    (s) => s.status === "COMPLETED"
+    (s: any) => s.status === "COMPLETED"
   ).length;
   const totalPaid = services.reduce(
-    (sum, s) => sum + Number(s.payment?.amountPaid || 0),
+    (sum: number, s: any) => sum + Number(s.payment?.amountPaid || 0),
     0
   );
 
@@ -51,8 +49,8 @@ export default async function AdminClientPage({ params }: ClientPageProps) {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <ClientDetail
-        client={clientHistory.client}
-        services={serialize(clientHistory.services)}
+        client={clientHistory.client as any}
+        services={serialize(clientHistory.services as any)}
         stats={clientHistory.stats}
       />
     </div>

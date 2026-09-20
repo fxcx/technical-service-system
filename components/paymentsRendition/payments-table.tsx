@@ -100,7 +100,7 @@ export function PaymentsTable({ payments, technicians }: PaymentsTableProps) {
     return {
       amountPaid: Number(payment.amountPaid),
       debtAmount: Number(payment.debtAmount || 0),
-      hasDebt: Boolean(payment.hasDebt) && Number(payment.debtAmount || 0) > 0,
+      hasDebt: Boolean((Number(payment.debtAmount) > 0)) && Number(payment.debtAmount || 0) > 0,
     };
   }
 
@@ -279,7 +279,7 @@ export function PaymentsTable({ payments, technicians }: PaymentsTableProps) {
                             href={`/admin/services/${payment.serviceId}`}
                             className="text-primary hover:underline text-sm"
                           >
-                            {payment.service?.title}
+                            {payment.service?.observation}
                           </Link>
                         </TableCell>
                         <TableCell className="text-sm">
@@ -331,7 +331,7 @@ export function PaymentsTable({ payments, technicians }: PaymentsTableProps) {
                             <span className="text-xs text-muted-foreground">
                               {localPaymentState[payment.id]
                                 ? "✓ Saldado"
-                                : payment.hasDebt === false
+                                : (Number(payment.debtAmount) > 0) === false
                                   ? "—"
                                   : "✓ Al día"}
                             </span>
@@ -364,7 +364,7 @@ export function PaymentsTable({ payments, technicians }: PaymentsTableProps) {
                     {selectedPayment.service?.client?.name || "Sin cliente"}
                   </strong>
                   {" — "}Servicio:{" "}
-                  <strong>{selectedPayment.service?.title}</strong>
+                  <strong>{selectedPayment.service?.observation}</strong>
                 </>
               )}
             </DialogDescription>

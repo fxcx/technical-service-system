@@ -36,7 +36,7 @@ export function ClientSearchInput({
     const q = query.toLowerCase().trim();
     return clients.filter(
       (c) =>
-        c.name.toLowerCase().includes(q) ||
+        c.name?.toLowerCase().includes(q) ||
         (c.phone && c.phone.toLowerCase().includes(q)) ||
         (c.email && c.email.toLowerCase().includes(q)),
     );
@@ -179,7 +179,7 @@ export function ClientSearchInput({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium leading-tight">
-                          {highlight(client.name, query)}
+                          {highlight(client.name || "", query)}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
                           {client.phone && highlight(client.phone, query)}

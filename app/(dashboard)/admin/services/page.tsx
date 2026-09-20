@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { ServicesTable } from "@/components/services/services-table";
 import { Plus } from "lucide-react";
@@ -9,18 +9,17 @@ import { serialize } from "@/lib/utils";
 export const revalidate = 30;
 
 export default async function AdminServicesPage() {
-  const services = await prisma.service.findMany({
-    include: {
-      technician: true,
-      client: true,
-      createdBy: true,
-      payment: true,
-    },
-    orderBy: { scheduledDate: "desc" },
-  });
-  const technicians = await prisma.user.findMany({
-    where: { role: "TECHNICIAN" },
-  });
+  const services = await db.orm.public.Service
+    .include("technician", (t: any) => t)
+    .include("client", (c: any) => c)
+    .include("createdBy", (u: any) => u)
+    .include("payment", (p: any) => p)
+    .orderBy((s: any) => s.scheduledDate.desc())
+    .all();
+    
+  const technicians = await db.orm.public.User
+    .where({ role: "TECHNICIAN" })
+    .all();
 
   return (
     <div className="space-y-6">
@@ -40,8 +39,8 @@ export default async function AdminServicesPage() {
       </div>
 
       <ServicesTable
-        services={serialize(services)}
-        technicians={serialize(technicians)}
+        services={serialize(services as any)}
+        technicians={serialize(technicians as any)}
       />
     </div>
   );

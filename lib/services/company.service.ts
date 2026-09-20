@@ -5,7 +5,7 @@
  * Empresas para las cuales los técnicos prestan servicio.
  * Cada empresa posee su propio inventario de repuestos.
  */
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import type { Company, SessionUser } from "@/types";
 import type { z } from "zod";
 import type {
@@ -16,29 +16,21 @@ import type {
 export type CreateCompanyInput = z.infer<typeof createCompanySchema>;
 export type UpdateCompanyInput = z.infer<typeof updateCompanySchema>;
 
-const FULL_INCLUDE = {
-    inventoryItems: false,
-    services: false,
-    settlements: false,
-};
-
 export async function listCompanies(): Promise<Company[]> {
-    return prisma.company.findMany({
-        orderBy: { name: "asc" },
-    }) as unknown as Company[];
+    return db.orm.public.Company
+        .orderBy(c => c.name.asc())
+        .all() as unknown as Promise<Company[]>;
 }
 
 export async function listActiveCompanies(): Promise<Company[]> {
-    return prisma.company.findMany({
-        where: { isActive: true },
-        orderBy: { name: "asc" },
-    }) as unknown as Company[];
+    return db.orm.public.Company
+        .where({ isActive: true })
+        .orderBy(c => c.name.asc())
+        .all() as unknown as Promise<Company[]>;
 }
 
 export async function getCompanyById(id: string): Promise<Company | null> {
-    return prisma.company.findUnique({
-        where: { id },
-    }) as unknown as Company | null;
+    return db.orm.public.Company.first({ id }) as unknown as Promise<Company | null>;
 }
 
 export async function createCompany(
@@ -48,15 +40,13 @@ export async function createCompany(
     if (session.role !== "ADMIN")
         throw new Error("Solo un Administrador puede crear empresas");
 
-    return prisma.company.create({
-        data: {
-            name: data.name,
-            logo: data.logo ?? undefined,
-            costMarkupPercent: data.costMarkupPercent ?? 0,
-            defaultMarginPercent: data.defaultMarginPercent ?? 0,
-            isActive: true,
-        },
-    }) as unknown as Company;
+    return db.orm.public.Company.create({
+        name: data.name,
+        logo: data.logo ?? null,
+        costMarkupPercent: data.costMarkupPercent?.toString() ?? "0",
+        defaultMarginPercent: data.defaultMarginPercent?.toString() ?? "0",
+        isActive: true,
+    }) as unknown as Promise<Company>;
 }
 
 export async function updateCompany(
@@ -67,21 +57,19 @@ export async function updateCompany(
     if (session.role !== "ADMIN")
         throw new Error("Solo un Administrador puede modificar empresas");
 
-    const existing = await prisma.company.findUnique({ where: { id } });
+    const existing = await db.orm.public.Company.first({ id });
     if (!existing) throw new Error("Empresa no encontrada");
 
-    return prisma.company.update({
-        where: { id },
-        data: {
-            ...(data.name && { name: data.name }),
-            ...(data.logo !== undefined && { logo: data.logo }),
-            ...(data.costMarkupPercent !== undefined && {
-                costMarkupPercent: data.costMarkupPercent,
-            }),
-            ...(data.defaultMarginPercent !== undefined && {
-                defaultMarginPercent: data.defaultMarginPercent,
-            }),
-            ...(data.isActive !== undefined && { isActive: data.isActive }),
-        },
-    }) as unknown as Company;
+    const updateData: any = {};
+    if (data.name) updateData.name = data.name;
+    if (data.logo !== undefined) updateData.logo = data.logo;
+    if (data.costMarkupPercent !== undefined) updateData.costMarkupPercent = data.costMarkupPercent.toString();
+    if (data.defaultMarginPercent !== undefined) updateData.defaultMarginPercent = data.defaultMarginPercent.toString();
+    if (data.isActive !== undefined) updateData.isActive = data.isActive;
+
+    const updated = await db.orm.public.Company
+        .where({ id })
+        .update(updateData);
+        
+    return updated as unknown as Company;
 }

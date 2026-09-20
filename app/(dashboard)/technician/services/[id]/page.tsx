@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { ServiceDetail } from "@/components/technician/service-detail";
 import { serialize } from "@/lib/utils";
 
@@ -15,15 +15,12 @@ export default async function TechnicianServicePage({
   if (!session) redirect("/login");
 
   const { id } = await params;
-  const service = await prisma.service.findUnique({
-    where: { id },
-    include: {
-      technician: true,
-      client: true,
-      createdBy: true,
-      payment: true,
-    },
-  });
+  const service = await db.orm.public.Service
+    .include("technician", (t: any) => t)
+    .include("client", (c: any) => c)
+    .include("createdBy", (u: any) => u)
+    .include("payment", (p: any) => p)
+    .first({ id });
 
   if (!service) {
     notFound();
@@ -36,7 +33,7 @@ export default async function TechnicianServicePage({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <ServiceDetail service={serialize(service)} />
+      <ServiceDetail service={serialize(service as any)} />
     </div>
   );
 }

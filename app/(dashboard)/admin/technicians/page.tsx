@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import {
   Card,
   CardContent,
@@ -16,10 +16,8 @@ import { serialize } from "@/lib/utils";
 import type { User } from "@/types";
 
 export default async function AdminTechniciansPage() {
-  const technicians = await prisma.user.findMany({
-    where: { role: "TECHNICIAN" },
-  });
-  const payments = await prisma.payment.findMany();
+  const technicians = await db.orm.public.User.where({ role: "TECHNICIAN" }).all();
+  const payments = await db.orm.public.Payment.all();
 
   // Calculate stats per technician
   const technicianStats = technicians.map((tech) => {

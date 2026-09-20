@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ServiceForm } from "@/components/services/service-form";
@@ -9,12 +9,8 @@ export default async function NewServicePage() {
     redirect("/login");
   }
 
-  const clients = await prisma.client.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-  const technicians = await prisma.user.findMany({
-    where: { role: "TECHNICIAN" },
-  });
+  const clients = await db.orm.public.Client.orderBy((c: any) => c.createdAt.desc()).all();
+  const technicians = await db.orm.public.User.where({ role: "TECHNICIAN" }).all();
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">

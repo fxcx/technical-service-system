@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { ClientsTable } from "@/components/clients/clients-table";
 import { Plus } from "lucide-react";
@@ -8,9 +8,7 @@ import { Plus } from "lucide-react";
 export const revalidate = 60;
 
 export default async function AdminClientsPage() {
-  const clients = await prisma.client.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  const clients = await db.orm.public.Client.orderBy((c: any) => c.createdAt.desc()).all();
 
   return (
     <div className="space-y-6">

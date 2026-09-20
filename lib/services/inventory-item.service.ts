@@ -6,7 +6,7 @@
  * Al importar desde Google Sheets se calculan costPrice y sellPrice.
  * Cuando un InventoryItem se usa en un ServicePart se hace snapshot de sus precios.
  */
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import type { InventoryItem, InventoryItemFilters, SessionUser } from "@/types";
 import type { z } from "zod";
 import type {
@@ -20,31 +20,39 @@ export type UpdateInventoryItemInput = z.infer<typeof updateInventoryItemSchema>
 export async function listInventoryItems(
     filters: InventoryItemFilters,
 ): Promise<InventoryItem[]> {
-    const where: Record<string, unknown> = {};
+    let query: any = db.orm.public.InventoryItem;
 
-    if (filters.companyId) where.companyId = filters.companyId;
-    if (filters.isActive !== undefined) where.isActive = filters.isActive;
+    if (filters.companyId) {
+        query = query.where({ companyId: filters.companyId });
+    }
+    if (filters.isActive !== undefined) {
+        query = query.where({ isActive: filters.isActive });
+    }
+    
+    let baseQuery = query.include("company", (c: any) => c);
+
     if (filters.search) {
-        where.OR = [
-            { name: { contains: filters.search, mode: "insensitive" } },
-            { code: { contains: filters.search, mode: "insensitive" } },
-        ];
+        const s = `%${filters.search}%`;
+        const q1 = await baseQuery.where((m: any) => m.name.ilike(s)).all();
+        const q2 = await baseQuery.where((m: any) => m.code.ilike(s)).all();
+        
+        const merged = [...(q1 as any[]), ...(q2 as any[])];
+        const unique = Array.from(new Map(merged.map(item => [item.id, item])).values());
+        
+        return unique.sort((a: any, b: any) => a.name.localeCompare(b.name)) as unknown as InventoryItem[];
     }
 
-    return prisma.inventoryItem.findMany({
-        where,
-        include: { company: true },
-        orderBy: { name: "asc" },
-    }) as unknown as InventoryItem[];
+    return baseQuery
+        .orderBy((c: any) => c.name.asc())
+        .all() as unknown as Promise<InventoryItem[]>;
 }
 
 export async function getInventoryItemById(
     id: string,
 ): Promise<InventoryItem | null> {
-    return prisma.inventoryItem.findUnique({
-        where: { id },
-        include: { company: true },
-    }) as unknown as InventoryItem | null;
+    return db.orm.public.InventoryItem
+        .include("company", (c: any) => c)
+        .first({ id }) as unknown as Promise<InventoryItem | null>;
 }
 
 export async function createInventoryItem(
@@ -54,21 +62,23 @@ export async function createInventoryItem(
     if (session.role !== "ADMIN")
         throw new Error("Solo un Administrador puede crear ítems de inventario");
 
-    return prisma.inventoryItem.create({
-        data: {
-            companyId: data.companyId,
-            code: data.code,
-            name: data.name,
-            unit: data.unit ?? undefined,
-            stock: data.stock ?? 0,
-            costInitList: data.costInitList,
-            costPrice: data.costPrice,
-            sellPrice: data.sellPrice,
-            techPrice: data.techPrice,
-            marginPercent: data.marginPercent ?? 0,
-        },
-        include: { company: true },
-    }) as unknown as InventoryItem;
+    const created = await db.orm.public.InventoryItem.create({
+        companyId: data.companyId,
+        code: data.code,
+        name: data.name,
+        unit: data.unit ?? null,
+        stock: data.stock ?? 0,
+        costInitList: data.costInitList.toString(),
+        costPrice: data.costPrice.toString(),
+        sellPrice: data.sellPrice.toString(),
+        techPrice: data.techPrice.toString(),
+        marginPercent: data.marginPercent?.toString() ?? "0",
+        isActive: true,
+    });
+    
+    return db.orm.public.InventoryItem
+        .include("company", (c: any) => c)
+        .first({ id: created.id }) as unknown as Promise<InventoryItem>;
 }
 
 export async function updateInventoryItem(
@@ -81,29 +91,26 @@ export async function updateInventoryItem(
             "Solo un Administrador puede modificar ítems de inventario",
         );
 
-    const existing = await prisma.inventoryItem.findUnique({ where: { id } });
+    const existing = await db.orm.public.InventoryItem.first({ id });
     if (!existing) throw new Error("Ítem de inventario no encontrado");
 
-    return prisma.inventoryItem.update({
-        where: { id },
-        data: {
-            ...(data.name && { name: data.name }),
-            ...(data.code && { code: data.code }),
-            ...(data.unit !== undefined && { unit: data.unit }),
-            ...(data.stock !== undefined && { stock: data.stock }),
-            ...(data.costInitList !== undefined && {
-                costInitList: data.costInitList,
-            }),
-            ...(data.costPrice !== undefined && { costPrice: data.costPrice }),
-            ...(data.sellPrice !== undefined && { sellPrice: data.sellPrice }),
-            ...(data.techPrice !== undefined && { techPrice: data.techPrice }),
-            ...(data.marginPercent !== undefined && {
-                marginPercent: data.marginPercent,
-            }),
-            ...(data.isActive !== undefined && { isActive: data.isActive }),
-        },
-        include: { company: true },
-    }) as unknown as InventoryItem;
+    const updateData: any = {};
+    if (data.name) updateData.name = data.name;
+    if (data.code) updateData.code = data.code;
+    if (data.unit !== undefined) updateData.unit = data.unit;
+    if (data.stock !== undefined) updateData.stock = data.stock;
+    if (data.costInitList !== undefined) updateData.costInitList = data.costInitList.toString();
+    if (data.costPrice !== undefined) updateData.costPrice = data.costPrice.toString();
+    if (data.sellPrice !== undefined) updateData.sellPrice = data.sellPrice.toString();
+    if (data.techPrice !== undefined) updateData.techPrice = data.techPrice.toString();
+    if (data.marginPercent !== undefined) updateData.marginPercent = data.marginPercent.toString();
+    if (data.isActive !== undefined) updateData.isActive = data.isActive;
+
+    await db.orm.public.InventoryItem.where({ id }).update(updateData);
+
+    return db.orm.public.InventoryItem
+        .include("company", (c: any) => c)
+        .first({ id }) as unknown as Promise<InventoryItem>;
 }
 
 /**
@@ -119,11 +126,8 @@ export async function deactivateInventoryItem(
             "Solo un Administrador puede desactivar ítems de inventario",
         );
 
-    const existing = await prisma.inventoryItem.findUnique({ where: { id } });
+    const existing = await db.orm.public.InventoryItem.first({ id });
     if (!existing) throw new Error("Ítem de inventario no encontrado");
 
-    await prisma.inventoryItem.update({
-        where: { id },
-        data: { isActive: false },
-    });
+    await db.orm.public.InventoryItem.where({ id }).update({ isActive: false });
 }

@@ -3,7 +3,7 @@
  * Registra el historial de acciones sobre Órdenes de Trabajo.
  * Documentación: docs/reglas-negocio.md, docs/ordenes.md
  */
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import type { ActivityLog } from "@/types";
 
 export const ACTIONS = {
@@ -42,14 +42,12 @@ export async function logActivity(
   metadata?: Record<string, unknown>,
 ): Promise<void> {
   try {
-    await prisma.activityLog.create({
-      data: {
-        serviceId,
-        userId,
-        action,
-        description,
-        metadata: metadata ?? undefined,
-      },
+    await db.orm.public.ActivityLog.create({
+      serviceId,
+      userId,
+      action,
+      description,
+      metadata: metadata ? (metadata as any) : null,
     });
   } catch (err) {
     console.error("[ActivityLog] Error registrando historial:", err);
@@ -62,9 +60,9 @@ export async function logActivity(
 export async function getServiceHistory(
   serviceId: string,
 ): Promise<ActivityLog[]> {
-  return prisma.activityLog.findMany({
-    where: { serviceId },
-    include: { user: true },
-    orderBy: { createdAt: "asc" },
-  }) as Promise<ActivityLog[]>;
+  return db.orm.public.ActivityLog
+    .where({ serviceId })
+    .include("user", u => u)
+    .orderBy(log => log.createdAt.asc())
+    .all() as unknown as Promise<ActivityLog[]>;
 }

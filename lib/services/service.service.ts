@@ -7,8 +7,9 @@
  * - Los servicios NUNCA se eliminan físicamente (soft delete → CANCELLED).
  * - Cada cambio importante se registra en ActivityLog.
  */
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { logActivity, ACTIONS } from "./activity-log.service";
+import { toInstant, nowInstant } from "@/lib/utils";
 import type { Service, ServiceFilters, SessionUser } from "@/types";
 import type { z } from "zod";
 import type {
@@ -23,95 +24,70 @@ export type UpdateServiceInput = z.infer<typeof updateServiceSchema>;
 export type UpdateStatusInput = z.infer<typeof updateStatusSchema>;
 export type FinishServiceInput = z.infer<typeof finishServiceSchema>;
 
-/** Selección segura de User (sin passwordHash) */
-const USER_SELECT = {
-  id: true,
-  name: true,
-  email: true,
-  phone: true,
-  dni: true,
-  role: true,
-  isActive: true,
-  avatar: true,
-  createdAt: true,
-  updatedAt: true,
-  passwordHash: false,
-} as const;
+const USER_SELECT_FIELDS = [
+  "id", "name", "email", "phone", "dni", "role", 
+  "isActive", "avatar", "createdAt", "updatedAt"
+] as const;
 
-const FULL_INCLUDE = {
-  company: true,
-  client: true,
-  category: true,
-  technician: { select: USER_SELECT },
-  createdBy: { select: USER_SELECT },
-  closedBy: { select: USER_SELECT },
-  payment: true,
-  estimate: true,
-  parts: {
-    include: {
-      inventoryItem: {
-        select: { id: true, name: true, code: true, unit: true },
-      },
-    },
-    orderBy: { createdAt: "asc" as const },
-  },
-  activityLogs: {
-    include: {
-      user: { select: { id: true, name: true, role: true } },
-    },
-    orderBy: { createdAt: "asc" as const },
-  },
-};
+function applyFullInclude(query: any) {
+  return query
+    .include("company", (c: any) => c)
+    .include("client", (c: any) => c)
+    .include("category", (c: any) => c)
+    .include("technician", (t: any) => t.select(...USER_SELECT_FIELDS))
+    .include("createdBy", (u: any) => u.select(...USER_SELECT_FIELDS))
+    .include("closedBy", (u: any) => u.select(...USER_SELECT_FIELDS))
+    .include("payment", (p: any) => p)
+    .include("estimate", (e: any) => e)
+    .include("parts", (p: any) => 
+       p.include("inventoryItem", (i: any) => i.select("id", "name", "code", "unit"))
+        .orderBy((x: any) => x.createdAt.asc())
+    )
+    .include("activityLogs", (a: any) => 
+       a.include("user", (u: any) => u.select("id", "name", "role"))
+        .orderBy((x: any) => x.createdAt.asc())
+    );
+}
 
-function buildWhere(filters: ServiceFilters, session: SessionUser) {
-  const where: Record<string, unknown> = {};
+function applyFilters(query: any, filters: ServiceFilters, session: SessionUser) {
+  let q = query;
 
-  // Técnicos solo ven sus propias órdenes
   if (session.role === "TECHNICIAN") {
-    where.technicianId = session.id;
+    q = q.where({ technicianId: session.id });
   } else {
-    if (filters.technicianId) where.technicianId = filters.technicianId;
-    if (filters.clientId) where.clientId = filters.clientId;
-    if (filters.companyId) where.companyId = filters.companyId;
-    if (filters.categoryId) where.categoryId = filters.categoryId;
+    if (filters.technicianId) q = q.where({ technicianId: filters.technicianId });
+    if (filters.clientId) q = q.where({ clientId: filters.clientId });
+    if (filters.companyId) q = q.where({ companyId: filters.companyId });
+    if (filters.categoryId) q = q.where({ categoryId: filters.categoryId });
   }
 
-  if (filters.status) where.status = filters.status;
+  if (filters.status) q = q.where({ status: filters.status });
 
-  if (filters.dateFrom || filters.dateTo) {
-    where.scheduledDate = {
-      ...(filters.dateFrom ? { gte: new Date(filters.dateFrom) } : {}),
-      ...(filters.dateTo ? { lte: new Date(filters.dateTo) } : {}),
-    };
-  }
+  if (filters.dateFrom) q = q.where((s: any) => s.scheduledDate.gte(toInstant(filters.dateFrom!)));
+  if (filters.dateTo) q = q.where((s: any) => s.scheduledDate.lte(toInstant(filters.dateTo!)));
 
-  return where;
+  return q;
 }
 
 export async function listServices(
   filters: ServiceFilters,
   session: SessionUser,
 ): Promise<Service[]> {
-  const where = buildWhere(filters, session);
-  return prisma.service.findMany({
-    where,
-    include: FULL_INCLUDE,
-    orderBy: { scheduledDate: "desc" },
-  }) as unknown as Service[];
+  let query: any = db.orm.public.Service;
+  query = applyFilters(query, filters, session);
+  return applyFullInclude(query)
+    .orderBy((s: any) => s.scheduledDate.desc())
+    .all() as unknown as Promise<Service[]>;
 }
 
 export async function getServiceById(
   id: string,
   session: SessionUser,
 ): Promise<Service | null> {
-  const service = await prisma.service.findUnique({
-    where: { id },
-    include: FULL_INCLUDE,
-  });
+  const service = await applyFullInclude(db.orm.public.Service).first({ id });
 
   if (!service) return null;
 
-  // Técnico solo puede ver sus propias órdenes
   if (session.role === "TECHNICIAN" && service.technicianId !== session.id) {
     throw new Error("Sin permisos para ver esta orden");
   }
@@ -126,26 +102,23 @@ export async function createService(
   if (session.role !== "ADMIN")
     throw new Error("Solo un Administrador puede crear órdenes");
 
-  const service = await prisma.service.create({
-    data: {
-      companyId: data.companyId,
-      clientId: data.clientId,
-      categoryId: data.categoryId,
-      technicianId: data.technicianId ?? undefined,
-      scheduledDate: new Date(data.scheduledDate),
-      address: data.address,
-      locality: data.locality,
-      observation: data.observation ?? undefined,
-      expectedAmount: data.expectedAmount ?? undefined,
-      finalAmount: data.finalAmount ?? 0,
-      status: "PENDING",
-      createdById: session.id,
-    },
-    include: FULL_INCLUDE,
+  const created = await db.orm.public.Service.create({
+    companyId: data.companyId,
+    clientId: data.clientId,
+    categoryId: data.categoryId,
+    technicianId: data.technicianId as string,
+    scheduledDate: toInstant(data.scheduledDate),
+    address: data.address,
+    locality: data.locality,
+    observation: data.observation ?? undefined,
+    expectedAmount: data.expectedAmount ? data.expectedAmount.toString() : undefined,
+    finalAmount: (data.finalAmount ?? 0).toString(),
+    status: "PENDING",
+    createdById: session.id,
   });
 
   await logActivity(
-    service.id,
+    created.id,
     session.id,
     ACTIONS.SERVICE_CREATED,
     "Orden creada",
@@ -154,7 +127,7 @@ export async function createService(
 
   if (data.technicianId) {
     await logActivity(
-      service.id,
+      created.id,
       session.id,
       ACTIONS.SERVICE_TECHNICIAN_ASSIGNED,
       "Técnico asignado",
@@ -162,7 +135,7 @@ export async function createService(
     );
   }
 
-  return service as unknown as Service;
+  return applyFullInclude(db.orm.public.Service).first({ id: created.id }) as unknown as Promise<Service>;
 }
 
 export async function updateService(
@@ -173,35 +146,26 @@ export async function updateService(
   if (session.role !== "ADMIN")
     throw new Error("Solo un Administrador puede modificar órdenes");
 
-  const existing = await prisma.service.findUnique({ where: { id } });
+  const existing = await db.orm.public.Service.first({ id });
   if (!existing) throw new Error("Orden no encontrada");
   if (existing.status === "CLOSED")
     throw new Error("No se puede modificar una orden cerrada");
 
   const prevTechnicianId = existing.technicianId;
 
-  const service = await prisma.service.update({
-    where: { id },
-    data: {
-      ...(data.companyId && { companyId: data.companyId }),
-      ...(data.clientId && { clientId: data.clientId }),
-      ...(data.categoryId && { categoryId: data.categoryId }),
-      ...(data.technicianId !== undefined && {
-        technicianId: data.technicianId,
-      }),
-      ...(data.scheduledDate && {
-        scheduledDate: new Date(data.scheduledDate),
-      }),
-      ...(data.address !== undefined && { address: data.address }),
-      ...(data.locality !== undefined && { locality: data.locality }),
-      ...(data.observation !== undefined && { observation: data.observation }),
-      ...(data.expectedAmount !== undefined && {
-        expectedAmount: data.expectedAmount,
-      }),
-      ...(data.finalAmount !== undefined && { finalAmount: data.finalAmount }),
-    },
-    include: FULL_INCLUDE,
-  });
+  const updateData: any = {};
+  if (data.companyId) updateData.companyId = data.companyId;
+  if (data.clientId) updateData.clientId = data.clientId;
+  if (data.categoryId) updateData.categoryId = data.categoryId;
+  if (data.technicianId !== undefined) updateData.technicianId = data.technicianId;
+  if (data.scheduledDate) updateData.scheduledDate = toInstant(data.scheduledDate);
+  if (data.address !== undefined) updateData.address = data.address;
+  if (data.locality !== undefined) updateData.locality = data.locality;
+  if (data.observation !== undefined) updateData.observation = data.observation;
+  if (data.expectedAmount !== undefined) updateData.expectedAmount = data.expectedAmount?.toString() ?? undefined;
+  if (data.finalAmount !== undefined) updateData.finalAmount = data.finalAmount?.toString() ?? "0";
+
+  await db.orm.public.Service.where({ id }).update(updateData);
 
   if (
     data.technicianId !== undefined &&
@@ -220,7 +184,7 @@ export async function updateService(
     fields: Object.keys(data),
   });
 
-  return service as unknown as Service;
+  return applyFullInclude(db.orm.public.Service).first({ id }) as unknown as Promise<Service>;
 }
 
 export async function updateServiceStatus(
@@ -228,10 +192,9 @@ export async function updateServiceStatus(
   data: UpdateStatusInput,
   session: SessionUser,
 ): Promise<Service> {
-  const existing = await prisma.service.findUnique({ where: { id } });
+  const existing = await db.orm.public.Service.first({ id });
   if (!existing) throw new Error("Orden no encontrada");
 
-  // Técnicos solo pueden modificar sus propias órdenes
   if (session.role === "TECHNICIAN" && existing.technicianId !== session.id) {
     throw new Error("Sin permisos para modificar esta orden");
   }
@@ -239,16 +202,12 @@ export async function updateServiceStatus(
   if (existing.status === "CLOSED")
     throw new Error("No se puede cambiar el estado de una orden cerrada");
 
-  const updateData: Record<string, unknown> = { status: data.status };
+  const updateData: any = { status: data.status };
   if (data.status === "COMPLETED") {
-    updateData.completedAt = new Date();
+    updateData.completedAt = nowInstant();
   }
 
-  const service = await prisma.service.update({
-    where: { id },
-    data: updateData,
-    include: FULL_INCLUDE,
-  });
+  await db.orm.public.Service.where({ id }).update(updateData);
 
   await logActivity(
     id,
@@ -258,7 +217,7 @@ export async function updateServiceStatus(
     { from: existing.status, to: data.status },
   );
 
-  return service as unknown as Service;
+  return applyFullInclude(db.orm.public.Service).first({ id }) as unknown as Promise<Service>;
 }
 
 /**
@@ -274,27 +233,28 @@ export async function finishService(
   if (session.role !== "ADMIN")
     throw new Error("Solo un Administrador puede cerrar órdenes");
 
-  const existing = await prisma.service.findUnique({ where: { id } });
+  const existing = await db.orm.public.Service.first({ id });
   if (!existing) throw new Error("Orden no encontrada");
   if (existing.status === "CLOSED") throw new Error("La orden ya está cerrada");
 
-  const service = await prisma.service.update({
-    where: { id },
-    data: {
-      status: "CLOSED",
-      closedAt: new Date(),
-      closedById: session.id,
-      finalAmount: data.finalAmount,
-      ...(data.observation !== undefined && { observation: data.observation }),
-    },
-    include: FULL_INCLUDE,
-  });
+  const updateData: any = {
+    status: "CLOSED",
+    closedAt: nowInstant(),
+    closedById: session.id,
+    finalAmount: data.finalAmount.toString(),
+  };
+
+  if (data.observation !== undefined) {
+    updateData.observation = data.observation;
+  }
+
+  await db.orm.public.Service.where({ id }).update(updateData);
 
   await logActivity(id, session.id, ACTIONS.SERVICE_CLOSED, "Orden cerrada", {
     finalAmount: data.finalAmount,
   });
 
-  return service as unknown as Service;
+  return applyFullInclude(db.orm.public.Service).first({ id }) as unknown as Promise<Service>;
 }
 
 /**
@@ -308,18 +268,14 @@ export async function cancelService(
   if (session.role !== "ADMIN")
     throw new Error("Solo un Administrador puede cancelar órdenes");
 
-  const existing = await prisma.service.findUnique({ where: { id } });
+  const existing = await db.orm.public.Service.first({ id });
   if (!existing) throw new Error("Orden no encontrada");
   if (existing.status === "CLOSED")
     throw new Error("No se puede cancelar una orden cerrada");
 
-  const service = await prisma.service.update({
-    where: { id },
-    data: { status: "CANCELLED" },
-    include: FULL_INCLUDE,
-  });
+  await db.orm.public.Service.where({ id }).update({ status: "CANCELLED" });
 
   await logActivity(id, session.id, ACTIONS.SERVICE_CANCELLED, "Orden cancelada");
 
-  return service as unknown as Service;
+  return applyFullInclude(db.orm.public.Service).first({ id }) as unknown as Promise<Service>;
 }

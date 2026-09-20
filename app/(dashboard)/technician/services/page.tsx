@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { TechnicianServicesList } from "@/components/technician/technician-services-list";
 import { serialize } from "@/lib/utils";
 
@@ -8,16 +8,14 @@ export default async function TechnicianServicesPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const services = await prisma.service.findMany({
-    where: { technicianId: session.id },
-    include: {
-      technician: true,
-      client: true,
-      createdBy: true,
-      payment: true,
-    },
-    orderBy: { scheduledDate: "desc" },
-  });
+  const services = await db.orm.public.Service
+    .where({ technicianId: session.id })
+    .include("technician", (t: any) => t)
+    .include("client", (c: any) => c)
+    .include("createdBy", (u: any) => u)
+    .include("payment", (p: any) => p)
+    .orderBy((s: any) => s.scheduledDate.desc())
+    .all();
 
   return (
     <div className="space-y-4">
@@ -30,7 +28,7 @@ export default async function TechnicianServicesPage() {
         </p>
       </div>
 
-      <TechnicianServicesList services={serialize(services)} />
+      <TechnicianServicesList services={serialize(services as any)} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { ScheduleCalendar } from "@/components/schedule/schedule-calendar";
 import { serialize } from "@/lib/utils";
 
@@ -8,18 +8,16 @@ export default async function TechnicianSchedulePage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const rawServices = await prisma.service.findMany({
-    where: { technicianId: session.id },
-    include: {
-      technician: true,
-      client: true,
-      createdBy: true,
-      payment: true,
-    },
-    orderBy: { scheduledDate: "desc" },
-  });
+  const rawServices = await db.orm.public.Service
+    .where({ technicianId: session.id })
+    .include("technician", (t: any) => t)
+    .include("client", (c: any) => c)
+    .include("createdBy", (u: any) => u)
+    .include("payment", (p: any) => p)
+    .orderBy((s: any) => s.scheduledDate.desc())
+    .all();
 
-  const services = serialize(rawServices);
+  const services = serialize(rawServices as any);
 
   return (
     <div className="space-y-6">

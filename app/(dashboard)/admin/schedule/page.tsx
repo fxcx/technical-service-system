@@ -1,34 +1,32 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { ScheduleCalendar } from "@/components/schedule/schedule-calendar";
 
 export default async function AdminSchedulePage() {
-  const rawServices = await prisma.service.findMany({
-    include: {
-      technician: true,
-      client: true,
-      createdBy: true,
-      payment: true,
-    },
-    orderBy: { scheduledDate: "desc" },
-  });
+  const rawServices = await db.orm.public.Service
+    .include("technician", (t: any) => t)
+    .include("client", (c: any) => c)
+    .include("createdBy", (u: any) => u)
+    .include("payment", (p: any) => p)
+    .orderBy((s: any) => s.scheduledDate.desc())
+    .all();
 
-  const services = rawServices.map((service) => ({
+  const services = rawServices.map((service: any) => ({
     ...service,
     expectedAmount: service.expectedAmount
-      ? service.expectedAmount.toNumber()
+      ? Number(service.expectedAmount)
       : null,
     payment: service.payment
       ? {
           ...service.payment,
-          amountPaid: service.payment.amountPaid.toNumber(),
-          sparePartsCost: service.payment.sparePartsCost.toNumber(),
-          debtAmount: service.payment.debtAmount.toNumber(),
+          amountPaid: Number(service.payment.amountPaid),
+          sparePartsCost: Number(service.payment.sparePartsCost),
+          debtAmount: Number(service.payment.debtAmount),
         }
       : null,
   }));
-  const technicians = await prisma.user.findMany({
-    where: { role: "TECHNICIAN" },
-  });
+  const technicians = await db.orm.public.User
+    .where({ role: "TECHNICIAN" })
+    .all();
 
   return (
     <div className="space-y-6">

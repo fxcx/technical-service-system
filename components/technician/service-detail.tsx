@@ -45,7 +45,7 @@ import {
   Camera,
   X,
 } from "lucide-react";
-import type { Service, PaymentMethod, PaymentType } from "@/types";
+import type { Service, PaymentMethod } from "@/types";
 
 interface ServiceDetailProps {
   service: Service;
@@ -58,7 +58,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
   const [showPayment, setShowPayment] = useState(false);
 
   // Payment form state
-  const [paymentType, setPaymentType] = useState<PaymentType>("ON_SITE");
+  const [paymentType, setPaymentType] = useState<any>("ON_SITE");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [amount, setAmount] = useState(
     service.expectedAmount ? String(service.expectedAmount) : "",
@@ -206,7 +206,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle>{service.title}</CardTitle>
+              <CardTitle>{service.observation}</CardTitle>
               <CardDescription>{service.client?.name}</CardDescription>
             </div>
             <Badge className={getStatusColor(status)} variant="secondary">
@@ -215,11 +215,11 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {service.description && (
+          {service.observation && (
             <div>
               <h4 className="font-medium mb-1">Descripción</h4>
               <p className="text-sm text-muted-foreground">
-                {service.description}
+                {service.observation}
               </p>
             </div>
           )}
@@ -240,7 +240,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span>
                 {formatDate(service.scheduledDate)} -{" "}
-                {formatTime(service.scheduledTime)}
+                {formatTime(service.scheduledDate)}
               </span>
             </div>
             <div className="flex items-start gap-2 text-sm">
@@ -260,13 +260,13 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
             )}
           </div>
 
-          {service.client?.notes && (
+          {false && (
             <>
               <Separator />
               <div>
                 <h4 className="font-medium mb-1">Notas del cliente</h4>
                 <p className="text-sm text-muted-foreground">
-                  {service.client.notes}
+                  {""}
                 </p>
               </div>
             </>
@@ -395,7 +395,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
                 <Label>Tipo de cobro</Label>
                 <RadioGroup
                   value={paymentType}
-                  onValueChange={(v) => setPaymentType(v as PaymentType)}
+                  onValueChange={(v) => setPaymentType(v)}
                   className="flex gap-4"
                 >
                   <div className="flex items-center space-x-2">

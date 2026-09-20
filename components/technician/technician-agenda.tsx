@@ -13,6 +13,7 @@ import {
   getStatusLabel,
   getStatusColor,
   getRelativeDay,
+  toDate,
 } from "@/lib/utils";
 import {
   MapPin,
@@ -49,7 +50,7 @@ export function TechnicianAgenda({ services }: TechnicianAgendaProps) {
 
   // Group services by date
   const groupedServices = services.reduce((acc, service) => {
-    const dateKey = new Date(service.scheduledDate).toISOString().split("T")[0];
+    const dateKey = toDate(service.scheduledDate).toISOString().split("T")[0];
     if (!acc[dateKey]) {
       acc[dateKey] = [];
     }
@@ -86,11 +87,11 @@ export function TechnicianAgenda({ services }: TechnicianAgendaProps) {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-semibold">
-                          {formatTime(service.scheduledTime).split(" ")[0]}
+                          {formatTime(service.scheduledDate).split(" ")[0]}
                         </div>
                         <div>
                           <CardTitle className="text-base">
-                            {service.title}
+                            {service.observation}
                           </CardTitle>
                           <CardDescription>
                             {service.client?.name}
@@ -111,9 +112,9 @@ export function TechnicianAgenda({ services }: TechnicianAgendaProps) {
                     )}
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {service.description && (
+                    {service.observation && (
                       <p className="text-sm text-muted-foreground">
-                        {service.description}
+                        {service.observation}
                       </p>
                     )}
 

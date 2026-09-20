@@ -1,4 +1,4 @@
-// use prisma-next
+// use prisma-8
 
 // Prisma 8 RC
 // Decimal sin precisión
@@ -84,6 +84,8 @@ enum SettlementStatus {
 // ═════════════════════════════════════════════════════════════════════════════
 // USER
 // ═════════════════════════════════════════════════════════════════════════════
+
+// un user puede ser administrador o Tecnico 
 model User {
   id                      Uuid          @id @default(uuid(7))
   email                   String        @unique
@@ -93,7 +95,7 @@ model User {
   passwordHash            String
   phone                   String?
   dni                     String?
-  isActive                Boolean       @default(true)
+  isActive                Boolean?      @default(true)
 
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @default(now())
@@ -138,10 +140,10 @@ model Company {
   updatedAt            DateTime        @default(now())
   // Porcentaje que se suma sobre costList para obtener el costo real de esa empresa.
   // Ej: Empresa A = 21 (solo IVA), Empresa B = 33 (IVA + otro impuesto)
-  costMarkupPercent    Decimal          @default("0")
+  costMarkupPercent    Decimal         @default("0")
 
   // Margen de ganancia por defecto, aplicado si el ítem no tiene uno propio.
-  defaultMarginPercent Decimal          @default("0")
+  defaultMarginPercent Decimal         @default("0")
 
   // Relations
   services             Service[]
@@ -152,6 +154,8 @@ model Company {
 // ═════════════════════════════════════════════════════════════════════════════
 // CLIENT
 // ═════════════════════════════════════════════════════════════════════════════
+
+// un cliente puede tener muchos servicios
 model Client {
   id        Uuid      @id @default(uuid(7))
   name      String?
@@ -188,55 +192,56 @@ model Client {
 //
 // ═════════════════════════════════════════════════════════════════════════════
 model Service {
-  id              Uuid             @id @default(uuid(7))
+  id                Uuid             @id @default(uuid(7))
   // Foreign Keys
-  companyId       Uuid
-  clientId        Uuid
-  categoryId      Uuid
-  technicianId    Uuid
-  createdById     Uuid
-  closedById      Uuid?
+  companyId         Uuid
+  clientId          Uuid
+  categoryId        Uuid
+  technicianId      Uuid
+  createdById       Uuid
+  closedById        Uuid?
 
   // Identificador operativo
-  orderNumber     Int              @unique @default(autoincrement())
+  orderNumber       Int              @unique @default(autoincrement())
 
   // Datos del servicio
-  observation     String?
-  status          ServiceStatus    @default(PENDING)
-  scheduledDate   DateTime
-  address         String
-  locality        String
+  observation       String?
+  status            ServiceStatus    @default(PENDING)
+  scheduledDate     DateTime
+  address           String
+  locality          String
 
   // Importe esperado inicialmente.
-  expectedAmount  Decimal?
+  expectedAmount    Decimal?
 
   // Importe final del servicio.
-  finalAmount     Decimal
-  completedAt     DateTime?
-  closedAt        DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now())
+  finalAmount       Decimal
+  completedPhotoUrl String?
+  completedAt       DateTime?
+  closedAt          DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @default(now())
 
   // Relations
-  company         Company          @relation(fields:[companyId], references:[id])
-  client          Client           @relation(fields:[clientId], references:[id])
-  category        ServiceCategory  @relation(fields:[categoryId], references:[id])
-  technician      User             @relation("TechnicianServices", fields:[technicianId], references:[id])
-  createdBy       User             @relation("CreatedServices", fields:[createdById], references:[id])
-  closedBy        User?            @relation("ClosedServices", fields:[closedById], references:[id])
+  company           Company          @relation(fields:[companyId], references:[id])
+  client            Client           @relation(fields:[clientId], references:[id])
+  category          ServiceCategory  @relation(fields:[categoryId], references:[id])
+  technician        User             @relation("TechnicianServices", fields:[technicianId], references:[id])
+  createdBy         User             @relation("CreatedServices", fields:[createdById], references:[id])
+  closedBy          User?            @relation("ClosedServices", fields:[closedById], references:[id])
 
   // Un servicio puede todavía no tener pago.
-  payment         Payment?
+  payment           Payment?
 
   // Un servicio puede tener un presupuesto.
-  estimate        Estimate?
+  estimate          Estimate?
 
   // Repuestos utilizados/cargados en el servicio.
-  parts           ServicePart[]
-  settlementItems SettlementItem[]
-  settlementParts SettlementPart[]
+  parts             ServicePart[]
+  settlementItems   SettlementItem[]
+  settlementParts   SettlementPart[]
   // Auditoría.
-  activityLogs    ActivityLog[]
+  activityLogs      ActivityLog[]
 
   // Indexes
   @@index([technicianId, scheduledDate])
@@ -547,19 +552,19 @@ model SettlementItem {
   paymentId        Uuid?
 
   // Snapshot económico del servicio.
-  serviceAmount    Decimal          @default("0")
-  collectedAmount  Decimal          @default("0")
-  debtAmount       Decimal          @default("0")
+  serviceAmount    Decimal    @default("0")
+  collectedAmount  Decimal    @default("0")
+  debtAmount       Decimal    @default("0")
 
   // Snapshot de repuestos.
-  partsCostAmount  Decimal          @default("0")
-  partsSaleAmount  Decimal          @default("0")
+  partsCostAmount  Decimal    @default("0")
+  partsSaleAmount  Decimal    @default("0")
 
   // Snapshot de comisión.
-  commissionBase   Decimal          @default("0")
+  commissionBase   Decimal    @default("0")
   commissionRate   Decimal
-  technicianAmount Decimal          @default("0")
-  companyAmount    Decimal          @default("0")
+  technicianAmount Decimal    @default("0")
+  companyAmount    Decimal    @default("0")
   createdAt        DateTime   @default(now())
 
   // Relations

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 
 /**
  * POST /api/integrations/whatsapp/log
@@ -22,9 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que el servicio existe
-    const service = await prisma.service.findUnique({
-      where: { id: serviceId },
-    });
+    const service = await db.orm.public.Service.first({ id: serviceId });
 
     if (!service) {
       return NextResponse.json(
@@ -33,18 +31,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const log = await prisma.integrationLog.create({
-      data: {
-        type: "WhatsApp",
-        entity: "Service",
-        entityId: serviceId,
-        result: "SUCCESS",
-        message:
-          action === "COPIED"
-            ? "Mensaje copiado al portapapeles"
-            : "WhatsApp abierto",
-        userId: session.id,
-      },
+    const log = await db.orm.public.ActivityLog.create({
+      serviceId: serviceId,
+      userId: session.id,
+      action: "WHATSAPP_INTEGRATION",
+      description: action === "COPIED" ? "Mensaje copiado al portapapeles" : "WhatsApp abierto",
+      metadata: { result: "SUCCESS" },
     });
 
     return NextResponse.json({ success: true, data: log }, { status: 201 });

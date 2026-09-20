@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import {
   Card,
   CardContent,
@@ -35,31 +35,30 @@ export default async function AdminTechnicianPage({
   params,
 }: TechnicianPageProps) {
   const { id } = await params;
-  const technician = await prisma.user.findUnique({ where: { id } });
+  const technician = await db.orm.public.User.first({ id });
 
   if (!technician || technician.role !== "TECHNICIAN") {
     notFound();
   }
 
-  const services = await prisma.service.findMany({
-    where: { technicianId: id },
-    include: {
-      technician: true,
-      client: true,
-      createdBy: true,
-      payment: true,
-    },
-    orderBy: { scheduledDate: "desc" },
-  });
-  const payments = await prisma.payment.findMany({
-    where: { technicianId: id },
-  });
+  const services = await db.orm.public.Service
+    .where({ technicianId: id })
+    .include("technician", (t: any) => t)
+    .include("client", (c: any) => c)
+    .include("createdBy", (u: any) => u)
+    .include("payment", (p: any) => p)
+    .orderBy((s: any) => s.scheduledDate.desc())
+    .all();
+    
+  const payments = await db.orm.public.Payment
+    .where({ technicianId: id })
+    .all();
 
   const stats = {
     totalServices: services.length,
-    completedServices: services.filter((s) => s.status === "COMPLETED").length,
-    pendingServices: services.filter((s) => s.status === "PENDING").length,
-    totalCollected: payments.reduce((sum, p) => sum + Number(p.amountPaid), 0),
+    completedServices: services.filter((s: any) => s.status === "COMPLETED").length,
+    pendingServices: services.filter((s: any) => s.status === "PENDING").length,
+    totalCollected: payments.reduce((sum: number, p: any) => sum + Number(p.amountPaid), 0),
   };
 
   return (
@@ -156,7 +155,7 @@ export default async function AdminTechnicianPage({
             </div>
           ) : (
             <div className="space-y-3">
-              {services.slice(0, 10).map((service) => (
+              {services.slice(0, 10).map((service: any) => (
                 <Link
                   key={service.id}
                   href={`/admin/services/${service.id}`}

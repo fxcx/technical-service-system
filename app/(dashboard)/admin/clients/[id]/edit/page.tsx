@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ClientForm } from "@/components/clients/client-form";
@@ -15,9 +15,7 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
   }
 
   const { id } = await params;
-  const client = await prisma.client.findUnique({
-    where: { id },
-  });
+  const client = await db.orm.public.Client.first({ id });
 
   if (!client) {
     notFound();

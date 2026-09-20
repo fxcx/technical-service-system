@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { prisma } from "../lib/prisma";
+import { db } from "../lib/prisma";
 import type { SessionUser } from "@/types";
 
 const SESSION_COOKIE = "tech-service-session";
@@ -10,7 +10,7 @@ export async function validateCredentials(
   email: string,
   password: string
 ): Promise<SessionUser | null> {
-  const user = await prisma.orm.public.User.where({ email });
+  const user = await db.orm.public.User.first({ email });
   if (!user || !user.isActive) return null;
 
   // Verify password using bcrypt
@@ -19,7 +19,7 @@ export async function validateCredentials(
   if (!isValid) return null;
 
   return {
-    id: user,
+    id: user.id,
     email: user.email,
     name: user.name,
     role: user.role,

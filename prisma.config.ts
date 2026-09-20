@@ -6,6 +6,9 @@ export default definePrismaConfig({
   orm: definePostgresConfig({
     contract: "prisma/contract.prisma",
     output: "generated/prisma8",
+    migrations: {
+      dir: "prisma/migrations",
+    },
     db: {
       connection: process.env["DIRECT_URL"],
     },

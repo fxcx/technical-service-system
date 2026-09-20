@@ -10,7 +10,7 @@
  * Esto garantiza que el historial no cambie aunque el InventoryItem
  * actualice sus precios en el futuro.
  */
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { logActivity, ACTIONS } from "./activity-log.service";
 import type { ServicePart, SessionUser } from "@/types";
 import type { z } from "zod";
@@ -22,26 +22,19 @@ import type {
 export type AddServicePartInput = z.infer<typeof addServicePartSchema>;
 export type UpdateServicePartInput = z.infer<typeof updateServicePartSchema>;
 
-const INCLUDE = {
-    inventoryItem: {
-        select: {
-            id: true,
-            name: true,
-            code: true,
-            unit: true,
-            company: { select: { id: true, name: true } },
-        },
-    },
-};
+function applyInclude(query: any) {
+    return query.include("inventoryItem", (i: any) =>
+        i.select("id", "name", "code", "unit")
+         .include("company", (c: any) => c.select("id", "name"))
+    );
+}
 
 export async function listServiceParts(
     serviceId: string,
 ): Promise<ServicePart[]> {
-    return prisma.servicePart.findMany({
-        where: { serviceId },
-        include: INCLUDE,
-        orderBy: { createdAt: "asc" },
-    }) as unknown as ServicePart[];
+    return applyInclude(db.orm.public.ServicePart.where({ serviceId }))
+        .orderBy((p: any) => p.createdAt.asc())
+        .all() as unknown as Promise<ServicePart[]>;
 }
 
 export async function addServicePart(
@@ -49,7 +42,7 @@ export async function addServicePart(
     data: AddServicePartInput,
     session: SessionUser,
 ): Promise<ServicePart> {
-    const service = await prisma.service.findUnique({ where: { id: serviceId } });
+    const service = await db.orm.public.Service.first({ id: serviceId });
     if (!service) throw new Error("Servicio no encontrado");
 
     // Técnico solo puede agregar repuestos a sus propias órdenes
@@ -63,9 +56,7 @@ export async function addServicePart(
 
     // Si se provee inventoryItemId, usar snapshot de precios del ítem
     if (data.inventoryItemId) {
-        const item = await prisma.inventoryItem.findUnique({
-            where: { id: data.inventoryItemId },
-        });
+        const item = await db.orm.public.InventoryItem.first({ id: data.inventoryItemId });
         if (!item) throw new Error("Ítem de inventario no encontrado");
 
         // Validar que el ítem pertenece a la misma empresa del servicio
@@ -85,19 +76,16 @@ export async function addServicePart(
     const totalCost = unitCost * quantity;
     const totalSalePrice = unitSalePrice * quantity;
 
-    const part = await prisma.servicePart.create({
-        data: {
-            serviceId,
-            inventoryItemId: data.inventoryItemId ?? undefined,
-            name,
-            nota: data.nota ?? undefined,
-            quantity,
-            unitCost,
-            totalCost,
-            unitSalePrice,
-            totalSalePrice,
-        },
-        include: INCLUDE,
+    const created = await db.orm.public.ServicePart.create({
+        serviceId,
+        inventoryItemId: data.inventoryItemId ?? null,
+        name,
+        nota: data.nota ?? null,
+        quantity: quantity.toString(),
+        unitCost: unitCost.toString(),
+        totalCost: totalCost.toString(),
+        unitSalePrice: unitSalePrice.toString(),
+        totalSalePrice: totalSalePrice.toString(),
     });
 
     await logActivity(
@@ -113,7 +101,7 @@ export async function addServicePart(
         },
     );
 
-    return part as unknown as ServicePart;
+    return applyInclude(db.orm.public.ServicePart).first({ id: created.id }) as unknown as Promise<ServicePart>;
 }
 
 export async function updateServicePart(
@@ -121,15 +109,12 @@ export async function updateServicePart(
     data: UpdateServicePartInput,
     session: SessionUser,
 ): Promise<ServicePart> {
-    const existing = await prisma.servicePart.findUnique({
-        where: { id: partId },
-        include: { service: true },
-    });
+    const existing = await db.orm.public.ServicePart.include("service", (s: any) => s).first({ id: partId });
     if (!existing) throw new Error("Repuesto no encontrado");
 
     if (
         session.role === "TECHNICIAN" &&
-        existing.service?.technicianId !== session.id
+        (existing.service as any)?.technicianId !== session.id
     ) {
         throw new Error("Sin permisos para modificar este repuesto");
     }
@@ -138,41 +123,37 @@ export async function updateServicePart(
     const unitCost = data.unitCost ?? Number(existing.unitCost);
     const unitSalePrice = data.unitSalePrice ?? Number(existing.unitSalePrice);
 
-    const part = await prisma.servicePart.update({
-        where: { id: partId },
-        data: {
-            ...(data.name && { name: data.name }),
-            ...(data.nota !== undefined && { nota: data.nota }),
-            quantity: qty,
-            unitCost,
-            totalCost: unitCost * qty,
-            unitSalePrice,
-            totalSalePrice: unitSalePrice * qty,
-        },
-        include: INCLUDE,
-    });
+    const updateData: any = {
+        quantity: qty.toString(),
+        unitCost: unitCost.toString(),
+        totalCost: (unitCost * qty).toString(),
+        unitSalePrice: unitSalePrice.toString(),
+        totalSalePrice: (unitSalePrice * qty).toString(),
+    };
 
-    return part as unknown as ServicePart;
+    if (data.name) updateData.name = data.name;
+    if (data.nota !== undefined) updateData.nota = data.nota;
+
+    await db.orm.public.ServicePart.where({ id: partId }).update(updateData);
+
+    return applyInclude(db.orm.public.ServicePart).first({ id: partId }) as unknown as Promise<ServicePart>;
 }
 
 export async function removeServicePart(
     partId: string,
     session: SessionUser,
 ): Promise<void> {
-    const existing = await prisma.servicePart.findUnique({
-        where: { id: partId },
-        include: { service: true },
-    });
+    const existing = await db.orm.public.ServicePart.include("service", (s: any) => s).first({ id: partId });
     if (!existing) throw new Error("Repuesto no encontrado");
 
     if (
         session.role === "TECHNICIAN" &&
-        existing.service?.technicianId !== session.id
+        (existing.service as any)?.technicianId !== session.id
     ) {
         throw new Error("Sin permisos para eliminar este repuesto");
     }
 
-    await prisma.servicePart.delete({ where: { id: partId } });
+    await db.orm.public.ServicePart.where({ id: partId }).delete();
 
     await logActivity(
         existing.serviceId,

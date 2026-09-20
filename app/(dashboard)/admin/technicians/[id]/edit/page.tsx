@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { TechnicianForm } from "@/components/technicians/technician-form";
@@ -17,9 +17,7 @@ export default async function EditTechnicianPage({
 
   const { id } = await params;
 
-  const technician = await prisma.user.findUnique({
-    where: { id },
-  });
+  const technician = await db.orm.public.User.first({ id });
 
   if (!technician || technician.role !== "TECHNICIAN") {
     notFound();

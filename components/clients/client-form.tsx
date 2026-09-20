@@ -26,8 +26,8 @@ export function ClientForm({ initialData }: ClientFormProps) {
     email: initialData?.email || "",
     phone: initialData?.phone || "",
     address: initialData?.address || "",
-    city: initialData?.city || "",
-    notes: initialData?.notes || "",
+    city: initialData?.locality || "",
+    notes: "",
   });
 
   async function handleSubmit(e: React.FormEvent) {

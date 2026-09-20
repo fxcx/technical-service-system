@@ -18,6 +18,7 @@ import {
   getStatusLabel,
   getStatusColor,
   formatCurrency,
+  toDate,
 } from "@/lib/utils";
 import { Calendar, ChevronRight, Filter } from "lucide-react";
 import type { Service, ServiceStatus } from "@/types";
@@ -36,7 +37,7 @@ export function TechnicianServicesList({
 
   // Group by date
   const groupedServices = filteredServices.reduce((acc, service) => {
-    const date = new Date(service.scheduledDate).toDateString();
+    const date = toDate(service.scheduledDate).toDateString();
     if (!acc[date]) {
       acc[date] = [];
     }
@@ -78,12 +79,12 @@ export function TechnicianServicesList({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary font-medium text-sm">
-                        {formatTime(service.scheduledTime).split(" ")[0]}
+                        {formatTime(service.scheduledDate).split(" ")[0]}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="font-medium truncate">
-                            {service.title}
+                            {service.observation}
                           </p>
                           <Badge
                             className={getStatusColor(service.status)}

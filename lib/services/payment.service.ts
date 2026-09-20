@@ -8,8 +8,9 @@
  * - Los repuestos ya NO pertenecen al cobro → ver service-part.service.ts
  * - Solo técnicos asignados pueden registrar cobros.
  */
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { logActivity, ACTIONS } from "./activity-log.service";
+import { toInstant } from "@/lib/utils";
 import type { Payment, PaymentFilters, SessionUser } from "@/types";
 import type { z } from "zod";
 import type {
@@ -20,65 +21,53 @@ import type {
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;
 export type UpdatePaymentInput = z.infer<typeof updatePaymentSchema>;
 
-const USER_SELECT = {
-  id: true,
-  name: true,
-  email: true,
-  phone: true,
-  role: true,
-  isActive: true,
-  avatar: true,
-  createdAt: true,
-  updatedAt: true,
-  passwordHash: false,
-} as const;
-
-const FULL_INCLUDE = {
-  service: {
-    include: {
-      client: true,
-      company: true,
-      category: true,
-    },
-  },
-  technician: { select: USER_SELECT },
-};
+function applyFullInclude(query: any) {
+  return query
+    .include("service", (s: any) =>
+      s.include("client", (c: any) => c)
+       .include("company", (c: any) => c)
+       .include("category", (c: any) => c)
+    )
+    .include("technician", (t: any) =>
+      t.select(
+        "id", "name", "email", "phone", "role",
+        "isActive", "avatar", "createdAt", "updatedAt"
+      )
+    );
+}
 
 export async function listPayments(
   filters: PaymentFilters,
   session: SessionUser,
 ): Promise<Payment[]> {
-  const where: Record<string, unknown> = {};
+  let query: any = db.orm.public.Payment;
 
   // Técnicos solo ven sus propios cobros
   if (session.role === "TECHNICIAN") {
-    where.technicianId = session.id;
+    query = query.where({ technicianId: session.id });
   } else {
-    if (filters.technicianId) where.technicianId = filters.technicianId;
+    if (filters.technicianId) {
+      query = query.where({ technicianId: filters.technicianId });
+    }
   }
 
-  if (filters.dateFrom || filters.dateTo) {
-    where.createdAt = {
-      ...(filters.dateFrom ? { gte: new Date(filters.dateFrom) } : {}),
-      ...(filters.dateTo ? { lte: new Date(filters.dateTo) } : {}),
-    };
+  if (filters.dateFrom) {
+    query = query.where((p: any) => p.createdAt.gte(toInstant(filters.dateFrom!)));
+  }
+  if (filters.dateTo) {
+    query = query.where((p: any) => p.createdAt.lte(toInstant(filters.dateTo!)));
   }
 
-  return prisma.payment.findMany({
-    where,
-    include: FULL_INCLUDE,
-    orderBy: { createdAt: "desc" },
-  }) as unknown as Payment[];
+  return applyFullInclude(query)
+    .orderBy((p: any) => p.createdAt.desc())
+    .all() as unknown as Promise<Payment[]>;
 }
 
 export async function getPaymentById(
   id: string,
   session: SessionUser,
 ): Promise<Payment | null> {
-  const payment = await prisma.payment.findUnique({
-    where: { id },
-    include: FULL_INCLUDE,
-  });
+  const payment = await applyFullInclude(db.orm.public.Payment).first({ id });
 
   if (!payment) return null;
 
@@ -93,19 +82,14 @@ export async function getPaymentById(
 export async function getPaymentByService(
   serviceId: string,
 ): Promise<Payment | null> {
-  return prisma.payment.findUnique({
-    where: { serviceId },
-    include: FULL_INCLUDE,
-  }) as unknown as Payment | null;
+  return applyFullInclude(db.orm.public.Payment).first({ serviceId }) as unknown as Promise<Payment | null>;
 }
 
 export async function createPayment(
   data: CreatePaymentInput,
   session: SessionUser,
 ): Promise<Payment> {
-  const service = await prisma.service.findUnique({
-    where: { id: data.serviceId },
-  });
+  const service = await db.orm.public.Service.first({ id: data.serviceId });
   if (!service) throw new Error("Orden no encontrada");
 
   // Técnico solo puede cobrar sus propias órdenes
@@ -116,21 +100,16 @@ export async function createPayment(
   }
 
   // Verificar cobro duplicado
-  const existingPayment = await prisma.payment.findUnique({
-    where: { serviceId: data.serviceId },
-  });
+  const existingPayment = await db.orm.public.Payment.first({ serviceId: data.serviceId });
   if (existingPayment)
     throw new Error("Esta orden ya tiene un cobro registrado");
 
-  const payment = await prisma.payment.create({
-    data: {
-      serviceId: data.serviceId,
-      technicianId: data.technicianId,
-      method: data.method,
-      amountPaid: data.amountPaid,
-      debtAmount: data.debtAmount ?? 0,
-    },
-    include: FULL_INCLUDE,
+  const created = await db.orm.public.Payment.create({
+    serviceId: data.serviceId,
+    technicianId: data.technicianId,
+    method: data.method,
+    amountPaid: data.amountPaid.toString(),
+    debtAmount: (data.debtAmount ?? 0).toString(),
   });
 
   await logActivity(
@@ -145,7 +124,7 @@ export async function createPayment(
     },
   );
 
-  return payment as unknown as Payment;
+  return applyFullInclude(db.orm.public.Payment).first({ id: created.id }) as unknown as Promise<Payment>;
 }
 
 /**
@@ -160,18 +139,17 @@ export async function updatePayment(
   if (session.role !== "ADMIN")
     throw new Error("Solo un Administrador puede modificar cobros");
 
-  const existing = await prisma.payment.findUnique({ where: { id } });
+  const existing = await db.orm.public.Payment.first({ id });
   if (!existing) throw new Error("Cobro no encontrado");
 
-  const updated = await prisma.payment.update({
-    where: { id },
-    data: {
-      ...(data.method && { method: data.method }),
-      ...(data.amountPaid !== undefined && { amountPaid: data.amountPaid }),
-      ...(data.debtAmount !== undefined && { debtAmount: data.debtAmount }),
-    },
-    include: FULL_INCLUDE,
-  });
+  const updateData: any = {};
+  if (data.method) updateData.method = data.method;
+  if (data.amountPaid !== undefined) updateData.amountPaid = data.amountPaid.toString();
+  if (data.debtAmount !== undefined) updateData.debtAmount = data.debtAmount.toString();
+
+  await db.orm.public.Payment.where({ id }).update(updateData);
+
+  const updated = await applyFullInclude(db.orm.public.Payment).first({ id });
 
   await logActivity(
     existing.serviceId,
