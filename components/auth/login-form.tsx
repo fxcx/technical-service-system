@@ -116,11 +116,11 @@ export function LoginForm() {
             <div className="space-y-1 text-muted-foreground">
               <p>
                 <span className="font-medium">Admin:</span>{" "}
-                admin@techservice.com / admin123
+                admin@taller de calderas.com / admin123
               </p>
               <p>
                 <span className="font-medium">Técnico:</span>{" "}
-                lopez@techservice.com / tech123
+                lopez@taller de calderas.com / tech123
               </p>
             </div>
           </div>

@@ -1,8 +1,8 @@
-# Reglas de Negocio — TechService
+# Reglas de Negocio — taller de calderas
 
 # Objetivo del Sistema
 
-TechService es un sistema de administración integral para empresas de servicio técnico para una comunicacion precisa entre tecnicos y administracion.
+taller de calderas es un sistema de administración integral para empresas de servicio técnico para una comunicacion precisa entre tecnicos y administracion.
 
 Su objetivo es administrar el ciclo completo de un trabajo técnico desde la creación del servicio hasta la rendición económica del técnico.
 
@@ -196,9 +196,8 @@ Nunca podrá acceder a información perteneciente a otro técnico lo unicos que 
 
 ya que el tecnico pude ver del detalle del servicio y con eso el historial del cliente.
 
----
 
-# Finalización del Servicio
+## Finalización del Servicio
 
 Cuando un técnico finaliza un servicio podrá:
 
@@ -212,9 +211,8 @@ Un servicio puede:
 
 - tener cobro sin presupuesto
 
----
 
-# Presupuestos
+## Presupuestos
 
 Los presupuestos representan trabajos futuros derivados de una visita técnica.
 
@@ -234,9 +232,7 @@ Cuando el técnico envía un presupuesto:
 
 Los presupuestos desaparecen del menu de presupuestos una vez finalizado por administracion el que desaparezcan de ese menu no significa que ese servicio es eliminado.
 
----
-
-# Cobros
+## Cobros
 
 Los cobros representan dinero efectivamente recibido por el técnico.
 
@@ -373,11 +369,9 @@ El CLIENTE :
 
 - Todos lo servicios que realizo con el detalle de cada servicio
 - asignación de técnico
-- cambio de estado
 - cobro
 - envío de presupuesto
-- cierre
-- finalización
+- cierre finalización 
 
 El historial nunca debe eliminarse ya que es el historial de cada cliente.
 

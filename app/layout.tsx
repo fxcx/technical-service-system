@@ -9,7 +9,7 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "TechService - Sistema de Gestión",
+  title: "taller de calderas - Sistema de Gestión",
   description: "Sistema de gestión de servicio técnico",
     generator: 'v0.app'
 }

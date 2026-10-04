@@ -1,5 +1,5 @@
 /**
- * Estimate Service (Presupuestos) — TechService
+ * Estimate Service (Presupuestos) — taller de calderas
  * Documentación: docs/presupuestos.md, docs/reglas-negocio.md
  *
  * Reglas clave:

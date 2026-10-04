@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 const createAdmin = async () => {
     try {
         const name = "Admin";
-        const email = "admin@techservice.com";
+        const email = "admin@taller de calderas.com";
         const password = "adminpassword123";
         const saltRounds = 10;
 

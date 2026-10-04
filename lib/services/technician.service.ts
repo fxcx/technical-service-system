@@ -1,5 +1,5 @@
 /**
- * Technician Service — TechService
+ * Technician Service — taller de calderas
  * Documentación: docs/tecnicos.md, docs/decisiones.md (DEC-012)
  * El Técnico nunca administra información de otros técnicos.
  */

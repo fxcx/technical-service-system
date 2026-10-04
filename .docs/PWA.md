@@ -1,6 +1,6 @@
 # Arquitectura PWA
 
-TechService debe implementarse como una **Progressive Web App (PWA)**.
+Taller de calderas debe implementarse como una **Progressive Web App (PWA)**.
 
 La PWA será la interfaz principal del sistema y deberá poder instalarse desde navegadores compatibles como una aplicación en los dispositivos utilizados por administradores y técnicos.
 
@@ -12,7 +12,7 @@ La aplicación seguirá siendo una aplicación web basada en Next.js, pero incor
 
 La implementación PWA debe permitir:
 
-- Instalar TechService como aplicación.
+- Instalar Taller de calderas como aplicación.
 - Ejecutar la aplicación desde el dispositivo sin necesidad de abrir manualmente el navegador.
 - Mantener la sesión del usuario.
 - Cargar rápidamente las interfaces utilizadas frecuentemente.
@@ -26,7 +26,7 @@ La implementación PWA debe permitir:
 
 # Service Worker
 
-TechService utilizará un **Service Worker** como mecanismo principal para las capacidades PWA.
+Taller de calderas utilizará un **Service Worker** como mecanismo principal para las capacidades PWA.
 
 El Service Worker será responsable de:
 
@@ -338,7 +338,7 @@ El usuario debe poder identificar fácilmente si una operación:
 
 # Notificaciones Push
 
-TechService queda preparado para incorporar **Web Push Notifications**.
+Taller de calderas queda preparado para incorporar **Web Push Notifications**.
 
 Las notificaciones podrán utilizarse posteriormente para:
 
@@ -378,7 +378,7 @@ Un técnico nunca debe poder obtener mediante caché local información pertenec
 
 La aplicación debe cumplir los requisitos necesarios para ser instalable como PWA en navegadores compatibles.
 
-La experiencia de instalación debe permitir que el usuario pueda acceder a TechService como una aplicación independiente.
+La experiencia de instalación debe permitir que el usuario pueda acceder a Taller de calderas como una aplicación independiente.
 
 La interfaz deberá funcionar correctamente en:
 

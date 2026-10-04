@@ -1,5 +1,5 @@
 /**
- * Payment Service (Cobros) — TechService
+ * Payment Service (Cobros) — taller de calderas
  * Documentación: .docs/modulos/services.md, .docs/reglas-negocio.md
  *
  * Reglas clave:

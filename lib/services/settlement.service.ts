@@ -1,5 +1,5 @@
 /**
- * Settlement Service (Rendiciones) — TechService
+ * Settlement Service (Rendiciones) — taller de calderas
  * Documentación: .docs/modulos/paymentsRendition.md, .docs/reglas-negocio.md
  *
  * Reglas clave:

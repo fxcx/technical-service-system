@@ -1,5 +1,5 @@
 /**
- * ActivityLog Service — TechService
+ * ActivityLog Service — taller de calderas
  * Registra el historial de acciones sobre Órdenes de Trabajo.
  * Documentación: docs/reglas-negocio.md, docs/ordenes.md
  */

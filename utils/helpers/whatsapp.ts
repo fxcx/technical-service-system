@@ -1,5 +1,5 @@
 /**
- * Helper WhatsApp — TechService
+ * Helper WhatsApp — taller de calderas
  * Genera mensajes para WhatsApp (nunca envía automáticamente).
  * Documentación: docs/whatsapp.md
  */

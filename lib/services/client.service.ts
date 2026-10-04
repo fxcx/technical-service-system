@@ -1,5 +1,5 @@
 /**
- * Client Service — TechService
+ * Client Service — taller de calderas
  * Documentación: docs/reglas-negocio.md, docs/api.md
  */
 import { db } from "@/lib/prisma";

@@ -1,5 +1,5 @@
 /**
- * Service Service (Órdenes de Trabajo) — TechService
+ * Service Service (Órdenes de Trabajo) — taller de calderas
  * Documentación: .docs/modulos/services.md, .docs/reglas-negocio.md
  *
  * Reglas clave:

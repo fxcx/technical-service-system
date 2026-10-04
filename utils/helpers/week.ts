@@ -1,5 +1,5 @@
 /**
- * Helpers de Semana — TechService
+ * Helpers de Semana — taller de calderas
  * Semana: Lunes 00:00 a Domingo 23:59 (docs/rendiciones.md)
  */
 

@@ -1,5 +1,5 @@
 /**
- * Helpers de Comisión — TechService
+ * Helpers de Comisión — taller de calderas
  * Fórmula oficial: docs/reglas-negocio.md
  *
  * Monto Cobrado - Costo Repuestos = Monto Neto

@@ -1,5 +1,5 @@
 /**
- * ServicePart Service (Repuestos del Servicio) — TechService
+ * ServicePart Service (Repuestos del Servicio) — taller de calderas
  * Documentación: .docs/reglas-negocio.md
  *
  * Los repuestos pertenecen al SERVICIO, no al cobro.

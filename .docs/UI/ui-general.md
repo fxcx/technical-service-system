@@ -1,4 +1,4 @@
-# UI / UX General — TechService
+# UI / UX General — Taller
 
 # Objetivo
 
@@ -158,7 +158,7 @@ La navegación deberá ser consistente dentro de cada interfaz.
 
 # Separación de Interfaces
 
-TechService posee dos experiencias diferenciadas:
+taller de calderas posee dos experiencias diferenciadas:
 
 ```text
 Administrador

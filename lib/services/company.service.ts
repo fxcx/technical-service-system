@@ -1,5 +1,5 @@
 /**
- * Company Service — TechService
+ * Company Service — taller de calderas
  * Documentación: .docs/reglas-negocio.md
  *
  * Empresas para las cuales los técnicos prestan servicio.

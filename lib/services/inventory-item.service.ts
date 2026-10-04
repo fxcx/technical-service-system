@@ -1,5 +1,5 @@
 /**
- * InventoryItem Service — TechService
+ * InventoryItem Service — taller de calderas
  * Documentación: .docs/modulos/Inventario.md, .docs/reglas-negocio.md
  *
  * Catálogo de repuestos perteneciente a cada empresa.

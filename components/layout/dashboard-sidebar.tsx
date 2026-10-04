@@ -71,7 +71,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
           </div>
           <div className="flex flex-col">
             <span className="font-semibold text-sidebar-foreground">
-              TechService
+              taller de calderas
             </span>
             <span className="text-xs text-sidebar-foreground/60">
               {user.role === "ADMIN" ? "Administración" : "Panel Técnico"}
