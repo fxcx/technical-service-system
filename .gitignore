@@ -19,6 +19,7 @@ node_modules
 .claude
 .agents
 .agent
+.docs   
 
 # docker
 docker-compose.yml
