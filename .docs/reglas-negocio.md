@@ -11,15 +11,11 @@ El sistema posee dos perfiles principales:
 - Administrador
 - Técnico
 
-Cada usuario posee permisos específicos según su rol.
-
+ Cada usuario posee permisos específicos según su rol.
+Toda la lógica del sistema debe respetar las siguientes reglas.
 ---
 
-# Principios del Sistema
-
-Toda la lógica del sistema debe respetar las siguientes reglas.
-
-## 1. El sistema es la fuente oficial de información
+# 1. El sistema es la fuente oficial de información
 
 Toda la información oficial se almacena en la base de datos del sistema.
 
@@ -29,15 +25,15 @@ Las integraciones únicamente reflejan información existente.
 
 ---
 
-## 2. Cada servicio representa un servicio que hace el tecnico
+# 2. Cada orden de servicio representa un servicio que hace el tecnico
 
-Un Servicio representa una visita programada a un cliente.
+Un Servicio tecnico representa una visita programada a un cliente.
 
-El servicio posee su propio historial, estado, cliente asociado, técnico asignado y documentación asociada.
+El servicio posee su propio historial, que esta atado a un cliente, técnico asignado y documentación asociada.
 
 ---
 
-## 3. Un cliente puede tener múltiples servicios
+# 3. Un cliente puede tener múltiples servicios
 
 No existe límite de servicios asociados a un cliente.
 
@@ -45,7 +41,7 @@ El historial debe permanecer disponible de forma permanente del servicio ya que 
 
 ---
 
-## 4. Los servicios nunca se eliminan físicamente
+# 4. Los servicios nunca se eliminan físicamente
 
 Los servicios forman parte del historial operativo de la empresa.
 
@@ -53,142 +49,19 @@ Solo podrán marcarse como cancelados o el estado correspondiente solo administr
 
 ---
 
-# Flujo de un Servicio
+# Servicios [./modulos/services.md]
 
-Todo servicio sigue el siguiente flujo.
+# Agenda (schedule) [./modulos/agenda.md]
 
-```
-Creación del servicio con su formulario requeridos
-
-↓
-
-Asignacion de Empresa
-
-↓
-
-Asignación de Técnico
-
-↓
-
-Busqueda de cliente existente o crear cliente en el momento
-
-↓
+La agenda representa todos los servicios programados,cada tecnico tiene su propia agenda
 
 
-Comunicación con Cliente (mensaje manual copy paste del formulario creado)
-
-↓
-
-el servicio creado pasa a la Agenda
-
-↓
-
-Visita Técnica del servicio
-
-↓
-
-Cobro o deuda (Requerido)
-
-↓
-
-Presupuesto (opcional)
-
-↓
-
-Cierre
-
-↓
-
-Finalización del servicio
-```
-
----
-
-# Estados del Servicio
-
-Todo servicio debe encontrarse en uno de los siguientes estados.
-
-- Pendiente
-- En Proceso
-- Completado
-- Cancelado
-- Cerrado
-- Falta terminar el trabajo
-
-Cada cambio de estado debe quedar registrado en el historial.
-
----
-
-# Creación del Servicio
-
-El Administrador crea un servicio indicando como mínimo:
-
-- Empresa
-- Cliente (requerido)
-- telefono
-- Dirección
-- Localidad
-- Equipo
-- categoria de servicio
-- Observaciones (opcional)
-- monto estimado de servicio ya que el tecnico una vez que asista al service puede finalizar el cierre con otro valor que ese va hacer el verdadero.
-- Fecha (que se va a realizar el servicio)
-- Hora (se genera automaticamente por detras, no se pone manual)
-- el servicio puede ya tener el nombre de un repuesto varios que se va a usar de manera interna para poder rendir el servicios, ya van aparecer con repuestos cargados y otros se cargaran al momento de rendir
-- Técnico (opcional)
-
-Una vez creado:
-
-- aparece en la agenda
-- puede enviarse al cliente mediante WhatsApp (copy past manual lo hace administracion)
-- puede sincronizarse con Google Sheets (es una implementacion para la V2 pero hay que dejar todo preparado)
-
----
-
-# Comunicación con el Cliente
-
-Cada servicio puede generar automáticamente un mensaje para WhatsApp.
-esto no es un modelo o un modulo grande es simple y util.
-
-El mensaje debe poder:
-
-- copiarse al portapapeles
-- abrir WhatsApp directamente al numero del cliente
-
-La plantilla tiene los datos del formulario de creacion del servicio.
-
-El sistema nunca enviará mensajes automáticamente.
-Siempre será el usuario quien confirme el envío no hay una automatizacion o una integracion de la api de whatsApp.
-
----
-
-# Agenda (schedule)
-
-La agenda representa todos los servicios programados,cada tecnico tiene su propia agenda, cada tecnico tiene una hoja de googlesheest como agenda que se sicroniza con la del sistema.
-
-Debe actualizarse automáticamente cuando:
-
-- se crea un servicio
-- cambia la fecha
-- cambia la hora
-- cambia el técnico
-- cambia el estado
-- se cancela un servicio
-
-La agenda puede sincronizarse con Google Sheets.
-
-Google Sheets es únicamente una vista externa.
-
-Nunca modifica la información del sistema ya que el sistema es offline se ctualiza la base dde datos igual cuando la coneccion se levante. asi tenemos el respaldo que los tecnico puedan ver sus servicios en googlesheet.
-
----
-
-# Técnico
+# Técnico [./modulos/technician.md]
 
 Cada técnico únicamente puede visualizar:
 
 - sus servicios
-- Lista de presio para tecnico (Modelo: inventario va a poder dar las listas)
+- Lista de precios para tecnico (Modelo: inventario va a poder dar las listas)
 - sus presupuestos
 - su rendición
 
@@ -250,40 +123,21 @@ esto simplifica administracion contactarce con el cliente que no abono
 
 ---
 
-# Repuestos
+# Repuestos [.docs/modulos/paymentsRendition.md]
 
 Un Servicio realizado puede contener múltiples repuestos, los repuestos van a estar viculados al inventario y rendicion para una rapida buscada de repuesto que se uso y valor agilizando el cierre de rendicion.
 
-Este modelo debe registrar:
 
-- Provedoor (de donde compro el repuesto)
-- Nombre
-- cantidad
-- costo unitario
-- costo total
-
-Los repuestos forman parte de la rendición económica donde administracion va agregar al momento de rendir con el tecnico uno a uno que repuesto uso, administracion agrega Provedoor, nombre, ect.
-
-adminitracionb al mometo de rendir, acciones.
-
-- agregar repuesto que va a tener de referencia la lista del modelo inventario ya con el valor y lo agrega al servicio
-- editar valor
-- finalizar
-
----
-
-# Inventario Proveedores
+# Inventario [.docs/modulos/Inventario.md]
 
 El modulo de inventario permiten identificar el origen de cada repuesto y tener el valor de costo y venta.
 
-administra stock Lista de precio.,
+Lista de precio.
 
-- una de tecnico
-- otra interna de administracion donde se puede ver el costo real de repuestos.
+- cargar la base de lista de precios con una hoja csv
+- lista administracion
+- lista de precios para tecnicos
 
-Su finalidad es poder darle una lista de precios a los tecnicos y tener una lista propia de administracion al momento de rendir va a servir parqa sacar el costo de los repuestos una vez finalizado el cierre con el tecnico.
-
-El tecnico solo va a poder ver la lista para tecnicos.
 
 **Administracion**
 
@@ -301,51 +155,16 @@ El tecnico solo va a poder ver la lista para tecnicos.
 
 ---
 
-# Modulo Rendición
+# Modulo Rendición [.docs/modulos/paymentsRendition.md]
 
 Rendición Semanal, Mensual o con fecha seleccionadas Cada técnico posee una rendición.
 
-La rendición agrupa todos los cobros realizados durante la fecha que se establecio, las fechas ya renddidas no seran seleccionables administracion.
+La rendición agrupa todos los servicios realizados durante la fecha que se establecio, las fechas ya renddidas no seran seleccionables 
 
 las fechas de renciones completadas ya no deben poder ser seleccionadas para rendirse nuevamente.
 
-**Rendicion tabla legible y simple **
+Se veran todo los detalles de cobro, deuda, repuestos para poder hcaer el cierre correspondiente
 
-servicio
-↓
-
-Monto Cobrado total del tecnico
-↓
-empresa cobros por compania
-↓
-
-Monto de gastos
-
-↓
-
-a favor (una seccion que se agrega para descontar)
-
-↓
-
-↓
-
-- Efectivo
-
-- Transferencia
-
-↓
-
-Los repuestos siempre se descuentan despues de calcular la carga de repuestos, quelo carga administracion en cada servicio que reespuesto se uso simple y rapipido.
-
-Total de Repuestos - Total de Técnico
-
-↓
-
-Administracion + repuestos + seguros
-
-Rest que quedo de esa cuenta
-
-por el momento el ccalucolo final debe ser asi puede que sufra cambios. hasta perfecccionar el modulo de rendicion los datos siempre llegan de los servicios realizados y lña lista de precios de inventario
 
 # Cálculo de rendicion de los servicios tabla interna repuestos
 

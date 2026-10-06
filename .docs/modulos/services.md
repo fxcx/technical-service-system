@@ -1,4 +1,4 @@
-# Órdenes de Trabajo (Service)
+# Órdenes de Trabajo (Services)
 
 # Objetivo
 
@@ -52,23 +52,28 @@ Finalización
 
 ---
 
-# Creación
+# Creación del Servicio
 
-La Orden es creada por un Administrador.
+El Administrador crea un servicio, indicando:
 
-Datos mínimos obligatorios.
-
-- Cliente
-- Fecha
-- Localidad
+- Empresa
+- Cliente (requerido)
+- telefono
 - Dirección
-- categoria del servicio (ej, visita tecnica, instalacion, reparacion, mantenimiento, etc)
+- Localidad
+- Equipo
+- categoria de servicio
+- Observaciones (opcional)
+- monto estimado de servicio ya que el tecnico una vez que asista al service puede finalizar el cierre con otro valor que ese va hacer el verdadero.
+- Fecha (dia que se va a realizar el servicio tecnico)
+- Hora (se genera automaticamente por detras, no se pone manual)
+- Se podra cargar repuestos al crear el servicio, ya van aparecer con repuestos cargados al momento de rendir
+- Técnico (opcional)
 
-Datos opcionales.
+Una vez creado:
 
-- Técnico
-- Observaciones internas
-- Monto estimado
+- aparece en la agenda
+- puede enviarse al cliente mediante WhatsApp (copy past manual lo hace administracion)
 
 Al finalizar la creación la Orden queda automáticamente en estado:
 
@@ -101,10 +106,9 @@ Una Orden únicamente puede encontrarse en alguno de los siguientes estados.
 - Completado
 - Cancelado
 - Recoordinado
+- Falta terminar el trabajo
 
-Cada cambio de estado debe registrarse en el historial.
-
----
+Cada cambio de estado debe quedar registrado en la agenda.
 
 # Asignación del Técnico
 
@@ -250,7 +254,7 @@ el envio del presupuesto debe ser simple con unos simples checklist por ejemplo
 - Mantenimiento
 - cambio de caldera
 - repuesto
-- ect
+- etc
 
 ---
 
@@ -379,3 +383,112 @@ La arquitectura queda preparada para incorporar.
 - Encuestas de satisfacción
 
 Sin modificar la estructura principal del módulo.
+
+
+# Flujo de un Servicio
+
+Todo servicio sigue el siguiente flujo.
+
+```
+Creación del servicio con su formulario requeridos
+
+↓
+
+Asignacion de Empresa
+
+↓
+
+Asignación de Técnico
+
+↓
+
+Busqueda de cliente existente o crear cliente en el momento
+
+↓
+
+
+Comunicación con Cliente (mensaje manual copy paste del formulario creado)
+
+↓
+
+el servicio creado pasa a la Agenda
+
+↓
+
+Visita Técnica del servicio
+
+↓
+
+Cobro o deuda (Requerido)
+
+↓
+
+Presupuesto (opcional)
+
+↓
+
+Cierre
+
+↓
+
+Finalización del servicio
+```
+
+---
+
+# Estados del Servicio
+
+Todo servicio debe encontrarse en uno de los siguientes estados.
+
+- Pendiente
+- En Proceso
+- Completado
+- Cancelado
+- Cerrado
+- Falta terminar el trabajo
+
+Cada cambio de estado debe quedar registrado en el historial.
+
+---
+
+# Creación del Servicio
+
+El Administrador crea un servicio indicando como mínimo:
+
+- Empresa
+- Cliente (requerido)
+- telefono
+- Dirección
+- Localidad
+- Equipo
+- categoria de servicio
+- Observaciones (opcional)
+- monto estimado de servicio ya que el tecnico una vez que asista al service puede finalizar el cierre con otro valor que ese va hacer el verdadero.
+- Fecha (que se va a realizar el servicio)
+- Hora (se genera automaticamente por detras, no se pone manual)
+- el servicio puede ya tener el nombre de un repuesto varios que se va a usar de manera interna para poder rendir el servicios, ya van aparecer con repuestos cargados y otros se cargaran al momento de rendir
+- Técnico (opcional)
+
+Una vez creado:
+
+- aparece en la agenda
+- puede enviarse al cliente mediante WhatsApp (copy past manual lo hace administracion)
+
+---
+
+# Comunicación con el Cliente
+
+Cada servicio puede generar automáticamente un mensaje para WhatsApp.
+esto no es un modelo o un modulo grande es simple y util.
+
+El mensaje debe poder:
+
+- copiarse al portapapeles
+- abrir WhatsApp directamente al numero del cliente
+
+La plantilla tiene los datos del formulario de creacion del servicio.
+
+El sistema nunca enviará mensajes automáticamente.
+Siempre será el usuario quien confirme el envío no hay una automatizacion o una integracion de la api de whatsApp.
+
+---
